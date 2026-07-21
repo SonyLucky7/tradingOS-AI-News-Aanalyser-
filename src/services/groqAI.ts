@@ -9,8 +9,8 @@ const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 // ─── Default Keys (Environment or Runtime Assembled) ───
-const getDefGroq = () => (import.meta.env.VITE_GROQ_KEY as string) || ['gs' + 'k', 'jKEvBdTDfIrm2SwTYkPqWGdyb3FY3IUxf2MiSJAyefSKD7mFb530'].join('_');
-const getDefGemini = () => (import.meta.env.VITE_GEMINI_KEY as string) || ['A' + 'Q', 'Ab8RN6IoGczhy1r4j24BcrmYSyu__bIwVX3a9I8LCeXycUNlcw'].join('.');
+const getDefGroq = () => ((import.meta as any).env?.VITE_GROQ_KEY as string) || ['gs' + 'k', 'jKEvBdTDfIrm2SwTYkPqWGdyb3FY3IUxf2MiSJAyefSKD7mFb530'].join('_');
+const getDefGemini = () => ((import.meta as any).env?.VITE_GEMINI_KEY as string) || ['A' + 'Q', 'Ab8RN6IoGczhy1r4j24BcrmYSyu__bIwVX3a9I8LCeXycUNlcw'].join('.');
 
 // ─── Provider Types ───
 export type AIProvider = 'gemini' | 'groq' | 'ollama' | 'openai' | 'claude' | 'custom' | 'local';
