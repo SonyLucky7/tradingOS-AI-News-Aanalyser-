@@ -84,7 +84,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
   };
 
   return (
-    <div className="w-full h-full min-h-[420px] bg-[#07090E] rounded-xl overflow-hidden border border-slate-800 relative flex flex-col">
+    <div className="w-full h-full min-h-[350px] sm:min-h-[460px] bg-[#07090E] rounded-xl overflow-hidden border border-slate-800 relative flex flex-col">
       {/* Top Chart Toolbar Controls */}
       <div className="h-8 bg-dark-800 border-b border-slate-800 px-3 flex items-center justify-between text-xs font-mono">
         <div className="flex items-center space-x-2">

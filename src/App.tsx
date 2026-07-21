@@ -50,7 +50,7 @@ export const App: React.FC = () => {
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto min-h-[calc(100vh-56px)] bg-[#07090E] bg-gradient-to-br from-[#07090E] via-[#0B0E17] to-[#0E121E]">
+        <main className="flex-1 overflow-y-auto min-h-[calc(100vh-56px)] pb-16 md:pb-0 bg-[#07090E] bg-gradient-to-br from-[#07090E] via-[#0B0E17] to-[#0E121E]">
           {renderModule()}
         </main>
       </div>
