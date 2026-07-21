@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
-  const { tickers, systemAlert, dismissSystemAlert, setActiveModule } = useTradeOS();
+  const { tickers, systemAlert, dismissSystemAlert, setActiveModule, activeWatchlist, setSelectedTicker } = useTradeOS();
   const [timeUtc, setTimeUtc] = useState('');
   const [timeIst, setTimeIst] = useState('');
   const [timeEst, setTimeEst] = useState('');
@@ -31,6 +31,14 @@ export const Header: React.FC = () => {
     const interval = setInterval(updateClocks, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const sortedTickers = [...tickers].sort((a, b) => {
+    const aStarred = activeWatchlist.includes(a.symbol);
+    const bStarred = activeWatchlist.includes(b.symbol);
+    if (aStarred && !bStarred) return -1;
+    if (!aStarred && bStarred) return 1;
+    return 0;
+  });
 
   return (
     <header className="terminal-header sticky top-0 z-50 flex flex-col w-full bg-[#07090E]/95 backdrop-blur-md border-b border-slate-800/80 select-none">
@@ -123,24 +131,31 @@ export const Header: React.FC = () => {
       </div>
 
       {/* Live Market Ticker Tape Banner */}
-      <div className="h-7 bg-[#090C14] border-t border-slate-800/60 flex items-center overflow-x-auto scrollbar-none px-4 space-x-6 text-[11px] font-mono">
-        <span className="text-slate-500 font-bold tracking-wider shrink-0 flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-trade-bull"></span> LIVE RADAR:
+      <div className="h-7 bg-[#090C14] border-t border-slate-800/60 flex items-center overflow-x-auto scrollbar-none px-4 space-x-5 text-[11px] font-mono">
+        <span className="text-slate-500 font-bold tracking-wider shrink-0 flex items-center gap-1.5 border-r border-slate-800 pr-3">
+          <span className="w-1.5 h-1.5 rounded-full bg-trade-bull animate-ping"></span> LIVE RADAR ({tickers.length}):
         </span>
-        {tickers.map(ticker => {
+        {sortedTickers.map(ticker => {
           const isPos = ticker.change24h >= 0;
           const isRupee = ticker.category === 'INDIAN_STOCKS';
+          const isStarred = activeWatchlist.includes(ticker.symbol);
           return (
             <div 
               key={ticker.symbol} 
-              onClick={() => setActiveModule('TERMINAL')}
-              className="flex items-center space-x-2 shrink-0 cursor-pointer hover:bg-slate-800/40 px-1.5 py-0.5 rounded transition"
+              onClick={() => {
+                setSelectedTicker(ticker);
+                setActiveModule('TERMINAL');
+              }}
+              className={`flex items-center space-x-1.5 shrink-0 cursor-pointer hover:bg-slate-800/60 px-2 py-0.5 rounded transition border ${
+                isStarred ? 'border-trade-cyan/40 bg-trade-cyan/5' : 'border-transparent'
+              }`}
             >
+              {isStarred && <span className="text-[10px] text-amber-400">★</span>}
               <span className="text-slate-300 font-medium">{ticker.symbol}</span>
               <span className="text-white font-semibold">
                 {isRupee ? `₹${ticker.price.toLocaleString()}` : `$${ticker.price.toLocaleString()}`}
               </span>
-              <span className={`font-bold ${isPos ? 'text-trade-bull' : 'text-trade-bear'}`}>
+              <span className={`font-bold text-[10px] ${isPos ? 'text-trade-bull' : 'text-trade-bear'}`}>
                 {isPos ? '+' : ''}{ticker.change24h}%
               </span>
             </div>

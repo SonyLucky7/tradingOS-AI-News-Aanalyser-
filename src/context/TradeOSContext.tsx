@@ -259,23 +259,26 @@ export const TradeOSProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     setChatMessages(prev => [...prev, userMsg]);
 
-    setTimeout(() => {
-      let aiText = `I have analyzed the market context for "${text}". All 13 Agents confirm: Fed Powell speech in 14 mins is the dominant catalyst.`;
-      if (text.toLowerCase().includes('btc') || text.toLowerCase().includes('bitcoin')) {
-        aiText = `⚡ **BTC Real-Time AI Intel**: Bitcoin is trading at $${selectedTicker.price}. ⚠️ DO NOT enter new longs now. Whale deposits of 14.5k BTC onto Binance ($983M) + Fed Powell speech in 14 mins indicate high probability of a liquidity sweep down to $66,200 support. Safe entry window: 20 mins post-speech.`;
-      } else if (text.toLowerCase().includes('nifty') || text.toLowerCase().includes('buy')) {
-        aiText = `🟢 **Nifty/BankNifty AI Intel**: BankNifty is showing strong institutional buying support following RBI's ₹50,000 Cr VRR liquidity injection. Put-Call Ratio is 1.18 with heavy Put writing at 24,500. Long entries on dips near 52,250 support are rated SAFE ENTRY (Trade Score: 88/100).`;
-      }
-
-      const aiMsg: ChatMessage = {
-        id: `m-ai-${Date.now()}`,
-        sender: 'AI',
-        agentName: 'TradeOS Intelligence Engine',
-        text: aiText,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setChatMessages(prev => [...prev, aiMsg]);
-    }, 800);
+    // Import and call real AI provider dynamically
+    import('../services/groqAI').then(({ sendAIChatMessage }) => {
+      const headlines = newsEvents.map(n => n.headline);
+      sendAIChatMessage(
+        text, 
+        selectedTicker.symbol, 
+        selectedTicker.price, 
+        selectedTicker.category, 
+        headlines
+      ).then(res => {
+        const aiMsg: ChatMessage = {
+          id: `m-ai-${Date.now()}`,
+          sender: 'AI',
+          agentName: res.providerName || 'TradeOS Intelligence Engine',
+          text: res.text,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setChatMessages(prev => [...prev, aiMsg]);
+      });
+    });
   };
 
   return (
