@@ -13,6 +13,17 @@ import {
 export const OptionChainModule: React.FC = () => {
   const { optionChain } = useTradeOS();
   const [selectedAsset, setSelectedAsset] = useState('NIFTY50');
+  const [aiAnalysisText, setAiAnalysisText] = useState(optionChain.interpretation);
+  const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    setLoading(true);
+    import('../../services/groqAI').then(({ analyzeOptionChainWithAI }) => {
+      analyzeOptionChainWithAI(selectedAsset, optionChain.pcrRatio, optionChain.maxPain, optionChain.underlyingPrice)
+        .then(res => setAiAnalysisText(res))
+        .finally(() => setLoading(false));
+    });
+  }, [selectedAsset, optionChain]);
 
   return (
     <div className="p-4 font-mono space-y-4">
@@ -82,10 +93,12 @@ export const OptionChainModule: React.FC = () => {
 
       {/* AI Option Interpretation Note */}
       <div className="p-4 bg-dark-800/80 rounded-xl border border-trade-cyan/30 flex items-start space-x-3 text-xs">
-        <Brain className="w-5 h-5 text-trade-cyan shrink-0 mt-0.5" />
+        <Brain className={`w-5 h-5 text-trade-cyan shrink-0 mt-0.5 ${loading ? 'animate-spin' : ''}`} />
         <div>
           <span className="font-bold text-trade-cyan block mb-0.5">AI Option Chain Structure Analysis:</span>
-          <p className="text-slate-200 leading-relaxed font-sans">{optionChain.interpretation}</p>
+          <p className="text-slate-200 leading-relaxed font-sans">
+            {loading ? 'AI Swarm analyzing Open Interest buildup & PCR levels...' : aiAnalysisText}
+          </p>
         </div>
       </div>
 

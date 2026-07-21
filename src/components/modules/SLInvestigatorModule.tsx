@@ -20,14 +20,23 @@ export const SLInvestigatorModule: React.FC = () => {
   const [tradeSide, setTradeSide] = useState<'LONG' | 'SHORT'>('LONG');
   const [timeStr, setTimeStr] = useState('14:18 IST (12 mins ago)');
 
+  const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<StoplossInvestigation | null>(() => 
     runSLInvestigation(selectedTicker.symbol, Number((selectedTicker.price * 0.982).toFixed(2)), '14:18 IST', 'LONG')
   );
 
-  const handleInvestigate = (e: React.FormEvent) => {
+  const handleInvestigate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = runSLInvestigation(symbol, slPrice, timeStr, tradeSide);
-    setReport(result);
+    setLoading(true);
+    try {
+      const { investigateSLWithAI } = await import('../../services/groqAI');
+      const aiResult = await investigateSLWithAI(symbol, slPrice, timeStr, tradeSide);
+      setReport(aiResult);
+    } catch {
+      setReport(runSLInvestigation(symbol, slPrice, timeStr, tradeSide));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -112,9 +121,18 @@ export const SLInvestigatorModule: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-rose-600 to-amber-600 text-white font-bold text-xs rounded-lg shadow-lg shadow-rose-900/30 hover:opacity-90 transition flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full py-3 bg-gradient-to-r from-rose-600 to-amber-600 text-white font-bold text-xs rounded-lg shadow-lg shadow-rose-900/30 hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              <Brain className="w-4 h-4" /> LAUNCH FORENSIC DIAGNOSTIC
+              {loading ? (
+                <>
+                  <Brain className="w-4 h-4 animate-spin" /> SCANNING ORDERBOOK LOGS...
+                </>
+              ) : (
+                <>
+                  <Brain className="w-4 h-4" /> LAUNCH FORENSIC DIAGNOSTIC
+                </>
+              )}
             </button>
           </form>
         </div>

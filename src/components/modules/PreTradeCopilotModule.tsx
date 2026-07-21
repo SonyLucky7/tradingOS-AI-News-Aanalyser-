@@ -26,6 +26,7 @@ export const PreTradeCopilotModule: React.FC = () => {
     timeframe: '15m'
   });
 
+  const [loading, setLoading] = useState(false);
   const [evaluation, setEvaluation] = useState<PreTradeEvaluation | null>(() => 
     runPreTradeEvaluation({
       symbol: selectedTicker.symbol,
@@ -37,10 +38,18 @@ export const PreTradeCopilotModule: React.FC = () => {
     })
   );
 
-  const handleEvaluate = (e: React.FormEvent) => {
+  const handleEvaluate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = runPreTradeEvaluation(input);
-    setEvaluation(result);
+    setLoading(true);
+    try {
+      const { evaluatePreTradeWithAI } = await import('../../services/groqAI');
+      const aiResult = await evaluatePreTradeWithAI(input);
+      setEvaluation(aiResult);
+    } catch {
+      setEvaluation(runPreTradeEvaluation(input));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -157,9 +166,18 @@ export const PreTradeCopilotModule: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-trade-cyan via-blue-500 to-trade-accent text-black font-extrabold text-xs rounded-lg shadow-lg shadow-trade-cyan/20 hover:opacity-90 transition flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full py-3 bg-gradient-to-r from-trade-cyan via-blue-500 to-trade-accent text-black font-extrabold text-xs rounded-lg shadow-lg shadow-trade-cyan/20 hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              <Zap className="w-4 h-4 fill-current" /> RUN AI MULTI-AGENT VERIFICATION
+              {loading ? (
+                <>
+                  <Zap className="w-4 h-4 animate-spin text-black" /> AI SWARM EVALUATING...
+                </>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4 fill-current" /> RUN AI MULTI-AGENT VERIFICATION
+                </>
+              )}
             </button>
           </form>
         </div>

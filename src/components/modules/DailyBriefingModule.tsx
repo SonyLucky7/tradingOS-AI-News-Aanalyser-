@@ -14,6 +14,17 @@ import {
 
 export const DailyBriefingModule: React.FC = () => {
   const [briefingType, setBriefingType] = useState<'MORNING' | 'EOD'>('MORNING');
+  const [briefingData, setBriefingData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    setLoading(true);
+    import('../../services/groqAI').then(({ generateDailyBriefingWithAI }) => {
+      generateDailyBriefingWithAI(briefingType)
+        .then(res => setBriefingData(res))
+        .finally(() => setLoading(false));
+    });
+  }, [briefingType]);
 
   return (
     <div className="p-4 font-mono space-y-4 max-w-5xl mx-auto">
@@ -78,18 +89,24 @@ export const DailyBriefingModule: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
             <div className="p-3.5 bg-dark-800/80 rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block font-bold uppercase">Overall Market Bias</span>
-              <span className="text-sm font-extrabold text-amber-400">CAUTIOUSLY BULLISH</span>
-              <p className="text-[10px] text-slate-400 mt-1">Dip buying favored after 18:30 IST Fed speech</p>
+              <span className="text-sm font-extrabold text-amber-400">
+                {loading ? 'ANALYZING...' : (briefingData?.marketBias || 'CAUTIOUSLY BULLISH')}
+              </span>
+              <p className="text-[10px] text-slate-400 mt-1">Dip buying favored after key speeches</p>
             </div>
             <div className="p-3.5 bg-dark-800/80 rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block font-bold uppercase">Expected Volatility Index</span>
-              <span className="text-sm font-extrabold text-rose-400">EXTREME (VIX 19.4)</span>
-              <p className="text-[10px] text-slate-400 mt-1">High whip-saw risk during US open</p>
+              <span className="text-sm font-extrabold text-rose-400">
+                {loading ? 'ANALYZING...' : (briefingData?.volatilityIndex || 'EXTREME (VIX 19.4)')}
+              </span>
+              <p className="text-[10px] text-slate-400 mt-1">High whip-saw risk during session opens</p>
             </div>
             <div className="p-3.5 bg-dark-800/80 rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block font-bold uppercase">Primary Catalyst</span>
-              <span className="text-sm font-extrabold text-trade-cyan">FED POWELL SPEECH & CPI</span>
-              <p className="text-[10px] text-slate-400 mt-1">Scheduled at 18:30 IST today</p>
+              <span className="text-sm font-extrabold text-trade-cyan">
+                {loading ? 'ANALYZING...' : (briefingData?.primaryCatalyst || 'FED POWELL SPEECH & CPI')}
+              </span>
+              <p className="text-[10px] text-slate-400 mt-1">Scheduled for today</p>
             </div>
           </div>
 
@@ -99,12 +116,12 @@ export const DailyBriefingModule: React.FC = () => {
               <CheckSquare className="w-4 h-4 text-trade-cyan" /> Pre-Market Trader Action Checklist
             </h3>
             <div className="space-y-2 text-xs">
-              {[
+              {(briefingData?.checklist || [
                 { task: 'Close or tighten stop losses on open BTC longs prior to 18:15 IST Fed speech', checked: true },
                 { task: 'Monitor BankNifty 52,250 dip support following RBI ₹50,000 Cr VRR liquidity injection', checked: true },
                 { task: 'Check Coinbase-to-Binance whale deposit stream ($983M inflow detected)', checked: false },
                 { task: 'Review Option Chain Max Pain at 24,500 for Nifty 50 expiry', checked: false }
-              ].map((item, idx) => (
+              ]).map((item: any, idx: number) => (
                 <div key={idx} className="flex items-center space-x-3 p-2.5 bg-dark-800/50 rounded-lg border border-slate-800">
                   <input type="checkbox" defaultChecked={item.checked} className="w-4 h-4 rounded text-trade-cyan bg-slate-900 border-slate-700" />
                   <span className={`text-slate-200 ${item.checked ? 'line-through text-slate-400' : 'font-medium'}`}>{item.task}</span>
@@ -130,15 +147,15 @@ export const DailyBriefingModule: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div className="p-3 bg-dark-800/80 rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block">Net Realized PnL</span>
-              <span className="text-lg font-extrabold text-trade-bull">+$1,200.00</span>
+              <span className="text-lg font-extrabold text-trade-bull">{briefingData?.netPnl || '+$1,450.00'}</span>
             </div>
             <div className="p-3 bg-dark-800/80 rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block">Win Rate</span>
-              <span className="text-lg font-extrabold text-trade-cyan">66.7% (2/3 Wins)</span>
+              <span className="text-lg font-extrabold text-trade-cyan">{briefingData?.winRate || '75.0% (3/4 Wins)'}</span>
             </div>
             <div className="p-3 bg-dark-800/80 rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block">Psychology Score</span>
-              <span className="text-lg font-extrabold text-amber-400">78 / 100</span>
+              <span className="text-lg font-extrabold text-amber-400">{briefingData?.psychologyScore || '88 / 100'}</span>
             </div>
             <div className="p-3 bg-dark-800/80 rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block">News Discipline</span>
@@ -152,7 +169,7 @@ export const DailyBriefingModule: React.FC = () => {
               <Brain className="w-4 h-4 text-trade-cyan" /> End-of-Day AI Psychology & Strategy Takeaways
             </h3>
             <p className="text-xs text-slate-200 leading-relaxed font-sans">
-              Overall session performance was profitable (+$1,200). Your best trade was entering BankNifty long following the RBI liquidity news (+₹2,500 PnL). However, your morning BTC trade suffered a -$1,300 loss because you entered 10 minutes before the scheduled Fed Powell speech, ignoring TradeOS AI warnings. Next session goal: Zero entries within 15 minutes of CRITICAL urgency news releases.
+              {loading ? 'AI Swarm synthesizing performance logs...' : (briefingData?.aiTakeaways || 'Session overall was highly disciplined and profitable (+$1,450). Best trade was entering BankNifty dip following RBI liquidity news. Maintain zero entries within 15 mins of critical speeches.')}
             </p>
           </div>
         </div>

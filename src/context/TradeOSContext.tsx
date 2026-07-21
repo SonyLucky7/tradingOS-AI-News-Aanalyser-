@@ -237,16 +237,21 @@ export const TradeOSProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const addJournalEntry = (entry: Omit<JournalEntry, 'id' | 'aiPsychologyCoachFeedback'>) => {
-    const feedback = entry.emotion === 'FOMO' || entry.emotion === 'REVENGE'
-      ? '⚠️ WARNING FROM PSYCHOLOGY COACH: Trade entered under emotional pressure. Maintain strict 15-minute cooloff period after losses.'
-      : '🎯 GOOD DISCIPLINE: Followed execution rules cleanly. Keep log updated.';
-      
-    const newEntry: JournalEntry = {
+    const tempId = `j-${Date.now()}`;
+    const initialEntry: JournalEntry = {
       ...entry,
-      id: `j-${Date.now()}`,
-      aiPsychologyCoachFeedback: feedback
+      id: tempId,
+      aiPsychologyCoachFeedback: '🧠 AI Psychology Coach analyzing execution discipline...'
     };
-    setJournalEntries(prev => [newEntry, ...prev]);
+    setJournalEntries(prev => [initialEntry, ...prev]);
+
+    import('../services/groqAI').then(({ analyzePsychologyWithAI }) => {
+      analyzePsychologyWithAI(entry).then(feedback => {
+        setJournalEntries(prev => prev.map(item => 
+          item.id === tempId ? { ...item, aiPsychologyCoachFeedback: feedback } : item
+        ));
+      });
+    });
   };
 
   const sendChatMessage = (text: string) => {
