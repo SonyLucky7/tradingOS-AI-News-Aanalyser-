@@ -70,7 +70,7 @@ export const NewsToastPopup: React.FC = () => {
   const CatIcon = catMeta.icon;
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 max-w-md w-full font-mono animate-in slide-in-from-bottom-5 duration-300">
+    <div className="fixed bottom-16 sm:bottom-5 right-3 sm:right-5 left-3 sm:left-auto max-w-md w-full sm:w-auto z-50 font-mono animate-in slide-in-from-bottom-5 duration-300">
       <div className="glass-panel p-4 rounded-2xl border-2 border-rose-500/60 bg-[#0B0E17]/95 shadow-2xl shadow-rose-950/40 space-y-3">
         
         {/* Header Alert Bar */}

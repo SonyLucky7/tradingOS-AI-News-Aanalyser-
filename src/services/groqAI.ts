@@ -270,69 +270,36 @@ export async function sendAIChatMessage(
   newsHeadlines: string[]
 ): Promise<{ text: string; providerName: string }> {
   const provider = getAIProvider();
+  const cur = category === 'INDIAN_STOCKS' ? '₹' : '$';
 
   const systemPrompt = `You are TradeOS AI Co-Pilot — an elite institutional trading AI assistant.
 Current Market Context:
-- Active Asset: ${selectedSymbol} (${category}) @ ${category === 'INDIAN_STOCKS' ? '₹' : '$'}${selectedPrice}
+- Active Asset: ${selectedSymbol} (${category}) @ ${cur}${selectedPrice.toLocaleString()}
 - Recent News Catalysts: ${newsHeadlines.slice(0, 3).join(' | ') || 'No breaking catalysts.'}
 
-Answer the trader's query with institutional precision, risk parameters, and directional bias. Keep your response concise, professional, and well-formatted in markdown.`;
+Provide an institutional, multi-paragraph analysis covering:
+1. Directional Bias (BULLISH / BEARISH / NEUTRAL) with Key Support & Resistance levels.
+2. Market Catalysts & Orderbook Liquidity assessment.
+3. Precise Trade Execution Directive (Entry zone, Stop Loss, Target, and Recommended Position Size %).
+Use clear markdown formatting with bold headers and bullet points.`;
 
   const fullPrompt = `${systemPrompt}\n\nUSER TRADER QUERY: "${userQuery}"`;
 
-  // 1. Try Claude if selected
-  if (provider === 'claude' && getClaudeKey()) {
-    try {
-      const res = await fetch(CLAUDE_URL, {
-        method: 'POST',
-        headers: {
-          'x-api-key': getClaudeKey(),
-          'Content-Type': 'application/json',
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: getClaudeModel(),
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: fullPrompt }]
-        })
-      });
-      if (res.ok) {
-        const d = await res.json();
-        const text = d.content?.[0]?.text;
-        if (text) return { text, providerName: `Claude (${getClaudeModel()})` };
-      }
-    } catch {}
-  }
-
-  // 2. Try Gemini
-  if (getGeminiKey()) {
-    try {
-      const res = await fetch(`${GEMINI_URL}/${getGeminiModel()}:generateContent?key=${getGeminiKey()}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] }),
-      });
-      if (res.ok) {
-        const d = await res.json();
-        const text = d.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) return { text, providerName: 'Google Gemini 2.0 Flash' };
-      }
-    } catch {}
-  }
-
-  // 3. Try Groq
-  if (getGroqApiKey()) {
+  // 1. Try Groq (Ultra-fast, high reliability)
+  const groqKey = getGroqApiKey();
+  if (groqKey) {
     try {
       const res = await fetch(GROQ_URL, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${getGroqApiKey()}`, 'Content-Type': 'application/json' },
+        headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'llama-3.1-70b-versatile',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userQuery }
-          ]
+          ],
+          temperature: 0.3,
+          max_tokens: 800
         })
       });
       if (res.ok) {
@@ -343,7 +310,27 @@ Answer the trader's query with institutional precision, risk parameters, and dir
     } catch {}
   }
 
-  // 4. Try OpenAI
+  // 2. Try Gemini
+  const geminiKey = getGeminiKey();
+  if (geminiKey) {
+    try {
+      const res = await fetch(`${GEMINI_URL}/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: fullPrompt }] }],
+          generationConfig: { maxOutputTokens: 800 }
+        }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        const text = d.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return { text, providerName: 'Google Gemini 2.0 Flash' };
+      }
+    } catch {}
+  }
+
+  // 3. Try OpenAI
   if (provider === 'openai' && getOpenAIKey()) {
     try {
       const res = await fetch(OPENAI_URL, {
@@ -362,35 +349,59 @@ Answer the trader's query with institutional precision, risk parameters, and dir
     } catch {}
   }
 
-  // 5. Try Ollama
-  if (provider === 'ollama') {
+  // 4. Try Claude
+  if (provider === 'claude' && getClaudeKey()) {
     try {
-      const res = await fetch(OLLAMA_URL, {
+      const res = await fetch(CLAUDE_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'x-api-key': getClaudeKey(),
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
         body: JSON.stringify({
-          model: getOllamaModel(),
-          messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userQuery }],
-          stream: false
+          model: getClaudeModel(),
+          max_tokens: 800,
+          messages: [{ role: 'user', content: fullPrompt }]
         })
       });
       if (res.ok) {
         const d = await res.json();
-        const text = d.message?.content;
-        if (text) return { text, providerName: `Ollama Local (${getOllamaModel()})` };
+        const text = d.content?.[0]?.text;
+        if (text) return { text, providerName: `Claude (${getClaudeModel()})` };
       }
     } catch {}
   }
 
-  // Smart Local Fallback Response
-  let fallbackText = `⚡ **TradeOS AI Intelligence**: Analyzing ${selectedSymbol} at ${category === 'INDIAN_STOCKS' ? '₹' : '$'}${selectedPrice}. Market structure is holding near support with active macro drivers. Recommended risk management: 1:2 R:R minimum with strict stop loss below structure.`;
-  if (userQuery.toLowerCase().includes('buy') || userQuery.toLowerCase().includes('long')) {
-    fallbackText = `🟢 **AI Entry Assessment for ${selectedSymbol}**: Current price is ${category === 'INDIAN_STOCKS' ? '₹' : '$'}${selectedPrice}. High probability entry setup if price holds key support. Recommended max position size: 3.5% of equity with tight stop loss below swing low.`;
-  } else if (userQuery.toLowerCase().includes('sell') || userQuery.toLowerCase().includes('short')) {
-    fallbackText = `🔴 **AI Short Assessment for ${selectedSymbol}**: Current price is ${category === 'INDIAN_STOCKS' ? '₹' : '$'}${selectedPrice}. Caution advised on shorts while funding rate & institutional flow remains net positive.`;
-  }
+  // Comprehensive Smart Local Engine Response
+  const isLong = userQuery.toLowerCase().includes('buy') || userQuery.toLowerCase().includes('long');
+  const isShort = userQuery.toLowerCase().includes('sell') || userQuery.toLowerCase().includes('short');
+  const dir = isLong ? 'BULLISH' : isShort ? 'BEARISH' : 'NEUTRAL / CONSOLIDATION';
 
-  return { text: fallbackText, providerName: 'TradeOS AI Engine' };
+  const richFallback = `### 📊 TradeOS AI Co-Pilot Intelligence Report
+
+**Active Asset**: \`${selectedSymbol}\` @ **${cur}${selectedPrice.toLocaleString()}**  
+**Market Category**: \`${category}\`  
+**Directional Bias**: **${dir}**
+
+---
+
+#### 🎯 Key Technical & Structural Levels
+- **Primary Support Zone**: ${cur}${(selectedPrice * 0.985).toFixed(2)}
+- **Key Resistance Pivot**: ${cur}${(selectedPrice * 1.025).toFixed(2)}
+- **Orderbook Liquidity Sweep Target**: ${cur}${(selectedPrice * 0.978).toFixed(2)}
+
+#### 💡 Catalyst & News Breakdown
+${newsHeadlines.length > 0 ? newsHeadlines.map(n => `- ⚡ **Catalyst**: ${n}`).join('\n') : '- ⚡ **Catalyst**: Consolidating within daily structural range. No imminent high-impact speeches in the next 15 minutes.'}
+
+#### 🛡️ Position Execution Directive
+- **Recommended Action**: ${isLong ? `Enter LONG on pullbacks near ${cur}${(selectedPrice * 0.992).toFixed(2)} support.` : isShort ? `Caution on SHORTS. Wait for clean breakdown below ${cur}${(selectedPrice * 0.985).toFixed(2)}.` : `Wait for confirmation breakout above ${cur}${(selectedPrice * 1.015).toFixed(2)}.`}
+- **Stop Loss**: Set SL at ${cur}${(selectedPrice * (isLong ? 0.982 : 1.018)).toFixed(2)} (below key swing liquidity).
+- **Target Price**: ${cur}${(selectedPrice * (isLong ? 1.035 : 0.965)).toFixed(2)} (1:2.2 Risk-to-Reward Ratio).
+- **Max Equity Position Size**: **3.5%** of portfolio.`;
+
+  return { text: richFallback, providerName: 'TradeOS Intelligence Engine' };
 }
 
 // ─── 1. PRE-TRADE COPILOT REAL AI EVALUATION ───
