@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 export const TerminalModule: React.FC = () => {
-  const { tickers, selectedTicker, setSelectedTicker, activeWatchlist, toggleWatchlist, setActiveModule, newsEvents, economicEvents } = useTradeOS();
+  const { tickers, selectedTicker, setSelectedTicker, activeWatchlist, toggleWatchlist, setActiveModule, newsEvents, economicEvents, aiProvider } = useTradeOS();
   const [selectedCategory, setSelectedCategory] = useState<MarketCategory | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
@@ -86,7 +86,7 @@ export const TerminalModule: React.FC = () => {
       setAiAnalysis(analysis);
       setAiLoading(false);
     }).catch(() => setAiLoading(false));
-  }, [selectedTicker.symbol]);
+  }, [selectedTicker.symbol, aiProvider]);
 
   const isPos = selectedTicker.change24h >= 0;
   const isRupee = selectedTicker.category === 'INDIAN_STOCKS';
@@ -276,12 +276,14 @@ export const TerminalModule: React.FC = () => {
               AI Intelligence for {selectedTicker.symbol}
             </span>
             {aiAnalysis && (
-              <span className={`text-[9px] font-bold px-2 py-0.5 rounded border ${
-                aiAnalysis.provider === 'groq' ? 'bg-blue-950 text-blue-300 border-blue-800' :
-                aiAnalysis.provider === 'ollama' ? 'bg-green-950 text-green-300 border-green-800' :
-                'bg-slate-800 text-slate-400 border-slate-700'
-              }`}>
-                {aiAnalysis.provider === 'groq' ? '⚡ GROQ LLAMA 3.1' : aiAnalysis.provider === 'ollama' ? '🖥️ OLLAMA LOCAL' : '🧠 LOCAL ENGINE'}
+              <span className="text-[10px] font-extrabold px-2.5 py-1 rounded bg-trade-cyan/15 text-trade-cyan border border-trade-cyan/40 flex items-center gap-1 font-mono">
+                {aiAnalysis.provider === 'gemini' ? '🔮 GEMINI 2.0 FLASH' :
+                 aiAnalysis.provider === 'groq' ? '⚡ GROQ LLAMA 3.1 70B' :
+                 aiAnalysis.provider === 'openai' ? '✨ OPENAI GPT-4O' :
+                 aiAnalysis.provider === 'claude' ? '🤖 CLAUDE SONNET' :
+                 aiAnalysis.provider === 'ollama' ? '🖥️ OLLAMA LOCAL' :
+                 aiAnalysis.provider === 'custom' ? '⚙️ CUSTOM AI API' :
+                 '🧠 SMART LOCAL ENGINE'}
               </span>
             )}
           </div>

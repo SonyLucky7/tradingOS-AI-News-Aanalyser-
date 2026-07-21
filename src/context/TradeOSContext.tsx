@@ -20,6 +20,8 @@ import {
   INITIAL_ECONOMIC_EVENTS 
 } from '../services/mockData';
 
+import { AIProvider, getAIProvider, setAIProvider } from '../services/groqAI';
+
 interface TradeOSContextType {
   activeModule: string;
   setActiveModule: (module: string) => void;
@@ -33,6 +35,8 @@ interface TradeOSContextType {
   setSelectedTicker: (ticker: MarketTicker) => void;
   activeWatchlist: string[];
   toggleWatchlist: (symbol: string) => void;
+  aiProvider: AIProvider;
+  updateAIProvider: (p: AIProvider) => void;
   
   // Interactive Engine Methods
   runPreTradeEvaluation: (input: PreTradeInput) => PreTradeEvaluation;
@@ -52,6 +56,12 @@ const TradeOSContext = createContext<TradeOSContextType | undefined>(undefined);
 
 export const TradeOSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeModule, setActiveModule] = useState<string>('TERMINAL');
+  const [aiProviderState, setAiProviderState] = useState<AIProvider>(() => getAIProvider());
+
+  const updateAIProvider = (p: AIProvider) => {
+    setAIProvider(p);
+    setAiProviderState(p);
+  };
   const [tickers, setTickers] = useState<MarketTicker[]>(INITIAL_TICKERS);
   const [newsEvents, setNewsEvents] = useState<NewsEvent[]>(INITIAL_NEWS_EVENTS);
   const [riskMarkers] = useState<RiskMarker[]>(INITIAL_RISK_MARKERS);
@@ -300,6 +310,8 @@ export const TradeOSProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setSelectedTicker,
       activeWatchlist,
       toggleWatchlist,
+      aiProvider: aiProviderState,
+      updateAIProvider,
       runPreTradeEvaluation,
       runSLInvestigation,
       addJournalEntry,

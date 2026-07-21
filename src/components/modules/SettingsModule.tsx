@@ -24,7 +24,10 @@ const PROVIDERS: { id: AIProvider; title: string; desc: string; icon: any; badge
   { id: 'local', title: 'Smart Local', desc: 'No API — built-in rule engine', icon: Zap, badge: 'OFFLINE' },
 ];
 
+import { useTradeOS } from '../../context/TradeOSContext';
+
 export const SettingsModule: React.FC = () => {
+  const { updateAIProvider } = useTradeOS();
   const [provider, setProvider] = useState<AIProvider>(getAIProvider());
   const [groqKey, setGroqKeyState] = useState(getGroqApiKey());
   const [ollamaModel, setOllamaModelState] = useState(getOllamaModel());
@@ -45,7 +48,7 @@ export const SettingsModule: React.FC = () => {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setAIProvider(provider);
+    updateAIProvider(provider);
     setGroqApiKey(groqKey); setOllamaModel(ollamaModel);
     setOpenAIKey(openaiKey); setOpenAIModel(openaiModel);
     setClaudeKey(claudeKey); setClaudeModel(claudeModel);
