@@ -15,6 +15,8 @@ import {
   BellRing
 } from 'lucide-react';
 
+import { formatTimeAgo } from '../utils/timeAgo';
+
 export const NewsToastPopup: React.FC = () => {
   const { newsEvents, setActiveModule, selectedTicker } = useTradeOS();
   const [currentNews, setCurrentNews] = useState<NewsEvent | null>(null);
@@ -81,7 +83,10 @@ export const NewsToastPopup: React.FC = () => {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
             </span>
             <span className="text-[11px] font-extrabold text-rose-400 uppercase tracking-wider flex items-center gap-1">
-              <BellRing className="w-3.5 h-3.5" /> LIVE BREAKING NEWS FLASH
+              <BellRing className="w-3.5 h-3.5" /> LIVE BREAKING FLASH
+            </span>
+            <span className="text-[10px] text-amber-300 font-extrabold bg-amber-950/80 border border-amber-500/50 px-1.5 py-0.5 rounded shadow-sm">
+              {formatTimeAgo(currentNews.timestamp) || currentNews.timeAgo}
             </span>
           </div>
 

@@ -16,6 +16,8 @@ import {
   Tv 
 } from 'lucide-react';
 
+import { formatTimeAgo } from '../../utils/timeAgo';
+
 export const AINewsModule: React.FC = () => {
   const { newsEvents, setActiveModule } = useTradeOS();
   const [selectedCategory, setSelectedCategory] = useState<MarketCategory | 'ALL'>('ALL');
@@ -122,8 +124,8 @@ export const AINewsModule: React.FC = () => {
                       }`}>
                         {event.urgency}
                       </span>
-                      <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-slate-500" /> {event.timeAgo}
+                      <span className="text-[10px] text-slate-400 flex items-center gap-1 font-bold text-amber-300">
+                        <Clock className="w-3 h-3 text-amber-400" /> {formatTimeAgo(event.timestamp) || event.timeAgo}
                       </span>
                     </div>
 
