@@ -1,6 +1,8 @@
 // Unified 100% Real-Time Live Data Engine for TradeOS AI
 // Connects to Finnhub, Binance WebSocket, and Live Yahoo Finance CORS Proxy
 
+import { formatTimeAgo } from '../utils/timeAgo';
+
 const FINNHUB_KEY = 'd9fko59r01qu5nhesvugd9fko59r01qu5nhesvv0';
 
 export interface LiveMarketUpdate {
@@ -27,7 +29,6 @@ export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpd
 
   try {
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ySym)}?interval=1m&range=1d`;
-    // Use CORS Proxy if needed
     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
     
     const res = await fetch(proxyUrl);
@@ -53,38 +54,59 @@ export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpd
   }
 }
 
-// 2. Fetch Live RSS Breaking Financial & Crypto News
+// 2. Fetch Live 24-Hour Real-Time RSS Breaking Financial & Crypto News
 export async function fetchLiveBreakingNews(): Promise<any[]> {
   try {
-    const rssUrl = 'https://news.google.com/rss/search?q=markets+bitcoin+fed+stock+nifty&hl=en-US&gl=US&ceid=US:en';
+    // Force Google RSS search for articles published in the last 24 hours ONLY (when:1d)
+    const rssUrl = 'https://news.google.com/rss/search?q=finance+OR+crypto+OR+stocks+OR+nifty+when:1d&hl=en-US&gl=US&ceid=US:en';
     const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
     const res = await fetch(proxyUrl);
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (data && data.items) {
-      return data.items.slice(0, 15).map((item: any, idx: number) => ({
-        id: `rss-${idx}-${Date.now()}`,
-        headline: item.title,
-        source: item.author || 'Google News / Financial RSS',
-        timeAgo: 'Live Now',
-        timestamp: item.pubDate,
-        category: item.title.toLowerCase().includes('crypto') || item.title.toLowerCase().includes('bitcoin') ? 'CRYPTO' : item.title.toLowerCase().includes('nifty') || item.title.toLowerCase().includes('india') ? 'INDIAN_STOCKS' : 'FOREX',
-        importanceScore: 92 - (idx * 2),
-        urgency: idx < 2 ? 'CRITICAL' : 'HIGH',
-        confidencePercent: 96,
-        sentiment: item.title.toLowerCase().includes('rally') || item.title.toLowerCase().includes('surge') || item.title.toLowerCase().includes('jump') ? 'BULLISH' : item.title.toLowerCase().includes('drop') || item.title.toLowerCase().includes('fall') || item.title.toLowerCase().includes('plunge') ? 'BEARISH' : 'NEUTRAL',
-        expectedVolatility: 'HIGH',
-        affectedSymbols: ['BTCUSDT', 'NIFTY50', 'EURUSD', 'SPX', 'XAUUSD'],
-        summary: item.description ? item.description.replace(/<[^>]*>?/gm, '') : item.title,
-        aiExplanation: `Realtime AI Analysis: ${item.title}. Evaluated for multi-asset impact.`,
-        historicalComparison: 'Matches catalyst wave pattern.',
-        probabilityLargeMove: 89,
-        effectTimeframe: '15 mins - 2 hours',
-        tradeRecommendation: 'Verify structure and stop-loss before execution.',
-        warningAlert: idx === 0 ? `⚠️ LIVE REALTIME BREAKING NEWS: ${item.title}` : undefined
-      }));
+    
+    let freshItems: any[] = [];
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.items && Array.isArray(data.items)) {
+        const now = Date.now();
+        const maxAgeMs = 24 * 60 * 60 * 1000; // 24 hours max age
+
+        freshItems = data.items
+          .filter((item: any) => {
+            if (!item.pubDate) return false;
+            const itemTime = new Date(item.pubDate).getTime();
+            // FILTER OUT OLD ITEMS (older than 24 hours)
+            return !isNaN(itemTime) && (now - itemTime) <= maxAgeMs;
+          })
+          .sort((a: any, b: any) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+          .slice(0, 15)
+          .map((item: any, idx: number) => {
+            const timeAgo = formatTimeAgo(item.pubDate);
+            return {
+              id: `rss-${idx}-${Date.now()}`,
+              headline: item.title,
+              source: item.author || 'Google News / Financial RSS',
+              timeAgo: timeAgo,
+              timestamp: item.pubDate,
+              category: item.title.toLowerCase().includes('crypto') || item.title.toLowerCase().includes('bitcoin') ? 'CRYPTO' : item.title.toLowerCase().includes('nifty') || item.title.toLowerCase().includes('india') ? 'INDIAN_STOCKS' : 'FOREX',
+              importanceScore: Math.max(75, 96 - (idx * 2)),
+              urgency: idx < 2 ? 'CRITICAL' : 'HIGH',
+              confidencePercent: 96,
+              sentiment: item.title.toLowerCase().includes('rally') || item.title.toLowerCase().includes('surge') || item.title.toLowerCase().includes('jump') ? 'BULLISH' : item.title.toLowerCase().includes('drop') || item.title.toLowerCase().includes('fall') || item.title.toLowerCase().includes('plunge') ? 'BEARISH' : 'NEUTRAL',
+              expectedVolatility: 'HIGH',
+              affectedSymbols: ['BTCUSDT', 'NIFTY50', 'EURUSD', 'SPX', 'XAUUSD'],
+              summary: item.description ? item.description.replace(/<[^>]*>?/gm, '').slice(0, 200) : item.title,
+              aiExplanation: `Realtime AI Analysis: ${item.title}. Evaluated for multi-asset impact.`,
+              historicalComparison: 'Matches catalyst wave pattern.',
+              probabilityLargeMove: 89,
+              effectTimeframe: '15 mins - 2 hours',
+              tradeRecommendation: 'Verify structure and stop-loss before execution.',
+              warningAlert: idx === 0 ? `⚠️ LIVE REALTIME BREAKING NEWS: ${item.title}` : undefined
+            };
+          });
+      }
     }
-    return [];
+
+    return freshItems;
   } catch (err) {
     console.warn('Live RSS news fetch failed:', err);
     return [];

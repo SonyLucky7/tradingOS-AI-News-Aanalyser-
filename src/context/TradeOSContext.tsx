@@ -146,12 +146,40 @@ export const TradeOSProvider: React.FC<{ children: React.ReactNode }> = ({ child
         });
       });
     };
-
     updateRealQuotes();
-    const interval = setInterval(updateRealQuotes, 10000); // Poll live quotes every 10 seconds
+    const quoteInterval = setInterval(updateRealQuotes, 10000); // Poll live quotes every 10 seconds
+
+    // 4. Poll 100% Real Fresh Live News (Last 24 Hours Only)
+    const updateRealNews = () => {
+      import('../services/unifiedLiveData').then(({ fetchLiveBreakingNews }) => {
+        fetchLiveBreakingNews().then(freshNews => {
+          if (freshNews && freshNews.length > 0) {
+            setNewsEvents(prev => {
+              const combined = [...freshNews, ...prev];
+              const uniqueMap = new Map();
+              const now = Date.now();
+              const maxAgeMs = 24 * 60 * 60 * 1000;
+              combined.forEach(item => {
+                const itemTime = new Date(item.timestamp || now).getTime();
+                if ((now - itemTime) <= maxAgeMs && !uniqueMap.has(item.headline)) {
+                  uniqueMap.set(item.headline, item);
+                }
+              });
+              return Array.from(uniqueMap.values()).sort((a, b) => 
+                new Date(b.timestamp || now).getTime() - new Date(a.timestamp || now).getTime()
+              );
+            });
+          }
+        });
+      });
+    };
+
+    updateRealNews();
+    const newsInterval = setInterval(updateRealNews, 60000);
 
     return () => {
-      clearInterval(interval);
+      clearInterval(quoteInterval);
+      clearInterval(newsInterval);
       import('../services/liveWebSocket').then(({ liveStreamService }) => {
         liveStreamService.disconnect();
       });
