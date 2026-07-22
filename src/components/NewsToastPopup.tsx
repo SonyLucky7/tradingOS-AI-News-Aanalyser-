@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTradeOS } from '../context/TradeOSContext';
 import { NewsEvent } from '../types/tradeos';
 import { 
@@ -18,23 +18,23 @@ import {
 import { formatTimeAgo } from '../utils/timeAgo';
 import { stripHtmlTags } from '../services/unifiedLiveData';
 
+// Persistent global set that survives component unmounting/remounting across all page & tab switches
+const globalDismissedNewsIds = new Set<string>();
+
 export const NewsToastPopup: React.FC = () => {
   const { newsEvents, setActiveModule } = useTradeOS();
   const [currentNews, setCurrentNews] = useState<NewsEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [newsIndex, setNewsIndex] = useState(0);
 
-  // Track the ID of the last news story shown so popup NEVER re-triggers on page/ticker switching
-  const lastSeenNewsIdRef = useRef<string | null>(null);
-
-  // Auto-show ONLY when a BRAND NEW breaking news story arrives
+  // Auto-show ONLY when a BRAND NEW breaking news story arrives (never re-triggers on page/tab navigation)
   useEffect(() => {
     if (newsEvents && newsEvents.length > 0) {
       const topNews = newsEvents[0];
       
-      // Only trigger toast if this is a brand new news story ID
-      if (topNews && topNews.id !== lastSeenNewsIdRef.current) {
-        lastSeenNewsIdRef.current = topNews.id;
+      // Only trigger toast if this news story ID has NEVER been seen/dismissed globally in this session
+      if (topNews && !globalDismissedNewsIds.has(topNews.id)) {
+        globalDismissedNewsIds.add(topNews.id);
         setCurrentNews(topNews);
         setVisible(true);
       }
@@ -45,11 +45,18 @@ export const NewsToastPopup: React.FC = () => {
 
   const handleNextNews = () => {
     const nextIdx = (newsIndex + 1) % newsEvents.length;
+    const nextItem = newsEvents[nextIdx];
+    if (nextItem) {
+      globalDismissedNewsIds.add(nextItem.id);
+    }
     setNewsIndex(nextIdx);
-    setCurrentNews(newsEvents[nextIdx]);
+    setCurrentNews(nextItem);
   };
 
   const handleClose = () => {
+    if (currentNews) {
+      globalDismissedNewsIds.add(currentNews.id);
+    }
     setVisible(false);
   };
 
@@ -97,7 +104,7 @@ export const NewsToastPopup: React.FC = () => {
             <button 
               onClick={handleClose}
               className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition"
-              title="Close Popup (Will only show again when new breaking news arrives)"
+              title="Close Popup (Will only show again when brand new breaking news arrives)"
             >
               <X className="w-4 h-4" />
             </button>
