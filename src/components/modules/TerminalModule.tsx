@@ -263,7 +263,7 @@ export const TerminalModule: React.FC = () => {
           </div>
 
           {/* TradingView Chart */}
-          <div className="relative w-full h-[380px] bg-[#090C14] rounded-lg border border-slate-800/80 overflow-hidden">
+          <div className="relative w-full min-h-[520px] sm:min-h-[600px] bg-[#090C14] rounded-lg border border-slate-800/80 overflow-hidden">
             <TradingViewChart symbol={selectedTicker.symbol} />
           </div>
         </div>
