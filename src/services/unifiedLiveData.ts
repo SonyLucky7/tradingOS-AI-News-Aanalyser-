@@ -35,6 +35,12 @@ export function stripHtmlTags(str: string): string {
     .trim();
 }
 
+// Utility: Generate a STABLE news ID from headline text so identical news never creates new random IDs
+export function generateStableNewsId(prefix: string, headline: string, rawId?: any): string {
+  const cleanHeadlineSlug = headline.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 50);
+  return `${prefix}-${rawId || 'id'}-${cleanHeadlineSlug}`;
+}
+
 // 1. Fetch Real-time Quotes from Yahoo Finance CORS Proxy for NSE, Commodities & Indices
 export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpdate | null> {
   const yahooSymbolMap: Record<string, string> = {
@@ -155,9 +161,10 @@ export async function fetchLiveBreakingNews(): Promise<any[]> {
         const timeAgo = formatTimeAgo(timestamp);
         const cleanSummary = stripHtmlTags(item.summary || cleanHeadline);
         const meta = classifyNewsMetadata(cleanHeadline, cleanSummary);
+        const stableId = generateStableNewsId('finnhub', cleanHeadline, item.id || idx);
 
         newsList.push({
-          id: `finnhub-${item.id || idx}-${Date.now()}`,
+          id: stableId,
           headline: cleanHeadline,
           source: stripHtmlTags(item.source) || 'Bloomberg / Reuters',
           timeAgo,
@@ -193,9 +200,10 @@ export async function fetchLiveBreakingNews(): Promise<any[]> {
       const timeAgo = formatTimeAgo(timestamp);
       const cleanBody = stripHtmlTags(item.body || cleanTitle).slice(0, 220);
       const meta = classifyNewsMetadata(cleanTitle, cleanBody);
+      const stableId = generateStableNewsId('cc', cleanTitle, item.id || idx);
 
       newsList.push({
-        id: `cc-${item.id || idx}-${Date.now()}`,
+        id: stableId,
         headline: cleanTitle,
         source: stripHtmlTags(item.source_info?.name || item.source) || 'CoinDesk / Cointelegraph',
         timeAgo,
@@ -229,9 +237,10 @@ export async function fetchLiveBreakingNews(): Promise<any[]> {
       const timeAgo = formatTimeAgo(timestamp);
       const cleanDesc = stripHtmlTags(item.description || cleanTitle).slice(0, 220);
       const meta = classifyNewsMetadata(cleanTitle, cleanDesc);
+      const stableId = generateStableNewsId('rss', cleanTitle, idx);
 
       newsList.push({
-        id: `rss-${idx}-${Date.now()}`,
+        id: stableId,
         headline: cleanTitle,
         source: stripHtmlTags(item.author) || 'Financial Times / Financial RSS',
         timeAgo,

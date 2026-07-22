@@ -12,42 +12,48 @@ import {
   Globe, 
   Coins, 
   Building2,
-  BellRing
+  BellRing,
+  VolumeX
 } from 'lucide-react';
 
 import { formatTimeAgo } from '../utils/timeAgo';
 import { stripHtmlTags } from '../services/unifiedLiveData';
 
-// Persistent global set that survives component unmounting/remounting across all page & tab switches
-const globalDismissedNewsIds = new Set<string>();
+// Persistent global session memory (Survives all component unmounts and page switches)
+const globalDismissedHeadlines = new Set<string>();
+let globalIsMuted = false;
 
 export const NewsToastPopup: React.FC = () => {
   const { newsEvents, setActiveModule } = useTradeOS();
   const [currentNews, setCurrentNews] = useState<NewsEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [newsIndex, setNewsIndex] = useState(0);
+  const [isMuted, setIsMuted] = useState(globalIsMuted);
 
-  // Auto-show ONLY when a BRAND NEW breaking news story arrives (never re-triggers on page/tab navigation)
+  // Auto-show ONLY when a BRAND NEW un-seen news headline arrives AND session is not muted
   useEffect(() => {
+    if (globalIsMuted || isMuted) return;
+
     if (newsEvents && newsEvents.length > 0) {
       const topNews = newsEvents[0];
+      const normalizedHeadline = topNews.headline.toLowerCase().trim();
       
-      // Only trigger toast if this news story ID has NEVER been seen/dismissed globally in this session
-      if (topNews && !globalDismissedNewsIds.has(topNews.id)) {
-        globalDismissedNewsIds.add(topNews.id);
+      // Only trigger toast if this story headline has NEVER been seen or dismissed in this session
+      if (topNews && !globalDismissedHeadlines.has(normalizedHeadline)) {
+        globalDismissedHeadlines.add(normalizedHeadline);
         setCurrentNews(topNews);
         setVisible(true);
       }
     }
-  }, [newsEvents]);
+  }, [newsEvents, isMuted]);
 
-  if (!visible || !currentNews) return null;
+  if (!visible || !currentNews || isMuted || globalIsMuted) return null;
 
   const handleNextNews = () => {
     const nextIdx = (newsIndex + 1) % newsEvents.length;
     const nextItem = newsEvents[nextIdx];
     if (nextItem) {
-      globalDismissedNewsIds.add(nextItem.id);
+      globalDismissedHeadlines.add(nextItem.headline.toLowerCase().trim());
     }
     setNewsIndex(nextIdx);
     setCurrentNews(nextItem);
@@ -55,8 +61,14 @@ export const NewsToastPopup: React.FC = () => {
 
   const handleClose = () => {
     if (currentNews) {
-      globalDismissedNewsIds.add(currentNews.id);
+      globalDismissedHeadlines.add(currentNews.headline.toLowerCase().trim());
     }
+    setVisible(false);
+  };
+
+  const handleMuteAll = () => {
+    globalIsMuted = true;
+    setIsMuted(true);
     setVisible(false);
   };
 
@@ -97,14 +109,25 @@ export const NewsToastPopup: React.FC = () => {
             </span>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5">
             <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded border flex items-center gap-1 ${catMeta.color}`}>
               <CatIcon className="w-3 h-3" /> {catMeta.label}
             </span>
+
+            {/* Mute All Popups Button */}
+            <button
+              onClick={handleMuteAll}
+              className="text-[9px] text-slate-400 hover:text-amber-300 bg-slate-800 hover:bg-amber-950/80 border border-slate-700 px-1.5 py-0.5 rounded font-bold transition flex items-center gap-1"
+              title="Mute all breaking news popups for the rest of this session"
+            >
+              <VolumeX className="w-3 h-3" /> Mute
+            </button>
+
+            {/* Close Button */}
             <button 
               onClick={handleClose}
               className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition"
-              title="Close Popup (Will only show again when brand new breaking news arrives)"
+              title="Dismiss Popup"
             >
               <X className="w-4 h-4" />
             </button>
