@@ -172,9 +172,15 @@ export const TerminalModule: React.FC = () => {
                     <div className="font-bold text-slate-100 text-[11px]">
                       {tRupee ? `₹${t.price.toLocaleString()}` : `$${t.price.toLocaleString()}`}
                     </div>
-                    <div className={`text-[9px] font-bold ${tPos ? 'text-trade-bull' : 'text-trade-bear'}`}>
-                      {tPos ? '+' : ''}{t.change24h}%
-                    </div>
+                    {(() => {
+                      const safeChangeVal = isFinite(t.change24h) && !isNaN(t.change24h) ? t.change24h : 0.00;
+                      const isPos = safeChangeVal >= 0;
+                      return (
+                        <div className={`text-[9px] font-bold ${isPos ? 'text-trade-bull' : 'text-trade-bear'}`}>
+                          {isPos ? '+' : ''}{safeChangeVal.toFixed(2)}%
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               );

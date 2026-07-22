@@ -1,8 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Maximize2, RefreshCw, BarChart2, Sliders, Layers } from 'lucide-react';
 
 interface TradingViewChartProps {
   symbol: string;
+}
+
+declare global {
+  interface Window {
+    TradingView?: any;
+  }
 }
 
 export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) => {
@@ -11,6 +17,9 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
   const [chartStyle, setChartStyle] = useState<string>('1'); // 1: Candles, 8: Heikin Ashi, 2: Line, 3: Area
   const [showSideToolbar, setShowSideToolbar] = useState<boolean>(true);
   const [key, setKey] = useState(0);
+  const [useIframeFallback, setUseIframeFallback] = useState(false);
+
+  const containerId = useRef(`tradingview_${Math.random().toString(36).substring(7)}`).current;
 
   // Institutional TradingView Symbol Mapper
   const getTradingViewSymbol = (sym: string): string => {
@@ -105,8 +114,89 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
   const tvSymbol = getTradingViewSymbol(symbol);
 
-  // Direct 100% Reliable Interactive Chart URL
-  const iframeUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${encodeURIComponent(tvSymbol)}&interval=${timeframe}&hidesidetoolbar=${showSideToolbar ? '0' : '1'}&symboledit=1&saveimage=1&toolbarbg=0b0e17&studies=%5B%5D&theme=dark&style=${chartStyle}&timezone=Asia%2FKolkata`;
+  // Initialize Official TradingView Widget SDK
+  useEffect(() => {
+    let isSubscribed = true;
+
+    const loadTradingViewScript = () => {
+      if (window.TradingView) {
+        initWidget();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.id = 'tradingview-tv-script';
+      script.src = 'https://s3.tradingview.com/tv.js';
+      script.type = 'text/javascript';
+      script.onload = () => {
+        if (isSubscribed) initWidget();
+      };
+      script.onerror = () => {
+        if (isSubscribed) setUseIframeFallback(true);
+      };
+      document.head.appendChild(script);
+    };
+
+    const initWidget = () => {
+      const containerEl = document.getElementById(containerId);
+      if (!containerEl) return;
+
+      containerEl.innerHTML = '';
+
+      try {
+        if (window.TradingView && window.TradingView.widget) {
+          new window.TradingView.widget({
+            autosize: true,
+            symbol: tvSymbol,
+            interval: timeframe,
+            timezone: 'Asia/Kolkata',
+            theme: 'dark',
+            style: chartStyle,
+            locale: 'en',
+            toolbar_bg: '#0B0E17',
+            enable_publishing: false,
+            hide_side_toolbar: !showSideToolbar,
+            allow_symbol_change: true,
+            container_id: containerId,
+            withdateranges: true,
+            details: true,
+            hotlist: false,
+            calendar: false,
+            studies: []
+          });
+        } else {
+          setUseIframeFallback(true);
+        }
+      } catch (err) {
+        console.warn('TradingView SDK init warning:', err);
+        setUseIframeFallback(true);
+      }
+    };
+
+    loadTradingViewScript();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [symbol, timeframe, chartStyle, showSideToolbar, key]);
+
+  // Direct Interactive Widget Iframe Fallback URL
+  const iframeUrl = `https://www.tradingview-widget.com/embed-widget/advanced-chart/?locale=en#${encodeURIComponent(
+    JSON.stringify({
+      autosize: true,
+      symbol: tvSymbol,
+      interval: timeframe,
+      timezone: 'Asia/Kolkata',
+      theme: 'dark',
+      style: chartStyle,
+      locale: 'en',
+      enable_publishing: false,
+      hide_side_toolbar: !showSideToolbar,
+      allow_symbol_change: true,
+      save_image: true,
+      container_id: containerId
+    })
+  )}`;
 
   const handleFullscreen = () => {
     if (containerRef.current) {
@@ -131,7 +221,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
           <div className="hidden sm:flex items-center space-x-1 text-[10px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/60 px-2 py-1 rounded">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>LIVE CHARTS ACTIVE</span>
+            <span>LIVE TRADINGVIEW FEED</span>
           </div>
         </div>
 
@@ -190,9 +280,12 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
           {/* Refresh Button */}
           <button
-            onClick={() => setKey(k => k + 1)}
+            onClick={() => {
+              setUseIframeFallback(prev => !prev);
+              setKey(k => k + 1);
+            }}
             className="text-slate-400 hover:text-white p-1.5 bg-slate-800 rounded hover:bg-slate-700 transition"
-            title="Refresh Live Chart Feed"
+            title="Refresh / Toggle Live Chart Mode"
           >
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
@@ -208,15 +301,24 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
         </div>
       </div>
 
-      {/* TradingView Direct Embed Frame */}
+      {/* TradingView Display Area */}
       <div className="relative flex-1 w-full h-full min-h-[440px] sm:min-h-[520px] bg-[#07090E]">
-        <iframe
-          key={`${tvSymbol}-${timeframe}-${chartStyle}-${showSideToolbar}-${key}`}
-          src={iframeUrl}
-          className="w-full h-full border-0 absolute inset-0"
-          allowFullScreen
-          title={`TradingView Chart for ${tvSymbol}`}
-        />
+        {!useIframeFallback ? (
+          <div
+            key={`widget-${containerId}-${key}`}
+            id={containerId}
+            className="tradingview-widget-container w-full h-full"
+            style={{ width: '100%', height: '100%' }}
+          />
+        ) : (
+          <iframe
+            key={`iframe-${tvSymbol}-${timeframe}-${chartStyle}-${showSideToolbar}-${key}`}
+            src={iframeUrl}
+            className="w-full h-full border-0 absolute inset-0"
+            allowFullScreen
+            title={`TradingView Chart for ${tvSymbol}`}
+          />
+        )}
       </div>
     </div>
   );

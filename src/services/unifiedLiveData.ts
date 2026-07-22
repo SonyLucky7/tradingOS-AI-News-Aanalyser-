@@ -66,11 +66,12 @@ export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpd
     if (result && result.meta) {
       const price = result.meta.regularMarketPrice;
       const prevClose = result.meta.chartPreviousClose || result.meta.previousClose || price;
-      const change24h = ((price - prevClose) / prevClose) * 100;
+      const rawChange = prevClose && prevClose !== 0 ? ((price - prevClose) / prevClose) * 100 : 0;
+      const change24h = isFinite(rawChange) && !isNaN(rawChange) ? Number(rawChange.toFixed(2)) : 0.00;
       return {
         symbol,
         price: Number(price.toFixed(price > 100 ? 2 : 4)),
-        change24h: Number(change24h.toFixed(2)),
+        change24h,
         high24h: result.meta.regularMarketDayHigh || price,
         low24h: result.meta.regularMarketDayLow || price
       };
