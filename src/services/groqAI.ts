@@ -91,6 +91,9 @@ async function fetchBazaarLink(systemPrompt: string, userQuery: string): Promise
   for (const endpoint of endpoints) {
     for (const model of modelsToTry) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4500);
+
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: {
@@ -105,8 +108,11 @@ async function fetchBazaarLink(systemPrompt: string, userQuery: string): Promise
             ],
             temperature: 0.4,
             max_tokens: 1000
-          })
+          }),
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
+
         if (res.ok) {
           const d = await res.json();
           const text = d.choices?.[0]?.message?.content || d.choices?.[0]?.text;
