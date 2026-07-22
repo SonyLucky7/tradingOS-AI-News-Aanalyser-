@@ -161,7 +161,7 @@ export const TradeOSProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
 
     updateRealNews();
-    const newsInterval = setInterval(updateRealNews, 30000); // Poll live news every 30s
+    const newsInterval = setInterval(updateRealNews, 15000); // Poll live global news every 15s for ultra-fast updates
 
     return () => {
       clearInterval(quoteInterval);

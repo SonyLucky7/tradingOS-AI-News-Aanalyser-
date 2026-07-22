@@ -95,7 +95,37 @@ export const AINewsModule: React.FC = () => {
       {viewMode === 'LIVE_TV' ? (
         <LiveTVStream />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="space-y-3">
+          {/* Category Filter Tabs */}
+          <div className="flex items-center space-x-2 overflow-x-auto scrollbar-none pb-1 text-xs">
+            {[
+              { id: 'ALL', label: 'ALL MARKETS', count: newsEvents.length },
+              { id: 'CRYPTO', label: '🪙 CRYPTO', count: newsEvents.filter(e => e.category === 'CRYPTO').length },
+              { id: 'INDIAN_STOCKS', label: '🇮🇳 INDIAN STOCKS', count: newsEvents.filter(e => e.category === 'INDIAN_STOCKS').length },
+              { id: 'FOREX', label: '🌐 FOREX & MACRO', count: newsEvents.filter(e => e.category === 'FOREX').length },
+              { id: 'COMMODITIES', label: '🛢️ COMMODITIES', count: newsEvents.filter(e => e.category === 'COMMODITIES').length },
+              { id: 'US_STOCKS', label: '🏛️ US STOCKS', count: newsEvents.filter(e => e.category === 'US_STOCKS').length },
+            ].map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id as any)}
+                className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center space-x-1.5 shrink-0 ${
+                  selectedCategory === cat.id
+                    ? 'bg-trade-cyan text-black shadow-md'
+                    : 'bg-dark-800 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                <span>{cat.label}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                  selectedCategory === cat.id ? 'bg-black/20 text-black' : 'bg-slate-700/60 text-slate-300'
+                }`}>
+                  {cat.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left Column: Event Cards List */}
           <div className="lg:col-span-5 space-y-3">
           <div className="flex items-center justify-between text-xs text-slate-400 font-bold px-1">
@@ -260,6 +290,7 @@ export const AINewsModule: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
       )}
     </div>
