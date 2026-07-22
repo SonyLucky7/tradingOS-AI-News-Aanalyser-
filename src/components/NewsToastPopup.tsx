@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTradeOS } from '../context/TradeOSContext';
 import { NewsEvent } from '../types/tradeos';
 import { 
@@ -19,32 +19,27 @@ import { formatTimeAgo } from '../utils/timeAgo';
 import { stripHtmlTags } from '../services/unifiedLiveData';
 
 export const NewsToastPopup: React.FC = () => {
-  const { newsEvents, setActiveModule, selectedTicker } = useTradeOS();
+  const { newsEvents, setActiveModule } = useTradeOS();
   const [currentNews, setCurrentNews] = useState<NewsEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [newsIndex, setNewsIndex] = useState(0);
 
-  // Auto-show high-impact breaking news popup
+  // Track the ID of the last news story shown so popup NEVER re-triggers on page/ticker switching
+  const lastSeenNewsIdRef = useRef<string | null>(null);
+
+  // Auto-show ONLY when a BRAND NEW breaking news story arrives
   useEffect(() => {
     if (newsEvents && newsEvents.length > 0) {
-      // Find critical news or related to selected ticker
-      const critical = newsEvents.find(n => n.urgency === 'CRITICAL') || newsEvents[0];
-      setCurrentNews(critical);
-      setVisible(true);
+      const topNews = newsEvents[0];
+      
+      // Only trigger toast if this is a brand new news story ID
+      if (topNews && topNews.id !== lastSeenNewsIdRef.current) {
+        lastSeenNewsIdRef.current = topNews.id;
+        setCurrentNews(topNews);
+        setVisible(true);
+      }
     }
   }, [newsEvents]);
-
-  // When selected ticker changes, update popup to show news relevant to that specific ticker
-  useEffect(() => {
-    if (newsEvents && newsEvents.length > 0 && selectedTicker) {
-      const relevant = newsEvents.find(n => 
-        n.affectedSymbols?.includes(selectedTicker.symbol) || 
-        n.category === selectedTicker.category
-      ) || newsEvents[0];
-      setCurrentNews(relevant);
-      setVisible(true);
-    }
-  }, [selectedTicker?.symbol]);
 
   if (!visible || !currentNews) return null;
 
@@ -52,6 +47,10 @@ export const NewsToastPopup: React.FC = () => {
     const nextIdx = (newsIndex + 1) % newsEvents.length;
     setNewsIndex(nextIdx);
     setCurrentNews(newsEvents[nextIdx]);
+  };
+
+  const handleClose = () => {
+    setVisible(false);
   };
 
   const isBull = currentNews.sentiment === 'BULLISH';
@@ -96,8 +95,9 @@ export const NewsToastPopup: React.FC = () => {
               <CatIcon className="w-3 h-3" /> {catMeta.label}
             </span>
             <button 
-              onClick={() => setVisible(false)}
-              className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800"
+              onClick={handleClose}
+              className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition"
+              title="Close Popup (Will only show again when new breaking news arrives)"
             >
               <X className="w-4 h-4" />
             </button>
@@ -119,58 +119,52 @@ export const NewsToastPopup: React.FC = () => {
               <span 
                 key={sym} 
                 className={`px-2 py-0.5 rounded font-bold border ${
-                  sym === selectedTicker.symbol 
-                    ? 'bg-trade-cyan text-black border-trade-cyan shadow-sm shadow-trade-cyan/40 animate-pulse' 
-                    : 'bg-dark-800 text-trade-cyan border-slate-700'
+                  isBull 
+                    ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700' 
+                    : isBear 
+                    ? 'bg-rose-950/80 text-rose-300 border-rose-700' 
+                    : 'bg-slate-800 text-slate-200 border-slate-700'
                 }`}
               >
-                {sym} {sym === selectedTicker.symbol ? '(ACTIVE)' : ''}
+                {sym} {isBull ? '▲ BULLISH' : isBear ? '▼ BEARISH' : '● NEUTRAL'}
               </span>
             ))}
           </div>
         </div>
 
-        {/* WHY IT MOVES THE MARKET (AI Summary Breakdown) */}
-        <div className="p-3 bg-dark-800/90 rounded-xl border border-slate-800 space-y-1.5 text-[11px]">
-          <div className="flex items-center justify-between">
-            <span className="font-bold text-amber-300 flex items-center gap-1 text-[10px] uppercase">
-              <Brain className="w-3.5 h-3.5 text-amber-400" /> WHY THIS NEWS MOVES THE MARKET:
-            </span>
-            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-              isBull ? 'bg-emerald-950 text-trade-bull' : isBear ? 'bg-rose-950 text-trade-bear' : 'bg-slate-800 text-slate-300'
-            }`}>
-              {isBull ? '🟢 BULLISH IMPACT' : isBear ? '🔴 BEARISH IMPACT' : '🟡 VOLATILE'}
-            </span>
-          </div>
+        {/* Short Summary */}
+        <p className="text-[11px] text-slate-300 leading-relaxed bg-dark-800/80 p-2.5 rounded-lg border border-slate-800/80">
+          {stripHtmlTags(currentNews.summary)}
+        </p>
 
-          <p className="text-slate-200 leading-relaxed font-sans text-[11px]">
-            {currentNews.summary || currentNews.aiExplanation}
-          </p>
-
-          <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-800/60 flex justify-between">
-            <span>Expected Volatility: <strong className="text-rose-400">{currentNews.expectedVolatility}</strong></span>
-            <span>Duration: <strong className="text-slate-200">{currentNews.effectTimeframe}</strong></span>
-          </div>
-        </div>
-
-        {/* Action Directives & Navigation */}
-        <div className="flex items-center justify-between pt-1 gap-2">
-          <button
-            onClick={handleNextNews}
-            className="text-[10px] text-slate-400 hover:text-slate-200 font-bold underline"
-          >
-            Next Flash ({newsEvents.length}) →
-          </button>
-
-          <button
+        {/* AI Directive Bar & Navigation Controls */}
+        <div className="flex items-center justify-between pt-1 text-[11px]">
+          <button 
             onClick={() => {
               setActiveModule('NEWS');
-              setVisible(false);
+              handleClose();
             }}
-            className="px-3 py-1.5 bg-gradient-to-r from-trade-cyan to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-[11px] rounded-lg shadow-md shadow-trade-cyan/20 transition flex items-center gap-1"
+            className="text-trade-cyan hover:underline font-bold flex items-center gap-1 bg-trade-cyan/10 border border-trade-cyan/30 px-2.5 py-1 rounded-lg transition"
           >
-            Inspect Full AI Dossier <ChevronRight className="w-3.5 h-3.5" />
+            <Brain className="w-3.5 h-3.5" /> Full AI Dossier <ChevronRight className="w-3.5 h-3.5" />
           </button>
+
+          <div className="flex items-center space-x-2">
+            {newsEvents.length > 1 && (
+              <button
+                onClick={handleNextNews}
+                className="text-slate-400 hover:text-white text-[10px] underline font-bold"
+              >
+                Next Story ({newsIndex + 1}/{newsEvents.length})
+              </button>
+            )}
+            <button
+              onClick={handleClose}
+              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] font-bold border border-slate-700 transition"
+            >
+              Dismiss
+            </button>
+          </div>
         </div>
 
       </div>
