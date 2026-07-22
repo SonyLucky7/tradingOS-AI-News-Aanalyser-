@@ -5,6 +5,7 @@ import {
 import { 
   AIProvider,
   getAIProvider, setAIProvider,
+  getBazaarLinkKey, setBazaarLinkKey, getBazaarLinkModel, setBazaarLinkModel,
   getGroqApiKey, setGroqApiKey,
   getOllamaModel, setOllamaModel,
   getOpenAIKey, setOpenAIKey, getOpenAIModel, setOpenAIModel,
@@ -15,6 +16,7 @@ import {
 } from '../../services/groqAI';
 
 const PROVIDERS: { id: AIProvider; title: string; desc: string; icon: any; badge: string }[] = [
+  { id: 'bazaarlink', title: 'BazaarLink AI', desc: '257+ AI Models (DeepSeek R1, GPT-4o, Claude 3.5)', icon: Sparkles, badge: 'CONNECTED 257+ MODELS' },
   { id: 'groq', title: 'Groq Cloud', desc: 'Llama 3.1 70B — free, ultra-fast', icon: Cloud, badge: 'FREE' },
   { id: 'openai', title: 'OpenAI', desc: 'GPT-4o / GPT-4o-mini', icon: Sparkles, badge: 'PAID' },
   { id: 'claude', title: 'Claude (Anthropic)', desc: 'Claude Opus / Sonnet', icon: Bot, badge: 'PAID' },
@@ -29,6 +31,8 @@ import { useTradeOS } from '../../context/TradeOSContext';
 export const SettingsModule: React.FC = () => {
   const { updateAIProvider } = useTradeOS();
   const [provider, setProvider] = useState<AIProvider>(getAIProvider());
+  const [bazaarlinkKey, setBazaarlinkKeyState] = useState(getBazaarLinkKey());
+  const [bazaarlinkModel, setBazaarlinkModelState] = useState(getBazaarLinkModel());
   const [groqKey, setGroqKeyState] = useState(getGroqApiKey());
   const [ollamaModel, setOllamaModelState] = useState(getOllamaModel());
   const [openaiKey, setOpenaiKeyState] = useState(getOpenAIKey());
@@ -49,6 +53,7 @@ export const SettingsModule: React.FC = () => {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     updateAIProvider(provider);
+    setBazaarLinkKey(bazaarlinkKey); setBazaarLinkModel(bazaarlinkModel);
     setGroqApiKey(groqKey); setOllamaModel(ollamaModel);
     setOpenAIKey(openaiKey); setOpenAIModel(openaiModel);
     setClaudeKey(claudeKey); setClaudeModel(claudeModel);
@@ -136,6 +141,27 @@ export const SettingsModule: React.FC = () => {
 
           {/* Provider-specific Config */}
           <div className="space-y-3 text-xs">
+            {provider === 'bazaarlink' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-violet-950/30 p-3.5 rounded-xl border border-violet-800/40">
+                <div>
+                  <label className="text-violet-300 font-bold block mb-1">BazaarLink API Key (257+ Models Default Key Connected)</label>
+                  <input type="password" value={bazaarlinkKey} onChange={e => setBazaarlinkKeyState(e.target.value)} placeholder="sk-bl-..." className={inp} />
+                </div>
+                <div>
+                  <label className="text-violet-300 font-bold block mb-1">Active AI Model Target</label>
+                  <select value={bazaarlinkModel} onChange={e => setBazaarlinkModelState(e.target.value)} className={inp}>
+                    <option value="deepseek/deepseek-r1">DeepSeek R1 (Deep Reasoning Master)</option>
+                    <option value="deepseek-chat">DeepSeek Chat V3.1</option>
+                    <option value="gpt-4o">OpenAI GPT-4o</option>
+                    <option value="gpt-4o-mini">OpenAI GPT-4o Mini</option>
+                    <option value="claude-3-5-sonnet">Anthropic Claude 3.5 Sonnet</option>
+                    <option value="gemini-2.5-flash">Google Gemini 2.5 Flash</option>
+                    <option value="qwen-plus">Alibaba Qwen 3.5 Plus</option>
+                    <option value="mistral-large">Mistral Large</option>
+                  </select>
+                </div>
+              </div>
+            )}
             {provider === 'groq' && (
               <div>
                 <label className="text-slate-400 block mb-1">Groq API Key — <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" className="text-trade-cyan underline">Get free key</a></label>
