@@ -10,7 +10,8 @@ import {
   CalendarDays, 
   FileText, 
   MessageSquareCode, 
-  Settings 
+  Settings,
+  Tv
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -19,6 +20,7 @@ export const Sidebar: React.FC = () => {
   const navItems = [
     { id: 'TERMINAL', label: 'Terminal Radar', icon: LayoutDashboard, badge: null },
     { id: 'NEWS', label: 'AI News Stream', icon: Newspaper, badge: '98' },
+    { id: 'LIVE_TV', label: 'Live TV Broadcasts', icon: Tv, badge: 'LIVE' },
     { id: 'COPILOT', label: 'Pre-Trade Co-Pilot', icon: Bot, badge: 'AI' },
     { id: 'SL_INVESTIGATOR', label: 'SL Investigator', icon: SearchX, badge: 'NEW' },
     { id: 'OPTION_CHAIN', label: 'Option Chain & FII', icon: LineChart, badge: 'NSE' },
@@ -33,6 +35,7 @@ export const Sidebar: React.FC = () => {
   const mobileBarItems = [
     { id: 'TERMINAL', label: 'Terminal', icon: LayoutDashboard },
     { id: 'NEWS', label: 'News', icon: Newspaper },
+    { id: 'LIVE_TV', label: 'Live TV', icon: Tv },
     { id: 'COPILOT', label: 'Co-Pilot', icon: Bot },
     { id: 'OPTION_CHAIN', label: 'Chain', icon: LineChart },
     { id: 'AI_CHAT', label: 'AI Chat', icon: MessageSquareCode },
