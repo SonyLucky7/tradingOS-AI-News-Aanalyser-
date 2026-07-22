@@ -1,14 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Maximize2, RefreshCw, BarChart2, Layers, Activity, Sliders, Eye } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Maximize2, RefreshCw, BarChart2, Sliders, Layers } from 'lucide-react';
 
 interface TradingViewChartProps {
   symbol: string;
-}
-
-declare global {
-  interface Window {
-    TradingView?: any;
-  }
 }
 
 export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) => {
@@ -17,9 +11,8 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
   const [chartStyle, setChartStyle] = useState<string>('1'); // 1: Candles, 8: Heikin Ashi, 2: Line, 3: Area
   const [showSideToolbar, setShowSideToolbar] = useState<boolean>(true);
   const [key, setKey] = useState(0);
-  const containerId = useRef(`tradingview_${Math.random().toString(36).substring(7)}`).current;
 
-  // Comprehensive, institutional TradingView Symbol Mapper
+  // Institutional TradingView Symbol Mapper
   const getTradingViewSymbol = (sym: string): string => {
     // 1. Crypto Pairs
     if (sym.endsWith('USDT') || sym.endsWith('BTC')) {
@@ -107,65 +100,13 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
     };
     if (usMap[sym]) return usMap[sym];
 
-    // Default fallback
     return `NSE:${sym}`;
   };
 
   const tvSymbol = getTradingViewSymbol(symbol);
 
-  useEffect(() => {
-    let script: HTMLScriptElement | null = null;
-    let timer: any = null;
-
-    const renderChart = () => {
-      const targetDiv = document.getElementById(containerId);
-      if (!targetDiv) return;
-
-      targetDiv.innerHTML = '';
-
-      // Primary Embed Script Engine
-      script = document.createElement('script');
-      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-      script.type = 'text/javascript';
-      script.async = true;
-      script.innerHTML = JSON.stringify({
-        autosize: true,
-        symbol: tvSymbol,
-        interval: timeframe,
-        timezone: "Asia/Kolkata",
-        theme: "dark",
-        style: chartStyle,
-        locale: "en",
-        enable_publishing: false,
-        hide_side_toolbar: !showSideToolbar,
-        allow_symbol_change: true,
-        save_image: true,
-        calendar: false,
-        hide_volume: false,
-        withdateranges: true,
-        details: true,
-        hotlist: false,
-        show_popup_button: true,
-        popup_width: "1000",
-        popup_height: "650",
-        backgroundColor: "rgba(7, 9, 14, 1)",
-        gridColor: "rgba(255, 255, 255, 0.05)",
-        support_host: "https://www.tradingview.com"
-      });
-
-      targetDiv.appendChild(script);
-    };
-
-    // Tiny delay to ensure DOM is ready
-    timer = setTimeout(renderChart, 50);
-
-    return () => {
-      clearTimeout(timer);
-      if (script && script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
-  }, [symbol, timeframe, chartStyle, showSideToolbar, key]);
+  // Direct 100% Reliable Interactive Chart URL
+  const iframeUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${encodeURIComponent(tvSymbol)}&interval=${timeframe}&hidesidetoolbar=${showSideToolbar ? '0' : '1'}&symboledit=1&saveimage=1&toolbarbg=0b0e17&studies=%5B%5D&theme=dark&style=${chartStyle}&timezone=Asia%2FKolkata`;
 
   const handleFullscreen = () => {
     if (containerRef.current) {
@@ -190,7 +131,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
           <div className="hidden sm:flex items-center space-x-1 text-[10px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/60 px-2 py-1 rounded">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>LIVE WEBSOCKET STREAM</span>
+            <span>LIVE CHARTS ACTIVE</span>
           </div>
         </div>
 
@@ -250,8 +191,8 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
           {/* Refresh Button */}
           <button
             onClick={() => setKey(k => k + 1)}
-            className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition"
-            title="Refresh Chart Feed"
+            className="text-slate-400 hover:text-white p-1.5 bg-slate-800 rounded hover:bg-slate-700 transition"
+            title="Refresh Live Chart Feed"
           >
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
@@ -267,12 +208,14 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
         </div>
       </div>
 
-      {/* TradingView Widget Display Area */}
-      <div className="relative flex-1 w-full h-full min-h-[440px] sm:min-h-[520px]">
-        <div 
-          id={containerId} 
-          className="tradingview-widget-container w-full h-full"
-          style={{ width: '100%', height: '100%' }}
+      {/* TradingView Direct Embed Frame */}
+      <div className="relative flex-1 w-full h-full min-h-[440px] sm:min-h-[520px] bg-[#07090E]">
+        <iframe
+          key={`${tvSymbol}-${timeframe}-${chartStyle}-${showSideToolbar}-${key}`}
+          src={iframeUrl}
+          className="w-full h-full border-0 absolute inset-0"
+          allowFullScreen
+          title={`TradingView Chart for ${tvSymbol}`}
         />
       </div>
     </div>
