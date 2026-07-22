@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTradeOS } from '../../context/TradeOSContext';
+import { FormattedAiText } from '../FormattedAiText';
 import { 
   MessageSquareCode, 
   Send, 
@@ -69,7 +70,11 @@ export const AIChatModule: React.FC = () => {
                     <span>{msg.agentName || (isUser ? 'You' : 'TradeOS Intelligence')}</span>
                     <span>{msg.timestamp}</span>
                   </div>
-                  <p className="whitespace-pre-wrap">{msg.text}</p>
+                  {isUser ? (
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                  ) : (
+                    <FormattedAiText text={msg.text} />
+                  )}
                 </div>
 
                 {isUser && (

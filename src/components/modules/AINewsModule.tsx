@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 import { formatTimeAgo } from '../../utils/timeAgo';
+import { FormattedAiText } from '../FormattedAiText';
 
 export const AINewsModule: React.FC = () => {
   const { newsEvents, setActiveModule } = useTradeOS();
@@ -245,9 +246,9 @@ export const AINewsModule: React.FC = () => {
                 <h4 className="text-xs font-bold text-trade-cyan uppercase tracking-wider mb-1 flex items-center gap-1.5">
                   <Brain className="w-4 h-4 text-trade-cyan" /> AI Event Breakdown & Impact Reasoning
                 </h4>
-                <p className="text-xs text-slate-200 leading-relaxed bg-dark-800/50 p-3 rounded-lg border border-slate-800">
-                  {activeEvent.aiExplanation}
-                </p>
+                <div className="bg-dark-800/50 p-3 rounded-lg border border-slate-800">
+                  <FormattedAiText text={activeEvent.aiExplanation} />
+                </div>
               </div>
 
               {/* Historical Comparison */}
@@ -255,9 +256,9 @@ export const AINewsModule: React.FC = () => {
                 <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
                   <History className="w-4 h-4 text-amber-400" /> Historical Event Similarity Analysis
                 </h4>
-                <p className="text-xs text-slate-300 leading-relaxed bg-dark-800/50 p-3 rounded-lg border border-slate-800">
-                  {activeEvent.historicalComparison}
-                </p>
+                <div className="bg-dark-800/50 p-3 rounded-lg border border-slate-800">
+                  <FormattedAiText text={activeEvent.historicalComparison} />
+                </div>
               </div>
 
               {/* Affected Markets */}

@@ -4,6 +4,7 @@ import { MarketCategory, MarketTicker } from '../../types/tradeos';
 import { TradingViewChart } from '../TradingViewChart';
 import { checkMarketStatus } from '../../utils/marketHours';
 import { getContextualAnalysis, AIAnalysis } from '../../services/groqAI';
+import { FormattedAiText } from '../FormattedAiText';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -317,9 +318,9 @@ export const TerminalModule: React.FC = () => {
               </div>
 
               {/* Summary */}
-              <p className="text-xs text-slate-300 leading-relaxed bg-dark-800/60 p-3 rounded-lg border border-slate-800">
-                {aiAnalysis.summary}
-              </p>
+              <div className="bg-dark-800/60 p-3 rounded-lg border border-slate-800">
+                <FormattedAiText text={aiAnalysis.summary} />
+              </div>
 
               {/* Key Drivers */}
               <div className="space-y-1">
@@ -327,14 +328,15 @@ export const TerminalModule: React.FC = () => {
                 {aiAnalysis.keyDrivers.map((d, i) => (
                   <div key={i} className="flex items-start gap-2 text-[11px] text-slate-300">
                     <ChevronRight className="w-3 h-3 text-trade-cyan mt-0.5 shrink-0" />
-                    <span>{d}</span>
+                    <FormattedAiText text={d} />
                   </div>
                 ))}
               </div>
 
               {/* Action Advice */}
               <div className="p-3 rounded-lg border border-violet-800/50 bg-violet-950/30 text-xs text-violet-200">
-                <strong className="text-violet-300">AI Recommendation:</strong> {aiAnalysis.actionAdvice}
+                <strong className="text-violet-300 block mb-1">AI Recommendation:</strong>
+                <FormattedAiText text={aiAnalysis.actionAdvice} />
               </div>
             </div>
           ) : null}
