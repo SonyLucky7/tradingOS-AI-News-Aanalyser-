@@ -100,6 +100,27 @@ export const INITIAL_TICKERS: MarketTicker[] = [
 
 export const INITIAL_NEWS_EVENTS: NewsEvent[] = [
   {
+    id: 'news-geo-100',
+    headline: '🚨 GEOPOLITICAL BREAKING: US-IRAN-CHINA CONFLICT ESCALATES OVER STRAIT OF HORMUZ CONTROL',
+    source: 'InvestingLive Macro Analysis / Reuters',
+    timeAgo: 'Just now',
+    timestamp: new Date().toISOString(),
+    category: 'COMMODITIES',
+    importanceScore: 99,
+    urgency: 'CRITICAL',
+    confidencePercent: 98,
+    sentiment: 'BEARISH',
+    expectedVolatility: 'EXTREME',
+    affectedSymbols: ['USOIL', 'UKOIL', 'XAUUSD', 'DXY', 'SPX'],
+    summary: 'US signals zero tolerance for Iranian control over the Strait of Hormuz. Rubio notes Tehran lacks serious diplomatic intent while China maintains cooperative stance. High risk of crude oil supply shock.',
+    aiExplanation: 'Control over the Strait of Hormuz represents Iran\'s primary strategic leverage over global crude shipments. Diplomatic stalemate and military posturing directly push Crude Oil (USOIL/UKOIL) and Gold (XAUUSD) higher while creating stagflation risk for equities.',
+    historicalComparison: 'Matches 2019 Gulf Tanker Crisis pattern where Hormuz shipping threats sparked an immediate +7.8% spike in WTI Crude within 48 hours.',
+    probabilityLargeMove: 96,
+    effectTimeframe: '24 - 72 Hours',
+    tradeRecommendation: 'BULLISH CRUDE OIL & GOLD — Tighten stop loss on equities. Hedge against energy volatility.',
+    warningAlert: '⚠️ CRITICAL GEOPOLITICAL CATALYST: Strait of Hormuz escalation in progress. Expect sharp volatility in Crude Oil & Safe Haven Gold.'
+  },
+  {
     id: 'news-101',
     headline: '⚠️ FED CHAIRMAN POWELL EMERGENCY SPEECH SCHEDULED IN 15 MIN',
     source: 'Federal Reserve Press / Reuters',
