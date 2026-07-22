@@ -20,7 +20,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
   const [chartStyle, setChartStyle] = useState<string>('1'); // 1: Candles, 8: Heikin Ashi, 2: Line, 3: Area
   const [showSideToolbar, setShowSideToolbar] = useState<boolean>(true);
   const [key, setKey] = useState(0);
-  const [engineMode, setEngineMode] = useState<ChartEngineMode>('TV_DIRECT_EMBED');
+  const [engineMode, setEngineMode] = useState<ChartEngineMode>('TV_SDK');
 
   const containerId = useRef(`tradingview_${Math.random().toString(36).substring(7)}`).current;
 
@@ -185,12 +185,22 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
     };
   }, [symbol, timeframe, chartStyle, showSideToolbar, key, engineMode]);
 
-  // Clean TradingView Direct Embed Frame URL (Passes parameters via clean search query strings)
-  const directEmbedUrl = `https://s.tradingview.com/widgetembed/?frameElementId=${containerId}&symbol=${encodeURIComponent(
-    tvSymbol
-  )}&interval=${timeframe}&theme=dark&style=${chartStyle}&hidesidetoolbar=${
-    showSideToolbar ? '0' : '1'
-  }&symboledit=1&saveimage=1&toolbarbg=0b0e17&studies=%5B%5D&timezone=Asia%2FKolkata`;
+  // Clean TradingView Direct Embed Frame URL
+  const widgetConfig = {
+    autosize: true,
+    symbol: tvSymbol,
+    interval: timeframe,
+    timezone: "Asia/Kolkata",
+    theme: "dark",
+    style: chartStyle,
+    locale: "en",
+    enable_publishing: false,
+    hide_side_toolbar: !showSideToolbar,
+    allow_symbol_change: true,
+    calendar: false
+  };
+
+  const directEmbedUrl = `https://www.tradingview-widget.com/embed-widget/advanced-chart/?locale=en#${encodeURI(JSON.stringify(widgetConfig))}`;
 
   const handleFullscreen = () => {
     if (containerRef.current) {
