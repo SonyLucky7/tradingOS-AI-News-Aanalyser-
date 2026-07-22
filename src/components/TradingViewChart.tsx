@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Maximize2, RefreshCw, BarChart2, Sliders, Cpu, Sparkles, MonitorPlay } from 'lucide-react';
-import { NativeCandlestickChart } from './NativeCandlestickChart';
+import React, { useEffect, useRef, useState } from 'react';
+import { Maximize2, RefreshCw, BarChart2, Layers, Activity, Sliders, Eye } from 'lucide-react';
 
 interface TradingViewChartProps {
   symbol: string;
@@ -12,19 +11,15 @@ declare global {
   }
 }
 
-export type ChartEngineMode = 'TV_SDK' | 'TV_DIRECT_EMBED' | 'NATIVE_CANVAS';
-
 export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [timeframe, setTimeframe] = useState<string>('15');
   const [chartStyle, setChartStyle] = useState<string>('1'); // 1: Candles, 8: Heikin Ashi, 2: Line, 3: Area
   const [showSideToolbar, setShowSideToolbar] = useState<boolean>(true);
   const [key, setKey] = useState(0);
-  const [engineMode, setEngineMode] = useState<ChartEngineMode>('TV_SDK');
-
   const containerId = useRef(`tradingview_${Math.random().toString(36).substring(7)}`).current;
 
-  // Institutional TradingView Symbol Mapper
+  // Comprehensive, institutional TradingView Symbol Mapper
   const getTradingViewSymbol = (sym: string): string => {
     // 1. Crypto Pairs
     if (sym.endsWith('USDT') || sym.endsWith('BTC')) {
@@ -112,95 +107,65 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
     };
     if (usMap[sym]) return usMap[sym];
 
+    // Default fallback
     return `NSE:${sym}`;
   };
 
   const tvSymbol = getTradingViewSymbol(symbol);
 
-  // Initialize Official TradingView Widget SDK when in TV_SDK mode
   useEffect(() => {
-    if (engineMode !== 'TV_SDK') return;
+    let script: HTMLScriptElement | null = null;
+    let timer: any = null;
 
-    let isSubscribed = true;
+    const renderChart = () => {
+      const targetDiv = document.getElementById(containerId);
+      if (!targetDiv) return;
 
-    const loadTradingViewScript = () => {
-      if (window.TradingView) {
-        initWidget();
-        return;
-      }
+      targetDiv.innerHTML = '';
 
-      const script = document.createElement('script');
-      script.id = 'tradingview-tv-script';
-      script.src = 'https://s3.tradingview.com/tv.js';
+      // Primary Embed Script Engine
+      script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
       script.type = 'text/javascript';
-      script.onload = () => {
-        if (isSubscribed) initWidget();
-      };
-      script.onerror = () => {
-        if (isSubscribed) setEngineMode('TV_DIRECT_EMBED');
-      };
-      document.head.appendChild(script);
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        autosize: true,
+        symbol: tvSymbol,
+        interval: timeframe,
+        timezone: "Asia/Kolkata",
+        theme: "dark",
+        style: chartStyle,
+        locale: "en",
+        enable_publishing: false,
+        hide_side_toolbar: !showSideToolbar,
+        allow_symbol_change: true,
+        save_image: true,
+        calendar: false,
+        hide_volume: false,
+        withdateranges: true,
+        details: true,
+        hotlist: false,
+        show_popup_button: true,
+        popup_width: "1000",
+        popup_height: "650",
+        backgroundColor: "rgba(7, 9, 14, 1)",
+        gridColor: "rgba(255, 255, 255, 0.05)",
+        support_host: "https://www.tradingview.com"
+      });
+
+      targetDiv.appendChild(script);
     };
 
-    const initWidget = () => {
-      const containerEl = document.getElementById(containerId);
-      if (!containerEl) return;
-
-      containerEl.innerHTML = '';
-
-      try {
-        if (window.TradingView && window.TradingView.widget) {
-          new window.TradingView.widget({
-            autosize: true,
-            symbol: tvSymbol,
-            interval: timeframe,
-            timezone: 'Asia/Kolkata',
-            theme: 'dark',
-            style: chartStyle,
-            locale: 'en',
-            toolbar_bg: '#0B0E17',
-            enable_publishing: false,
-            hide_side_toolbar: !showSideToolbar,
-            allow_symbol_change: true,
-            container_id: containerId,
-            withdateranges: true,
-            details: true,
-            hotlist: false,
-            calendar: false,
-            studies: []
-          });
-        } else {
-          setEngineMode('TV_DIRECT_EMBED');
-        }
-      } catch (err) {
-        console.warn('TradingView SDK init warning:', err);
-        setEngineMode('TV_DIRECT_EMBED');
-      }
-    };
-
-    loadTradingViewScript();
+    // Tiny delay to ensure DOM is ready
+    timer = setTimeout(renderChart, 50);
 
     return () => {
-      isSubscribed = false;
+      clearTimeout(timer);
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
     };
-  }, [symbol, timeframe, chartStyle, showSideToolbar, key, engineMode]);
-
-  // Clean TradingView Direct Embed Frame URL
-  const widgetConfig = {
-    autosize: true,
-    symbol: tvSymbol,
-    interval: timeframe,
-    timezone: "Asia/Kolkata",
-    theme: "dark",
-    style: chartStyle,
-    locale: "en",
-    enable_publishing: false,
-    hide_side_toolbar: !showSideToolbar,
-    allow_symbol_change: true,
-    calendar: false
-  };
-
-  const directEmbedUrl = `https://www.tradingview-widget.com/embed-widget/advanced-chart/?locale=en#${encodeURI(JSON.stringify(widgetConfig))}`;
+  }, [symbol, timeframe, chartStyle, showSideToolbar, key]);
 
   const handleFullscreen = () => {
     if (containerRef.current) {
@@ -210,13 +175,6 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
         containerRef.current.requestFullscreen();
       }
     }
-  };
-
-  const cycleEngine = () => {
-    if (engineMode === 'TV_DIRECT_EMBED') setEngineMode('TV_SDK');
-    else if (engineMode === 'TV_SDK') setEngineMode('NATIVE_CANVAS');
-    else setEngineMode('TV_DIRECT_EMBED');
-    setKey(k => k + 1);
   };
 
   return (
@@ -230,17 +188,10 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
             <span>{tvSymbol}</span>
           </div>
 
-          {/* Engine Selector Pill */}
-          <button
-            onClick={cycleEngine}
-            className="flex items-center space-x-1.5 text-[10px] text-amber-300 font-bold bg-amber-950/70 border border-amber-500/50 px-2 py-1 rounded hover:bg-amber-900/80 transition"
-            title="Click to switch chart engine mode"
-          >
-            <Cpu className="w-3 h-3 text-amber-400" />
-            <span>
-              ENGINE: {engineMode === 'TV_DIRECT_EMBED' ? 'TV DIRECT EMBED' : engineMode === 'TV_SDK' ? 'TV JS SDK' : 'NATIVE 60FPS CANVAS'}
-            </span>
-          </button>
+          <div className="hidden sm:flex items-center space-x-1 text-[10px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/60 px-2 py-1 rounded">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>LIVE WEBSOCKET STREAM</span>
+          </div>
         </div>
 
         {/* Center: Timeframe Quick Switcher */}
@@ -296,14 +247,13 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
             <span className="hidden md:inline">{showSideToolbar ? 'Tools ON' : 'Tools OFF'}</span>
           </button>
 
-          {/* Switch / Refresh Engine Button */}
+          {/* Refresh Button */}
           <button
-            onClick={cycleEngine}
-            className="text-slate-300 hover:text-white px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 transition flex items-center gap-1 text-[11px] font-bold border border-slate-700"
-            title="Switch Chart Engine Mode"
+            onClick={() => setKey(k => k + 1)}
+            className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition"
+            title="Refresh Chart Feed"
           >
-            <RefreshCw className="w-3 h-3 text-trade-cyan" />
-            <span>Switch Engine</span>
+            <RefreshCw className="w-3.5 h-3.5" />
           </button>
 
           {/* Fullscreen Button */}
@@ -317,34 +267,13 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
         </div>
       </div>
 
-      {/* TradingView Display Area */}
-      <div className="relative flex-1 w-full h-full min-h-[440px] sm:min-h-[520px] bg-[#07090E]">
-        {engineMode === 'TV_DIRECT_EMBED' && (
-          <iframe
-            key={`embed-${tvSymbol}-${timeframe}-${chartStyle}-${showSideToolbar}-${key}`}
-            src={directEmbedUrl}
-            className="w-full h-full border-0 absolute inset-0"
-            allowFullScreen
-            title={`TradingView Direct Chart for ${tvSymbol}`}
-          />
-        )}
-
-        {engineMode === 'TV_SDK' && (
-          <div
-            key={`sdk-${containerId}-${key}`}
-            id={containerId}
-            className="tradingview-widget-container w-full h-full"
-            style={{ width: '100%', height: '100%' }}
-          />
-        )}
-
-        {engineMode === 'NATIVE_CANVAS' && (
-          <NativeCandlestickChart
-            key={`native-${tvSymbol}-${timeframe}-${key}`}
-            symbol={tvSymbol}
-            timeframe={timeframe}
-          />
-        )}
+      {/* TradingView Widget Display Area */}
+      <div className="relative flex-1 w-full h-full min-h-[440px] sm:min-h-[520px]">
+        <div 
+          id={containerId} 
+          className="tradingview-widget-container w-full h-full"
+          style={{ width: '100%', height: '100%' }}
+        />
       </div>
     </div>
   );

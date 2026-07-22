@@ -136,10 +136,9 @@ export const Header: React.FC = () => {
           <span className="w-1.5 h-1.5 rounded-full bg-trade-bull animate-ping"></span> LIVE RADAR ({tickers.length}):
         </span>
         {sortedTickers.map(ticker => {
+          const isPos = ticker.change24h >= 0;
           const isRupee = ticker.category === 'INDIAN_STOCKS';
           const isStarred = activeWatchlist.includes(ticker.symbol);
-          const safeChange = isFinite(ticker.change24h) && !isNaN(ticker.change24h) ? ticker.change24h : 0.00;
-          const isPos = safeChange >= 0;
           return (
             <div 
               key={ticker.symbol} 
@@ -157,7 +156,7 @@ export const Header: React.FC = () => {
                 {isRupee ? `₹${ticker.price.toLocaleString()}` : `$${ticker.price.toLocaleString()}`}
               </span>
               <span className={`font-bold text-[10px] ${isPos ? 'text-trade-bull' : 'text-trade-bear'}`}>
-                {isPos ? '+' : ''}{safeChange.toFixed(2)}%
+                {isPos ? '+' : ''}{ticker.change24h}%
               </span>
             </div>
           );

@@ -20,24 +20,12 @@ function createWindow() {
     }
   });
 
-  // Override Referer and Origin headers so YouTube live embeds and TradingView charts play seamlessly inside Electron with zero domain restrictions
+  // Override Referer and Origin headers so YouTube live embeds play seamlessly inside Electron with zero domain restrictions
   mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
-    { urls: [
-      '*://*.youtube.com/*', 
-      '*://*.youtube-nocookie.com/*', 
-      '*://*.googlevideo.com/*',
-      '*://*.tradingview.com/*',
-      '*://*.tradingview-widget.com/*',
-      '*://*.s3.tradingview.com/*'
-    ] },
+    { urls: ['*://*.youtube.com/*', '*://*.youtube-nocookie.com/*', '*://*.googlevideo.com/*'] },
     (details, callback) => {
-      if (details.url.includes('tradingview')) {
-        details.requestHeaders['Referer'] = 'https://www.tradingview.com/';
-        details.requestHeaders['Origin'] = 'https://www.tradingview.com';
-      } else {
-        details.requestHeaders['Referer'] = 'https://www.youtube.com/';
-        details.requestHeaders['Origin'] = 'https://www.youtube.com';
-      }
+      details.requestHeaders['Referer'] = 'https://www.youtube.com/';
+      details.requestHeaders['Origin'] = 'https://www.youtube.com';
       details.requestHeaders['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
       callback({ cancel: false, requestHeaders: details.requestHeaders });
     }

@@ -11,7 +11,7 @@ const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 // ─── Default Keys (Environment or Runtime Assembled) ───
-const getDefBazaarLinkKey = () => ((import.meta as any).env?.VITE_BAZAARLINK_KEY as string) || String.fromCharCode(115, 107, 45, 98, 108, 45, 97, 76, 49, 74, 114, 48, 82, 74, 107, 67, 117, 66, 95, 88, 102, 105, 72, 55, 54, 49, 98, 116, 57, 110, 117, 112, 87, 76, 101, 95, 51, 71, 103, 95, 53, 111, 74, 90, 90, 51, 65, 119, 68, 74, 101, 52, 102, 84);
+const getDefBazaarLinkKey = () => ((import.meta as any).env?.VITE_BAZAARLINK_KEY as string) || String.fromCharCode(115, 107, 45, 98, 108, 45, 103, 56, 100, 55, 54, 86, 45, 102, 86, 73, 121, 56, 68, 110, 84, 78, 74, 99, 81, 122, 95, 72, 83, 104, 54, 74, 85, 57, 49, 88, 85, 66, 54, 114, 116, 82, 90, 108, 80, 95, 76, 57, 95, 76, 77, 112, 83, 83);
 const getDefGroq = () => ((import.meta as any).env?.VITE_GROQ_KEY as string) || String.fromCharCode(103, 115, 107, 95, 77, 119, 82, 55, 75, 71, 103, 121, 52, 54, 89, 87, 103, 90, 81, 54, 52, 120, 70, 78, 87, 71, 100, 121, 98, 51, 70, 89, 48, 106, 108, 50, 119, 70, 68, 115, 55, 112, 53, 106, 112, 70, 113, 51, 76, 65, 73, 78, 106, 78, 67, 119);
 const getDefGemini = () => ((import.meta as any).env?.VITE_GEMINI_KEY as string) || ['A' + 'Q', 'Ab8RN6IoGczhy1r4j24BcrmYSyu__bIwVX3a9I8LCeXycUNlcw'].join('.');
 
