@@ -303,33 +303,77 @@ export const INITIAL_ECONOMIC_EVENTS: EconomicEvent[] = [
     id: 'ec-1',
     time: '18:30 IST',
     currency: 'USD',
-    event: 'Fed Chair Powell Testifies Before Senate',
+    event: 'Fed Chair Powell Testifies Before Senate Banking Committee',
     impact: 'HIGH',
-    forecast: 'Hawkish stance',
+    forecast: 'Hawkish Stance',
     previous: '5.25%',
     countdownMinutes: 14,
-    aiWarning: '⚠️ CRITICAL: Avoid entering new BTC, EURUSD, SPX positions.'
+    aiWarning: '⚠️ CRITICAL: Powell speech precedes blackout period. Paused leverage entry on BTC, EURUSD & SPX.'
   },
   {
     id: 'ec-2',
     time: '20:00 IST',
     currency: 'USD',
-    event: 'US Core CPI YoY (Inflation Rate)',
+    event: 'US Core CPI Inflation Rate (YoY)',
     impact: 'HIGH',
     forecast: '3.3%',
     previous: '3.4%',
     countdownMinutes: 104,
-    aiWarning: 'High impact release. Bond yield volatility expected.'
+    aiWarning: 'High volatility expected across US Treasuries, DXY Dollar Index, and Gold XAUUSD.'
   },
   {
     id: 'ec-3',
+    time: '20:45 IST',
+    currency: 'EUR',
+    event: 'ECB Rate Decision & Christine Lagarde Press Conference',
+    impact: 'HIGH',
+    forecast: '4.25%',
+    previous: '4.50%',
+    countdownMinutes: 149,
+    aiWarning: 'EURUSD liquidity sweep expected. Watch 1.0850 support level.'
+  },
+  {
+    id: 'ec-4',
+    time: '22:00 IST',
+    currency: 'USD',
+    event: 'US EIA Weekly Crude Oil Inventories',
+    impact: 'HIGH',
+    forecast: '-1.8M bbl',
+    previous: '+1.2M bbl',
+    countdownMinutes: 224,
+    aiWarning: 'High impact on WTI Crude Oil (USOIL/UKOIL) & energy sector equities.'
+  },
+  {
+    id: 'ec-5',
     time: 'Tomorrow 11:00 IST',
     currency: 'INR',
-    event: 'RBI Monetary Policy Interest Rate Decision',
+    event: 'RBI Monetary Policy Committee (MPC) Interest Rate Decision',
     impact: 'HIGH',
     forecast: '6.50%',
     previous: '6.50%',
     countdownMinutes: 1140,
-    aiWarning: 'Watch BankNifty option chain PCR prior to policy.'
+    aiWarning: 'Watch BankNifty Option Chain PCR and FII Net Flow before rate statement.'
+  },
+  {
+    id: 'ec-6',
+    time: 'Tomorrow 12:30 IST',
+    currency: 'GBP',
+    event: 'UK Monthly GDP Growth Rate (MoM)',
+    impact: 'MEDIUM',
+    forecast: '0.2%',
+    previous: '0.0%',
+    countdownMinutes: 1230,
+    aiWarning: 'Cable (GBPUSD) volatility expected. Monitor London session opening.'
+  },
+  {
+    id: 'ec-7',
+    time: 'Friday 18:30 IST',
+    currency: 'USD',
+    event: 'US Non-Farm Payrolls (NFP) & Unemployment Rate',
+    impact: 'HIGH',
+    forecast: '185K',
+    previous: '206K',
+    countdownMinutes: 3040,
+    aiWarning: 'Tier-1 Economic Event. Expect 150+ pip swing in Gold (XAUUSD) & S&P 500 futures.'
   }
 ];
