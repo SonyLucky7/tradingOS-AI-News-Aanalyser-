@@ -31,13 +31,17 @@ export const Sidebar: React.FC = () => {
     { id: 'SETTINGS', label: 'Settings & API Keys', icon: Settings, badge: null },
   ];
 
-  // Mobile Bottom Bar Primary Shortcuts
-  const mobileBarItems = [
+  // Mobile Bottom Bar Primary Shortcuts (11 Full Intelligence Modules)
+  const allMobileItems = [
     { id: 'TERMINAL', label: 'Terminal', icon: LayoutDashboard },
     { id: 'NEWS', label: 'News', icon: Newspaper },
     { id: 'LIVE_TV', label: 'Live TV', icon: Tv },
     { id: 'COPILOT', label: 'Co-Pilot', icon: Bot },
+    { id: 'SL_INVESTIGATOR', label: 'SL Check', icon: SearchX },
     { id: 'OPTION_CHAIN', label: 'Chain', icon: LineChart },
+    { id: 'JOURNAL', label: 'Journal', icon: BookOpen },
+    { id: 'CALENDAR', label: 'Calendar', icon: CalendarDays },
+    { id: 'DAILY_BRIEFING', label: 'Briefing', icon: FileText },
     { id: 'AI_CHAT', label: 'AI Chat', icon: MessageSquareCode },
     { id: 'SETTINGS', label: 'Settings', icon: Settings },
   ];
@@ -97,20 +101,22 @@ export const Sidebar: React.FC = () => {
       </aside>
 
       {/* Mobile Fixed Bottom Navigation Bar (Visible only on <768px screens) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#090C14]/95 backdrop-blur-md border-t border-slate-800/90 flex justify-around items-center h-14 px-1 font-mono">
-        {mobileBarItems.map(item => {
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#090C14]/95 backdrop-blur-lg border-t border-slate-800/90 flex items-center h-14 px-2 overflow-x-auto no-scrollbar space-x-1 font-mono">
+        {allMobileItems.map(item => {
           const Icon = item.icon;
           const isActive = activeModule === item.id;
           return (
             <button
               key={item.id}
               onClick={() => setActiveModule(item.id)}
-              className={`flex flex-col items-center justify-center flex-1 py-1 rounded-lg transition ${
-                isActive ? 'text-trade-cyan font-bold' : 'text-slate-400 hover:text-slate-200'
+              className={`flex flex-col items-center justify-center shrink-0 px-3 py-1 rounded-xl transition ${
+                isActive 
+                  ? 'bg-trade-cyan/15 text-trade-cyan border border-trade-cyan/40 font-bold shadow-md' 
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Icon className={`w-4 h-4 mb-0.5 ${isActive ? 'text-trade-cyan scale-110' : 'text-slate-400'}`} />
-              <span className="text-[9px] truncate">{item.label}</span>
+              <span className="text-[9.5px] whitespace-nowrap">{item.label}</span>
             </button>
           );
         })}
