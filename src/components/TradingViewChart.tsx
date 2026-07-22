@@ -1,14 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Maximize2, RefreshCw, BarChart2, Layers, Activity, Sliders, Eye } from 'lucide-react';
+import React, { useRef, useState, useMemo } from 'react';
+import { Maximize2, RefreshCw, BarChart2, Sliders } from 'lucide-react';
 
 interface TradingViewChartProps {
   symbol: string;
-}
-
-declare global {
-  interface Window {
-    TradingView?: any;
-  }
 }
 
 export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) => {
@@ -113,59 +107,35 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
   const tvSymbol = getTradingViewSymbol(symbol);
 
-  useEffect(() => {
-    let script: HTMLScriptElement | null = null;
-    let timer: any = null;
+  // Build direct TradingView embed iframe URL — most reliable method for Electron + Browser
+  const buildEmbedUrl = (): string => {
+    const params = new URLSearchParams({
+      frameElementId: containerId,
+      symbol: tvSymbol,
+      interval: timeframe,
+      theme: 'dark',
+      style: chartStyle,
+      timezone: 'Asia/Kolkata',
+      locale: 'en',
+      enable_publishing: '0',
+      hide_side_toolbar: showSideToolbar ? '0' : '1',
+      allow_symbol_change: '1',
+      save_image: '1',
+      withdateranges: '1',
+      details: '1',
+      calendar: '0',
+      hotlist: '0',
+      show_popup_button: '1',
+      popup_width: '1000',
+      popup_height: '650',
+      backgroundColor: 'rgba(7, 9, 14, 1)',
+      gridColor: 'rgba(255, 255, 255, 0.05)',
+      hide_volume: '0',
+    });
+    return `https://s.tradingview.com/widgetembed/?${params.toString()}`;
+  };
 
-    const renderChart = () => {
-      const targetDiv = document.getElementById(containerId);
-      if (!targetDiv) return;
-
-      targetDiv.innerHTML = '';
-
-      // Primary Embed Script Engine
-      script = document.createElement('script');
-      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-      script.type = 'text/javascript';
-      script.async = true;
-      script.innerHTML = JSON.stringify({
-        autosize: true,
-        symbol: tvSymbol,
-        interval: timeframe,
-        timezone: "Asia/Kolkata",
-        theme: "dark",
-        style: chartStyle,
-        locale: "en",
-        enable_publishing: false,
-        hide_side_toolbar: !showSideToolbar,
-        allow_symbol_change: true,
-        save_image: true,
-        calendar: false,
-        hide_volume: false,
-        withdateranges: true,
-        details: true,
-        hotlist: false,
-        show_popup_button: true,
-        popup_width: "1000",
-        popup_height: "650",
-        backgroundColor: "rgba(7, 9, 14, 1)",
-        gridColor: "rgba(255, 255, 255, 0.05)",
-        support_host: "https://www.tradingview.com"
-      });
-
-      targetDiv.appendChild(script);
-    };
-
-    // Tiny delay to ensure DOM is ready
-    timer = setTimeout(renderChart, 50);
-
-    return () => {
-      clearTimeout(timer);
-      if (script && script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
-  }, [symbol, timeframe, chartStyle, showSideToolbar, key]);
+  const embedUrl = buildEmbedUrl();
 
   const handleFullscreen = () => {
     if (containerRef.current) {
@@ -267,12 +237,14 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
         </div>
       </div>
 
-      {/* TradingView Widget Display Area */}
+      {/* TradingView Direct Iframe Chart — guaranteed rendering in Electron + Browser */}
       <div className="relative flex-1 w-full h-full min-h-[440px] sm:min-h-[520px]">
-        <div 
-          id={containerId} 
-          className="tradingview-widget-container w-full h-full"
-          style={{ width: '100%', height: '100%' }}
+        <iframe
+          key={`chart-${tvSymbol}-${timeframe}-${chartStyle}-${showSideToolbar}-${key}`}
+          src={embedUrl}
+          className="w-full h-full border-0 absolute inset-0"
+          allowFullScreen
+          title={`TradingView Chart for ${tvSymbol}`}
         />
       </div>
     </div>
