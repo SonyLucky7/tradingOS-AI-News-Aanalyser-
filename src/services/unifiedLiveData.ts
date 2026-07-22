@@ -13,6 +13,28 @@ export interface LiveMarketUpdate {
   low24h?: number;
 }
 
+// Utility: Strip raw HTML tags and decode HTML entities cleanly
+export function stripHtmlTags(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<\/p>/gi, ' ')
+    .replace(/<\/li>/gi, ' ')
+    .replace(/<[^>]*>/g, '') // Remove all HTML tags
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&rsquo;/gi, "'")
+    .replace(/&lsquo;/gi, "'")
+    .replace(/&rdquo;/gi, '"')
+    .replace(/&ldquo;/gi, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // 1. Fetch Real-time Quotes from Yahoo Finance CORS Proxy for NSE, Commodities & Indices
 export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpdate | null> {
   const yahooSymbolMap: Record<string, string> = {
@@ -72,10 +94,10 @@ function classifyNewsMetadata(headline: string, text: string) {
     if (full.includes('bank') || full.includes('rbi')) symbols.push('BANKNIFTY');
     if (full.includes('reliance')) symbols.push('RELIANCE');
     if (symbols.length === 0) symbols.push('NIFTY50', 'BANKNIFTY');
-  } else if (full.includes('oil') || full.includes('crude') || full.includes('gold') || full.includes('gas') || full.includes('commodity') || full.includes('silver') || full.includes('opec')) {
+  } else if (full.includes('oil') || full.includes('crude') || full.includes('gold') || full.includes('gas') || full.includes('commodity') || full.includes('silver') || full.includes('opec') || full.includes('iran') || full.includes('hormuz')) {
     category = 'COMMODITIES';
     if (full.includes('gold')) symbols.push('XAUUSD');
-    if (full.includes('oil') || full.includes('crude')) symbols.push('USOIL', 'UKOIL');
+    if (full.includes('oil') || full.includes('crude') || full.includes('iran') || full.includes('hormuz')) symbols.push('USOIL', 'UKOIL');
     if (symbols.length === 0) symbols.push('XAUUSD', 'USOIL');
   } else if (full.includes('fed') || full.includes('powell') || full.includes('rate') || full.includes('ecb') || full.includes('cpi') || full.includes('dollar') || full.includes('dxy') || full.includes('forex') || full.includes('inflation')) {
     category = 'FOREX';
@@ -94,7 +116,7 @@ function classifyNewsMetadata(headline: string, text: string) {
   let sentiment: 'BULLISH' | 'BEARISH' | 'NEUTRAL' = 'NEUTRAL';
   if (full.includes('surge') || full.includes('rally') || full.includes('record') || full.includes('jump') || full.includes('gain') || full.includes('soar') || full.includes('bull') || full.includes('cut') || full.includes('approval')) {
     sentiment = 'BULLISH';
-  } else if (full.includes('drop') || full.includes('fall') || full.includes('plunge') || full.includes('crash') || full.includes('fear') || full.includes('war') || full.includes('hike') || full.includes('tensions') || full.includes('slump')) {
+  } else if (full.includes('drop') || full.includes('fall') || full.includes('plunge') || full.includes('crash') || full.includes('fear') || full.includes('war') || full.includes('hike') || full.includes('tensions') || full.includes('slump') || full.includes('conflict') || full.includes('trouble')) {
     sentiment = 'BEARISH';
   }
 
@@ -125,17 +147,19 @@ export async function fetchLiveBreakingNews(): Promise<any[]> {
     const res = results[i];
     if (res.status === 'fulfilled' && Array.isArray(res.value)) {
       res.value.slice(0, 10).forEach((item: any, idx: number) => {
-        if (!item.headline || seenHeadlines.has(item.headline.toLowerCase())) return;
-        seenHeadlines.add(item.headline.toLowerCase());
+        const cleanHeadline = stripHtmlTags(item.headline);
+        if (!cleanHeadline || seenHeadlines.has(cleanHeadline.toLowerCase())) return;
+        seenHeadlines.add(cleanHeadline.toLowerCase());
 
         const timestamp = item.datetime ? new Date(item.datetime * 1000).toISOString() : new Date().toISOString();
         const timeAgo = formatTimeAgo(timestamp);
-        const meta = classifyNewsMetadata(item.headline, item.summary || '');
+        const cleanSummary = stripHtmlTags(item.summary || cleanHeadline);
+        const meta = classifyNewsMetadata(cleanHeadline, cleanSummary);
 
         newsList.push({
           id: `finnhub-${item.id || idx}-${Date.now()}`,
-          headline: item.headline,
-          source: item.source || 'Bloomberg / Reuters',
+          headline: cleanHeadline,
+          source: stripHtmlTags(item.source) || 'Bloomberg / Reuters',
           timeAgo,
           timestamp,
           category: meta.category,
@@ -145,13 +169,13 @@ export async function fetchLiveBreakingNews(): Promise<any[]> {
           sentiment: meta.sentiment,
           expectedVolatility: 'HIGH',
           affectedSymbols: meta.symbols,
-          summary: item.summary || item.headline,
-          aiExplanation: `Realtime AI Analysis: ${item.headline}. Evaluated for multi-asset impact across ${meta.category}.`,
+          summary: cleanSummary,
+          aiExplanation: `Realtime AI Analysis: ${cleanHeadline}. Evaluated for multi-asset impact across ${meta.category}.`,
           historicalComparison: 'Matches institutional catalyst wave pattern.',
           probabilityLargeMove: 88,
           effectTimeframe: '30 mins - 4 hours',
           tradeRecommendation: 'Verify structure and stop-loss before execution.',
-          warningAlert: idx === 0 ? `⚠️ LIVE REALTIME BREAKING NEWS: ${item.headline}` : undefined
+          warningAlert: idx === 0 ? `⚠️ LIVE REALTIME BREAKING NEWS: ${cleanHeadline}` : undefined
         });
       });
     }
@@ -161,17 +185,19 @@ export async function fetchLiveBreakingNews(): Promise<any[]> {
   const ccRes = results[3];
   if (ccRes.status === 'fulfilled' && ccRes.value?.Data && Array.isArray(ccRes.value.Data)) {
     ccRes.value.Data.slice(0, 10).forEach((item: any, idx: number) => {
-      if (!item.title || seenHeadlines.has(item.title.toLowerCase())) return;
-      seenHeadlines.add(item.title.toLowerCase());
+      const cleanTitle = stripHtmlTags(item.title);
+      if (!cleanTitle || seenHeadlines.has(cleanTitle.toLowerCase())) return;
+      seenHeadlines.add(cleanTitle.toLowerCase());
 
       const timestamp = item.published_on ? new Date(item.published_on * 1000).toISOString() : new Date().toISOString();
       const timeAgo = formatTimeAgo(timestamp);
-      const meta = classifyNewsMetadata(item.title, item.body || '');
+      const cleanBody = stripHtmlTags(item.body || cleanTitle).slice(0, 220);
+      const meta = classifyNewsMetadata(cleanTitle, cleanBody);
 
       newsList.push({
         id: `cc-${item.id || idx}-${Date.now()}`,
-        headline: item.title,
-        source: item.source_info?.name || item.source || 'CoinDesk / Cointelegraph',
+        headline: cleanTitle,
+        source: stripHtmlTags(item.source_info?.name || item.source) || 'CoinDesk / Cointelegraph',
         timeAgo,
         timestamp,
         category: 'CRYPTO',
@@ -181,8 +207,8 @@ export async function fetchLiveBreakingNews(): Promise<any[]> {
         sentiment: meta.sentiment,
         expectedVolatility: 'HIGH',
         affectedSymbols: meta.symbols.length > 0 ? meta.symbols : ['BTCUSDT', 'ETHUSDT'],
-        summary: item.body ? item.body.replace(/<[^>]*>?/gm, '').slice(0, 220) : item.title,
-        aiExplanation: `Realtime On-Chain Intel: ${item.title}. Evaluated for Crypto market impact.`,
+        summary: cleanBody,
+        aiExplanation: `Realtime On-Chain Intel: ${cleanTitle}. Evaluated for Crypto market impact.`,
         historicalComparison: 'Matches liquidity inflow catalyst pattern.',
         probabilityLargeMove: 86,
         effectTimeframe: '15 mins - 2 hours',
@@ -195,17 +221,19 @@ export async function fetchLiveBreakingNews(): Promise<any[]> {
   const rssRes = results[4];
   if (rssRes.status === 'fulfilled' && rssRes.value?.items && Array.isArray(rssRes.value.items)) {
     rssRes.value.items.slice(0, 10).forEach((item: any, idx: number) => {
-      if (!item.title || seenHeadlines.has(item.title.toLowerCase())) return;
-      seenHeadlines.add(item.title.toLowerCase());
+      const cleanTitle = stripHtmlTags(item.title);
+      if (!cleanTitle || seenHeadlines.has(cleanTitle.toLowerCase())) return;
+      seenHeadlines.add(cleanTitle.toLowerCase());
 
       const timestamp = item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString();
       const timeAgo = formatTimeAgo(timestamp);
-      const meta = classifyNewsMetadata(item.title, item.description || '');
+      const cleanDesc = stripHtmlTags(item.description || cleanTitle).slice(0, 220);
+      const meta = classifyNewsMetadata(cleanTitle, cleanDesc);
 
       newsList.push({
         id: `rss-${idx}-${Date.now()}`,
-        headline: item.title,
-        source: item.author || 'Financial Times / Financial RSS',
+        headline: cleanTitle,
+        source: stripHtmlTags(item.author) || 'Financial Times / Financial RSS',
         timeAgo,
         timestamp,
         category: meta.category,
@@ -215,8 +243,8 @@ export async function fetchLiveBreakingNews(): Promise<any[]> {
         sentiment: meta.sentiment,
         expectedVolatility: 'MEDIUM',
         affectedSymbols: meta.symbols,
-        summary: item.description ? item.description.replace(/<[^>]*>?/gm, '').slice(0, 220) : item.title,
-        aiExplanation: `Realtime AI Analysis: ${item.title}`,
+        summary: cleanDesc,
+        aiExplanation: `Realtime AI Analysis: ${cleanTitle}`,
         historicalComparison: 'Standard market catalyst.',
         probabilityLargeMove: 82,
         effectTimeframe: '1 hour',

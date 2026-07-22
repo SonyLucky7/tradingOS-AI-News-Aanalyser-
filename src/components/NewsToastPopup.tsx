@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 import { formatTimeAgo } from '../utils/timeAgo';
+import { stripHtmlTags } from '../services/unifiedLiveData';
 
 export const NewsToastPopup: React.FC = () => {
   const { newsEvents, setActiveModule, selectedTicker } = useTradeOS();
@@ -105,7 +106,7 @@ export const NewsToastPopup: React.FC = () => {
 
         {/* Headline */}
         <h4 className="text-xs font-bold text-white leading-snug">
-          {currentNews.headline}
+          {stripHtmlTags(currentNews.headline)}
         </h4>
 
         {/* WHICH MARKETS ARE AFFECTED */}
