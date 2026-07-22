@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Maximize2, RefreshCw, BarChart2, Sliders, Layers } from 'lucide-react';
+import { Maximize2, RefreshCw, BarChart2, Sliders, Cpu, Sparkles, MonitorPlay } from 'lucide-react';
+import { NativeCandlestickChart } from './NativeCandlestickChart';
 
 interface TradingViewChartProps {
   symbol: string;
@@ -11,13 +12,15 @@ declare global {
   }
 }
 
+export type ChartEngineMode = 'TV_SDK' | 'TV_DIRECT_EMBED' | 'NATIVE_CANVAS';
+
 export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [timeframe, setTimeframe] = useState<string>('15');
   const [chartStyle, setChartStyle] = useState<string>('1'); // 1: Candles, 8: Heikin Ashi, 2: Line, 3: Area
   const [showSideToolbar, setShowSideToolbar] = useState<boolean>(true);
   const [key, setKey] = useState(0);
-  const [useIframeFallback, setUseIframeFallback] = useState(false);
+  const [engineMode, setEngineMode] = useState<ChartEngineMode>('TV_DIRECT_EMBED');
 
   const containerId = useRef(`tradingview_${Math.random().toString(36).substring(7)}`).current;
 
@@ -114,8 +117,10 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
   const tvSymbol = getTradingViewSymbol(symbol);
 
-  // Initialize Official TradingView Widget SDK
+  // Initialize Official TradingView Widget SDK when in TV_SDK mode
   useEffect(() => {
+    if (engineMode !== 'TV_SDK') return;
+
     let isSubscribed = true;
 
     const loadTradingViewScript = () => {
@@ -132,7 +137,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
         if (isSubscribed) initWidget();
       };
       script.onerror = () => {
-        if (isSubscribed) setUseIframeFallback(true);
+        if (isSubscribed) setEngineMode('TV_DIRECT_EMBED');
       };
       document.head.appendChild(script);
     };
@@ -165,11 +170,11 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
             studies: []
           });
         } else {
-          setUseIframeFallback(true);
+          setEngineMode('TV_DIRECT_EMBED');
         }
       } catch (err) {
         console.warn('TradingView SDK init warning:', err);
-        setUseIframeFallback(true);
+        setEngineMode('TV_DIRECT_EMBED');
       }
     };
 
@@ -178,25 +183,14 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
     return () => {
       isSubscribed = false;
     };
-  }, [symbol, timeframe, chartStyle, showSideToolbar, key]);
+  }, [symbol, timeframe, chartStyle, showSideToolbar, key, engineMode]);
 
-  // Direct Interactive Widget Iframe Fallback URL
-  const iframeUrl = `https://www.tradingview-widget.com/embed-widget/advanced-chart/?locale=en#${encodeURIComponent(
-    JSON.stringify({
-      autosize: true,
-      symbol: tvSymbol,
-      interval: timeframe,
-      timezone: 'Asia/Kolkata',
-      theme: 'dark',
-      style: chartStyle,
-      locale: 'en',
-      enable_publishing: false,
-      hide_side_toolbar: !showSideToolbar,
-      allow_symbol_change: true,
-      save_image: true,
-      container_id: containerId
-    })
-  )}`;
+  // Clean TradingView Direct Embed Frame URL (Passes parameters via clean search query strings)
+  const directEmbedUrl = `https://s.tradingview.com/widgetembed/?frameElementId=${containerId}&symbol=${encodeURIComponent(
+    tvSymbol
+  )}&interval=${timeframe}&theme=dark&style=${chartStyle}&hidesidetoolbar=${
+    showSideToolbar ? '0' : '1'
+  }&symboledit=1&saveimage=1&toolbarbg=0b0e17&studies=%5B%5D&timezone=Asia%2FKolkata`;
 
   const handleFullscreen = () => {
     if (containerRef.current) {
@@ -206,6 +200,13 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
         containerRef.current.requestFullscreen();
       }
     }
+  };
+
+  const cycleEngine = () => {
+    if (engineMode === 'TV_DIRECT_EMBED') setEngineMode('TV_SDK');
+    else if (engineMode === 'TV_SDK') setEngineMode('NATIVE_CANVAS');
+    else setEngineMode('TV_DIRECT_EMBED');
+    setKey(k => k + 1);
   };
 
   return (
@@ -219,10 +220,17 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
             <span>{tvSymbol}</span>
           </div>
 
-          <div className="hidden sm:flex items-center space-x-1 text-[10px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/60 px-2 py-1 rounded">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>LIVE TRADINGVIEW FEED</span>
-          </div>
+          {/* Engine Selector Pill */}
+          <button
+            onClick={cycleEngine}
+            className="flex items-center space-x-1.5 text-[10px] text-amber-300 font-bold bg-amber-950/70 border border-amber-500/50 px-2 py-1 rounded hover:bg-amber-900/80 transition"
+            title="Click to switch chart engine mode"
+          >
+            <Cpu className="w-3 h-3 text-amber-400" />
+            <span>
+              ENGINE: {engineMode === 'TV_DIRECT_EMBED' ? 'TV DIRECT EMBED' : engineMode === 'TV_SDK' ? 'TV JS SDK' : 'NATIVE 60FPS CANVAS'}
+            </span>
+          </button>
         </div>
 
         {/* Center: Timeframe Quick Switcher */}
@@ -278,16 +286,14 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
             <span className="hidden md:inline">{showSideToolbar ? 'Tools ON' : 'Tools OFF'}</span>
           </button>
 
-          {/* Refresh Button */}
+          {/* Switch / Refresh Engine Button */}
           <button
-            onClick={() => {
-              setUseIframeFallback(prev => !prev);
-              setKey(k => k + 1);
-            }}
-            className="text-slate-400 hover:text-white p-1.5 bg-slate-800 rounded hover:bg-slate-700 transition"
-            title="Refresh / Toggle Live Chart Mode"
+            onClick={cycleEngine}
+            className="text-slate-300 hover:text-white px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 transition flex items-center gap-1 text-[11px] font-bold border border-slate-700"
+            title="Switch Chart Engine Mode"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <RefreshCw className="w-3 h-3 text-trade-cyan" />
+            <span>Switch Engine</span>
           </button>
 
           {/* Fullscreen Button */}
@@ -303,20 +309,30 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
       {/* TradingView Display Area */}
       <div className="relative flex-1 w-full h-full min-h-[440px] sm:min-h-[520px] bg-[#07090E]">
-        {!useIframeFallback ? (
+        {engineMode === 'TV_DIRECT_EMBED' && (
+          <iframe
+            key={`embed-${tvSymbol}-${timeframe}-${chartStyle}-${showSideToolbar}-${key}`}
+            src={directEmbedUrl}
+            className="w-full h-full border-0 absolute inset-0"
+            allowFullScreen
+            title={`TradingView Direct Chart for ${tvSymbol}`}
+          />
+        )}
+
+        {engineMode === 'TV_SDK' && (
           <div
-            key={`widget-${containerId}-${key}`}
+            key={`sdk-${containerId}-${key}`}
             id={containerId}
             className="tradingview-widget-container w-full h-full"
             style={{ width: '100%', height: '100%' }}
           />
-        ) : (
-          <iframe
-            key={`iframe-${tvSymbol}-${timeframe}-${chartStyle}-${showSideToolbar}-${key}`}
-            src={iframeUrl}
-            className="w-full h-full border-0 absolute inset-0"
-            allowFullScreen
-            title={`TradingView Chart for ${tvSymbol}`}
+        )}
+
+        {engineMode === 'NATIVE_CANVAS' && (
+          <NativeCandlestickChart
+            key={`native-${tvSymbol}-${timeframe}-${key}`}
+            symbol={tvSymbol}
+            timeframe={timeframe}
           />
         )}
       </div>
