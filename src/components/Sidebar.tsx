@@ -11,7 +11,9 @@ import {
   FileText, 
   MessageSquareCode, 
   Settings,
-  Tv
+  Tv,
+  Github,
+  MessageCircle
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -98,15 +100,25 @@ export const Sidebar: React.FC = () => {
           </div>
           <div className="space-y-1 text-slate-600">
             <p>Bloomberg + TradingView Engine</p>
-            <div className="pt-2 mt-2 border-t border-slate-800/60">
-              <p className="flex items-center justify-between">
-                <span>Discord</span>
-                <span className="text-trade-cyan">karmaa_07</span>
-              </p>
-              <p className="flex items-center justify-between mt-0.5">
-                <span>GitHub</span>
-                <span className="text-trade-cyan">SonyLucky7</span>
-              </p>
+            <div className="pt-2 mt-2 border-t border-slate-800/60 flex flex-col gap-1.5">
+              <a 
+                href="https://discord.com/users/karmaa_07" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-between hover:text-white transition group"
+              >
+                <span className="flex items-center gap-1.5"><MessageCircle className="w-3 h-3 text-slate-500 group-hover:text-trade-cyan transition" /> Discord</span>
+                <span className="text-trade-cyan group-hover:text-trade-cyan/80 transition">karmaa_07</span>
+              </a>
+              <a 
+                href="https://github.com/SonyLucky7" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-between hover:text-white transition group"
+              >
+                <span className="flex items-center gap-1.5"><Github className="w-3 h-3 text-slate-500 group-hover:text-trade-cyan transition" /> GitHub</span>
+                <span className="text-trade-cyan group-hover:text-trade-cyan/80 transition">SonyLucky7</span>
+              </a>
             </div>
           </div>
         </div>
