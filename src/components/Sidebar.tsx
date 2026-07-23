@@ -93,10 +93,22 @@ export const Sidebar: React.FC = () => {
             <span>Security Status</span>
             <span className="text-trade-bull">ENCRYPTED</span>
           </div>
-          <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+          <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden mb-2.5">
             <div className="bg-trade-bull h-full w-full"></div>
           </div>
-          <p className="mt-2 text-slate-600">Bloomberg + TradingView Engine</p>
+          <div className="space-y-1 text-slate-600">
+            <p>Bloomberg + TradingView Engine</p>
+            <div className="pt-2 mt-2 border-t border-slate-800/60">
+              <p className="flex items-center justify-between">
+                <span>Discord</span>
+                <span className="text-trade-cyan">karmaa_07</span>
+              </p>
+              <p className="flex items-center justify-between mt-0.5">
+                <span>GitHub</span>
+                <span className="text-trade-cyan">SonyLucky7</span>
+              </p>
+            </div>
+          </div>
         </div>
       </aside>
 
