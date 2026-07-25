@@ -47,7 +47,18 @@
 - **Daily & EOD Briefings**: Automated Morning checklists and End-of-Day trade performance audits.
 - **Trading Journal with AI Psychology Coach**: Auto-logs trades, tracks trader emotions (FOMO, Revenge, Calm), and gives behavioral feedback.
 
+---
 
+## 🚀 How to Install (For Clients)
+
+Welcome to TradeOS AI! Follow these simple steps to install the software on your Windows PC:
+
+1. **Download the Installer**: Download the official `TradeOS_AI_Setup_1.0.0.exe` file provided to you.
+2. **Run the Setup**: Double-click the downloaded `.exe` file.
+3. **Wait for Installation**: You will see the TradeOS AI splash screen appear briefly while the software silently installs in the background. No complicated wizard steps required!
+4. **Launch & Trade**: Once installed, TradeOS AI will automatically launch. You will also find a convenient **TradeOS AI** shortcut on your Desktop and in your Start Menu for future use.
+
+---
 
 ## ⚙️ AI Configuration & Settings
 
