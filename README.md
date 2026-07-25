@@ -47,59 +47,7 @@
 - **Daily & EOD Briefings**: Automated Morning checklists and End-of-Day trade performance audits.
 - **Trading Journal with AI Psychology Coach**: Auto-logs trades, tracks trader emotions (FOMO, Revenge, Calm), and gives behavioral feedback.
 
----
 
-## 💻 Installation & Setup Guide
-
-### 📋 Prerequisites
-Make sure you have **Node.js** (v18.0.0 or higher) installed on your laptop/PC.
-- Download Node.js: [https://nodejs.org/](https://nodejs.org/)
-
----
-
-### 1. 📥 Clone the Repository
-Open your terminal or command prompt and run:
-```bash
-git clone https://github.com/SonyLucky7/tradingOS-AI-News-Aanalyser-.git
-cd tradingOS-AI-News-Aanalyser-
-```
-
----
-
-### 2. 📦 Install Dependencies
-```bash
-npm install
-```
-
----
-
-### 3. 🌐 Option A: Run in Web Browser
-To launch the live web application on `http://localhost:3000`:
-```bash
-npm run dev
-```
-
----
-
-### 4. 🖥️ Option B: Run as Native Windows PC Desktop Application
-To launch TradeOS AI directly as a standalone **Windows PC Desktop Window**:
-```bash
-npm run electron:dev
-```
-
----
-
-### 5. 📦 Option C: Package / Build Executable `.exe` Standalone Desktop App
-To package TradeOS AI into a native Windows executable (`TradeOS-AI.exe`):
-```bash
-npm run package:win
-```
-The packaged standalone application will be generated in:
-`dist-desktop/TradeOS-AI-win32-x64/TradeOS-AI.exe`
-
-Double click `TradeOS-AI.exe` to run on any Windows laptop without opening terminal or browser!
-
----
 
 ## ⚙️ AI Configuration & Settings
 
