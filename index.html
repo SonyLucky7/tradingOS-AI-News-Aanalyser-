@@ -6,13 +6,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TradeOS AI — Institutional Intelligence Operating System</title>
     <meta name="description" content="Know the Market Before the Market Moves. Institutional AI Trading Intelligence Platform combining Bloomberg, TradingView, CoinGlass, WorldMonitor & ChatGPT." />
+    <meta name="theme-color" content="#07090E" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Premium Loading Screen CSS (shown before React loads) -->
+    <style>
+      body { margin: 0; background: #07090E; overflow: hidden; }
+      #splash {
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        background: radial-gradient(ellipse at 50% 30%, rgba(0,229,255,0.06) 0%, transparent 70%),
+                    radial-gradient(ellipse at 80% 80%, rgba(112,0,255,0.04) 0%, transparent 60%),
+                    #07090E;
+        font-family: 'Inter', system-ui, sans-serif;
+        transition: opacity 0.4s ease-out;
+      }
+      #splash.fade-out { opacity: 0; pointer-events: none; }
+      .splash-logo {
+        width: 56px; height: 56px; border-radius: 16px;
+        background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(112,0,255,0.25));
+        border: 1px solid rgba(0,229,255,0.3);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 28px; margin-bottom: 20px;
+        box-shadow: 0 0 40px rgba(0,229,255,0.15);
+        animation: logoPulse 2s ease-in-out infinite;
+      }
+      @keyframes logoPulse {
+        0%, 100% { box-shadow: 0 0 20px rgba(0,229,255,0.1); }
+        50% { box-shadow: 0 0 50px rgba(0,229,255,0.25); }
+      }
+      .splash-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 22px; font-weight: 700; letter-spacing: 3px;
+        background: linear-gradient(90deg, #fff, #00E5FF);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        margin-bottom: 6px;
+      }
+      .splash-sub {
+        font-size: 11px; color: #64748b; letter-spacing: 2px;
+        text-transform: uppercase; margin-bottom: 32px;
+      }
+      .splash-bar {
+        width: 200px; height: 2px; background: #1E293B;
+        border-radius: 2px; overflow: hidden;
+      }
+      .splash-bar-fill {
+        height: 100%; width: 0%; border-radius: 2px;
+        background: linear-gradient(90deg, #00E5FF, #7000FF);
+        animation: barLoad 1.8s ease-out forwards;
+      }
+      @keyframes barLoad {
+        0% { width: 0%; }
+        60% { width: 75%; }
+        100% { width: 100%; }
+      }
+      .splash-status {
+        margin-top: 14px; font-family: 'JetBrains Mono', monospace;
+        font-size: 10px; color: #475569; letter-spacing: 1px;
+      }
+    </style>
   </head>
   <body class="bg-dark-900 text-slate-100 font-sans antialiased overflow-x-hidden selection:bg-trade-cyan selection:text-black">
+    <!-- Premium Loading Splash (auto-removed when React mounts) -->
+    <div id="splash">
+      <div class="splash-logo">⚡</div>
+      <div class="splash-title">TRADE OS AI</div>
+      <div class="splash-sub">Institutional Intelligence Engine</div>
+      <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+      <div class="splash-status">Initializing AI Agents...</div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Auto-remove splash when React hydrates
+      const observer = new MutationObserver(() => {
+        const root = document.getElementById('root');
+        if (root && root.children.length > 0) {
+          const splash = document.getElementById('splash');
+          if (splash) {
+            splash.classList.add('fade-out');
+            setTimeout(() => splash.remove(), 400);
+          }
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.getElementById('root'), { childList: true });
+    </script>
   </body>
 </html>
