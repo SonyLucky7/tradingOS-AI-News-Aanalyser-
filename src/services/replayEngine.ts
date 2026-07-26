@@ -82,8 +82,12 @@ const fetchYahooHistoricalData = async (
       
       for (const proxy of proxies) {
         try {
-          // AbortSignal.timeout prevents the UI from freezing if a public proxy hangs forever
-          const res = await fetch(proxy, { signal: AbortSignal.timeout(5000) });
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          
+          const res = await fetch(proxy, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          
           if (res.ok) return await res.json();
         } catch (e) {
           console.warn(`Proxy failed: ${proxy}`);
