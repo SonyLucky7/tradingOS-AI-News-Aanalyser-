@@ -13,7 +13,8 @@ import {
   Settings,
   Tv,
   Github,
-  MessageCircle
+  MessageCircle,
+  History
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -21,6 +22,7 @@ export const Sidebar: React.FC = () => {
 
   const navItems = [
     { id: 'TERMINAL', label: 'Terminal Radar', icon: LayoutDashboard, badge: null },
+    { id: 'REPLAY', label: 'Replay Simulator', icon: History, badge: 'PRO' },
     { id: 'NEWS', label: 'AI News Stream', icon: Newspaper, badge: '98' },
     { id: 'LIVE_TV', label: 'Live TV Broadcasts', icon: Tv, badge: 'LIVE' },
     { id: 'COPILOT', label: 'Pre-Trade Co-Pilot', icon: Bot, badge: 'AI' },
@@ -36,6 +38,7 @@ export const Sidebar: React.FC = () => {
   // Mobile Bottom Bar Primary Shortcuts (11 Full Intelligence Modules)
   const allMobileItems = [
     { id: 'TERMINAL', label: 'Terminal', icon: LayoutDashboard },
+    { id: 'REPLAY', label: 'Replay', icon: History },
     { id: 'NEWS', label: 'News', icon: Newspaper },
     { id: 'LIVE_TV', label: 'Live TV', icon: Tv },
     { id: 'COPILOT', label: 'Co-Pilot', icon: Bot },

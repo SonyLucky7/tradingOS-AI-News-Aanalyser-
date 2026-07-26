@@ -12,6 +12,7 @@ import { EconomicCalendarModule } from './components/modules/EconomicCalendarMod
 import { DailyBriefingModule } from './components/modules/DailyBriefingModule';
 import { AIChatModule } from './components/modules/AIChatModule';
 import { SettingsModule } from './components/modules/SettingsModule';
+import { ReplayModule } from './components/modules/ReplayModule';
 import { LiveTVStream } from './components/LiveTVStream';
 
 import { NewsToastPopup } from './components/NewsToastPopup';
@@ -23,6 +24,8 @@ export const App: React.FC = () => {
     switch (activeModule) {
       case 'TERMINAL':
         return <TerminalModule />;
+      case 'REPLAY':
+        return <div className="p-4 h-full w-full"><ReplayModule /></div>;
       case 'NEWS':
         return <AINewsModule />;
       case 'LIVE_TV':
