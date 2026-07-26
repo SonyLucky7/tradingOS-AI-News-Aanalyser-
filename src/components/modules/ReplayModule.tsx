@@ -71,7 +71,7 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
         return;
       }
 
-      const startIdx = Math.min(50, Math.floor(fetched.length * 0.1));
+      const startIdx = Math.max(50, Math.floor(fetched.length * 0.8));
       setData(fetched);
       setCurrentIdx(startIdx);
       setCurrentPrice(fetched[startIdx - 1].close);
@@ -117,7 +117,7 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
   const stopPlayback = () => {
     stopTimer();
     if (data.length > 50) {
-      const startIdx = Math.min(50, Math.floor(data.length * 0.1));
+      const startIdx = Math.max(50, Math.floor(data.length * 0.8));
       setCurrentIdx(startIdx);
       setCurrentPrice(data[startIdx - 1].close);
       if (chartRef.current) {
@@ -140,7 +140,7 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
 
     setData(fetched);
     
-    let newIdx = Math.min(50, Math.floor(fetched.length * 0.1));
+    let newIdx = Math.max(50, Math.floor(fetched.length * 0.8));
     if (savedTimestamp) {
       const matchIdx = fetched.findIndex(c => c.time >= savedTimestamp);
       if (matchIdx > 0) newIdx = Math.max(matchIdx, newIdx);

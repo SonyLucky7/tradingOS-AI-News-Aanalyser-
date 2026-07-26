@@ -22,7 +22,6 @@ export const Sidebar: React.FC = () => {
 
   const navItems = [
     { id: 'TERMINAL', label: 'Terminal Radar', icon: LayoutDashboard, badge: null },
-    { id: 'REPLAY', label: 'Replay Simulator', icon: History, badge: 'PRO' },
     { id: 'NEWS', label: 'AI News Stream', icon: Newspaper, badge: '98' },
     { id: 'LIVE_TV', label: 'Live TV Broadcasts', icon: Tv, badge: 'LIVE' },
     { id: 'COPILOT', label: 'Pre-Trade Co-Pilot', icon: Bot, badge: 'AI' },
@@ -38,7 +37,6 @@ export const Sidebar: React.FC = () => {
   // Mobile Bottom Bar Primary Shortcuts (11 Full Intelligence Modules)
   const allMobileItems = [
     { id: 'TERMINAL', label: 'Terminal', icon: LayoutDashboard },
-    { id: 'REPLAY', label: 'Replay', icon: History },
     { id: 'NEWS', label: 'News', icon: Newspaper },
     { id: 'LIVE_TV', label: 'Live TV', icon: Tv },
     { id: 'COPILOT', label: 'Co-Pilot', icon: Bot },
@@ -102,8 +100,7 @@ export const Sidebar: React.FC = () => {
             <div className="bg-trade-bull h-full w-full"></div>
           </div>
           <div className="space-y-1 text-slate-600">
-            <p>Bloomberg + TradingView Engine</p>
-            <div className="pt-2 mt-2 border-t border-slate-800/60 flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 mb-2">
               <a 
                 href="https://discord.com/users/karmaa_07" 
                 target="_blank" 
@@ -122,6 +119,9 @@ export const Sidebar: React.FC = () => {
                 <span className="flex items-center gap-1.5"><Github className="w-3 h-3 text-slate-500 group-hover:text-trade-cyan transition" /> GitHub</span>
                 <span className="text-trade-cyan group-hover:text-trade-cyan/80 transition">SonyLucky7</span>
               </a>
+            </div>
+            <div className="pt-2 border-t border-slate-800/60">
+              <p>Bloomberg + TradingView Engine</p>
             </div>
           </div>
         </div>
