@@ -1,21 +1,34 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useTradeOS } from './context/TradeOSContext';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { TerminalModule } from './components/modules/TerminalModule';
-import { AINewsModule } from './components/modules/AINewsModule';
-import { PreTradeCopilotModule } from './components/modules/PreTradeCopilotModule';
-import { SLInvestigatorModule } from './components/modules/SLInvestigatorModule';
-import { OptionChainModule } from './components/modules/OptionChainModule';
-import { TradingJournalModule } from './components/modules/TradingJournalModule';
-import { EconomicCalendarModule } from './components/modules/EconomicCalendarModule';
-import { DailyBriefingModule } from './components/modules/DailyBriefingModule';
-import { AIChatModule } from './components/modules/AIChatModule';
-import { SettingsModule } from './components/modules/SettingsModule';
-import { ReplayModule } from './components/modules/ReplayModule';
-import { LiveTVStream } from './components/LiveTVStream';
-
 import { NewsToastPopup } from './components/NewsToastPopup';
+import { Loader2 } from 'lucide-react';
+
+// Lazy load all secondary modules for massive performance & initial load time optimization
+const AINewsModule = React.lazy(() => import('./components/modules/AINewsModule').then(m => ({ default: m.AINewsModule })));
+const PreTradeCopilotModule = React.lazy(() => import('./components/modules/PreTradeCopilotModule').then(m => ({ default: m.PreTradeCopilotModule })));
+const SLInvestigatorModule = React.lazy(() => import('./components/modules/SLInvestigatorModule').then(m => ({ default: m.SLInvestigatorModule })));
+const OptionChainModule = React.lazy(() => import('./components/modules/OptionChainModule').then(m => ({ default: m.OptionChainModule })));
+const TradingJournalModule = React.lazy(() => import('./components/modules/TradingJournalModule').then(m => ({ default: m.TradingJournalModule })));
+const EconomicCalendarModule = React.lazy(() => import('./components/modules/EconomicCalendarModule').then(m => ({ default: m.EconomicCalendarModule })));
+const DailyBriefingModule = React.lazy(() => import('./components/modules/DailyBriefingModule').then(m => ({ default: m.DailyBriefingModule })));
+const AIChatModule = React.lazy(() => import('./components/modules/AIChatModule').then(m => ({ default: m.AIChatModule })));
+const SettingsModule = React.lazy(() => import('./components/modules/SettingsModule').then(m => ({ default: m.SettingsModule })));
+const ReplayModule = React.lazy(() => import('./components/modules/ReplayModule').then(m => ({ default: m.ReplayModule })));
+const LiveTVStream = React.lazy(() => import('./components/LiveTVStream').then(m => ({ default: m.LiveTVStream })));
+
+// Premium loading skeleton for lazy loaded modules
+const ModuleLoader = () => (
+  <div className="w-full h-full flex flex-col items-center justify-center min-h-[500px]">
+    <div className="bg-dark-800 p-8 rounded-2xl border border-slate-800 flex flex-col items-center shadow-xl">
+      <Loader2 className="w-10 h-10 text-trade-cyan animate-spin mb-4" />
+      <h3 className="text-white font-bold tracking-wide">Loading Intelligence Module...</h3>
+      <p className="text-xs text-slate-500 mt-2">Initializing AI Core</p>
+    </div>
+  </div>
+);
 
 export const App: React.FC = () => {
   const { activeModule } = useTradeOS();
@@ -58,7 +71,9 @@ export const App: React.FC = () => {
         <Sidebar />
         <main className="flex-1 overflow-y-auto pb-16 md:pb-0 bg-[#07090E] bg-gradient-to-br from-[#07090E] via-[#0B0E17] to-[#0E121E]">
           <div key={activeModule} className="module-enter min-h-full">
-            {renderModule()}
+            <Suspense fallback={<ModuleLoader />}>
+              {renderModule()}
+            </Suspense>
           </div>
         </main>
       </div>
