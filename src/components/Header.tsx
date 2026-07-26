@@ -130,39 +130,37 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Live Market Ticker Tape Banner (Bloomberg Auto-Scroll) */}
-      <div className="h-7 bg-[#090C14] border-t border-slate-800/60 flex items-center overflow-hidden px-4 text-[11px] font-mono relative">
-        <span className="text-slate-500 font-bold tracking-wider shrink-0 flex items-center gap-1.5 border-r border-slate-800 pr-3 z-10 bg-[#090C14]">
+      {/* Live Market Ticker Tape Banner */}
+      <div className="h-7 bg-[#090C14] border-t border-slate-800/60 flex items-center overflow-x-auto px-4 space-x-4 text-[11px] font-mono" style={{ scrollbarWidth: 'none' }}>
+        <span className="text-slate-500 font-bold tracking-wider shrink-0 flex items-center gap-1.5 border-r border-slate-800 pr-3">
           <span className="w-1.5 h-1.5 rounded-full bg-trade-bull animate-ping"></span> LIVE RADAR ({tickers.length}):
         </span>
-        <div className="flex items-center ticker-scroll space-x-5 ml-3">
-          {[...sortedTickers, ...sortedTickers].map((ticker, i) => {
-            const isPos = ticker.change24h >= 0;
-            const isRupee = ticker.category === 'INDIAN_STOCKS';
-            const isStarred = activeWatchlist.includes(ticker.symbol);
-            return (
-              <div 
-                key={`${ticker.symbol}-${i}`} 
-                onClick={() => {
-                  setSelectedTicker(ticker);
-                  setActiveModule('TERMINAL');
-                }}
-                className={`flex items-center space-x-1.5 shrink-0 cursor-pointer hover:bg-slate-800/60 px-2 py-0.5 rounded transition border ${
-                  isStarred ? 'border-trade-cyan/40 bg-trade-cyan/5' : 'border-transparent'
-                }`}
-              >
-                {isStarred && <span className="text-[10px] text-amber-400">★</span>}
-                <span className="text-slate-300 font-medium">{ticker.symbol}</span>
-                <span className="text-white font-semibold">
-                  {isRupee ? `₹${ticker.price.toLocaleString()}` : `$${ticker.price.toLocaleString()}`}
-                </span>
-                <span className={`font-bold text-[10px] ${isPos ? 'text-trade-bull' : 'text-trade-bear'}`}>
-                  {isPos ? '▲' : '▼'}{isPos ? '+' : ''}{ticker.change24h}%
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        {sortedTickers.map(ticker => {
+          const isPos = ticker.change24h >= 0;
+          const isRupee = ticker.category === 'INDIAN_STOCKS';
+          const isStarred = activeWatchlist.includes(ticker.symbol);
+          return (
+            <div 
+              key={ticker.symbol} 
+              onClick={() => {
+                setSelectedTicker(ticker);
+                setActiveModule('TERMINAL');
+              }}
+              className={`flex items-center space-x-1.5 shrink-0 cursor-pointer hover:bg-slate-800/60 px-2 py-0.5 rounded transition border ${
+                isStarred ? 'border-trade-cyan/40 bg-trade-cyan/5' : 'border-transparent'
+              }`}
+            >
+              {isStarred && <span className="text-[10px] text-amber-400">★</span>}
+              <span className="text-slate-300 font-medium">{ticker.symbol}</span>
+              <span className="text-white font-semibold">
+                {isRupee ? `₹${ticker.price.toLocaleString()}` : `$${ticker.price.toLocaleString()}`}
+              </span>
+              <span className={`font-bold text-[10px] ${isPos ? 'text-trade-bull' : 'text-trade-bear'}`}>
+                {isPos ? '▲' : '▼'}{isPos ? '+' : ''}{ticker.change24h}%
+              </span>
+            </div>
+          );
+        })}
       </div>
     </header>
   );

@@ -10,6 +10,8 @@
       radial-gradient(at 100% 100%, rgba(0, 245, 160, 0.04) 0px, transparent 50%),
       radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.5) 0px, transparent 100%);
     background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -79,67 +81,12 @@
   animation: pulseFast 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* TradingView-style smooth transitions */
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Premium Loading Skeleton */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.skeleton {
-  background: linear-gradient(90deg, #0C0F17 25%, #1E293B 50%, #0C0F17 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-  border-radius: 6px;
-}
-
-/* Smooth scrollbar-none utility */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* Professional Ticker Tape Animation */
-@keyframes tickerScroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.ticker-scroll {
-  animation: tickerScroll 120s linear infinite;
-}
-
-.ticker-scroll:hover {
-  animation-play-state: paused;
-}
-
-/* Premium focus rings */
-input:focus, select:focus, button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.3);
-}
-
 /* Smooth page transitions */
 .module-enter {
   animation: moduleFadeIn 0.2s ease-out;
 }
 
 @keyframes moduleFadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-/* Professional tooltip style */
-[title] {
-  position: relative;
-}
-
-/* GPU-accelerated transforms */
-.gpu-accelerated {
-  transform: translateZ(0);
-  will-change: transform;
-  backface-visibility: hidden;
 }
