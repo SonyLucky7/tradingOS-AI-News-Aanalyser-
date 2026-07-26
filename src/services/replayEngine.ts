@@ -71,8 +71,10 @@ const fetchYahooHistoricalData = async (
 ): Promise<ReplayCandle[]> => {
   try {
     const fetchWithFallback = async (url: string) => {
+      const viteProxyUrl = url.replace('https://query2.finance.yahoo.com', '/api/yahoo');
       const proxies = [
         url, // Try DIRECT connection first (works flawlessly in Electron desktop app since webSecurity is false)
+        viteProxyUrl, // Local Vite proxy (works perfectly in browser during 'npm run dev')
         `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
         `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
         `https://thingproxy.freeboard.io/fetch/${url}`

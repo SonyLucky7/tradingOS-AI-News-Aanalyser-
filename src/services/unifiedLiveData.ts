@@ -57,8 +57,10 @@ export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpd
 
   try {
     const fetchWithFallback = async (url: string) => {
+      const viteProxyUrl = url.replace('https://query2.finance.yahoo.com', '/api/yahoo');
       const proxies = [
         url, // Try DIRECT connection first
+        viteProxyUrl, // Local Vite proxy
         `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
         `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
         `https://thingproxy.freeboard.io/fetch/${url}`
