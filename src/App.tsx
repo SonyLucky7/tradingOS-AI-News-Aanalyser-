@@ -52,12 +52,12 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#07090E] text-slate-100 font-sans antialiased selection:bg-trade-cyan selection:text-black">
+    <div className="h-screen flex flex-col bg-[#07090E] text-slate-100 font-sans antialiased selection:bg-trade-cyan selection:text-black overflow-hidden">
       <Header />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto min-h-[calc(100vh-56px)] pb-16 md:pb-0 bg-[#07090E] bg-gradient-to-br from-[#07090E] via-[#0B0E17] to-[#0E121E]">
-          <div key={activeModule} className="module-enter">
+        <main className="flex-1 overflow-y-auto pb-16 md:pb-0 bg-[#07090E] bg-gradient-to-br from-[#07090E] via-[#0B0E17] to-[#0E121E]">
+          <div key={activeModule} className="module-enter min-h-full">
             {renderModule()}
           </div>
         </main>

@@ -4,9 +4,13 @@ import { ReplayChart, ReplayChartHandle } from '../ReplayChart';
 import { fetchHistoricalData, ReplayTradingEngine, ReplayCandle, ReplayAccount } from '../../services/replayEngine';
 import { useTradeOS } from '../../context/TradeOSContext';
 
-export const ReplayModule: React.FC = () => {
+interface ReplayModuleProps {
+  defaultSymbol?: string;
+}
+
+export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIFTY50' }) => {
   const { tickers } = useTradeOS();
-  const [symbol, setSymbol] = useState('NIFTY50');
+  const [symbol, setSymbol] = useState(defaultSymbol);
   const [timeframe, setTimeframe] = useState('15m');
   const [data, setData] = useState<ReplayCandle[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
