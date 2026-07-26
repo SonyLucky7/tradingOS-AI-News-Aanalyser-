@@ -107,3 +107,14 @@ tradingOS-AI-News-Aanalyser-/
 ## 🛡️ License & Disclaimer
 
 *Disclaimer: TradeOS AI is designed for informational and institutional trading research purposes. Always apply strict risk management and position sizing rules before executing financial trades.*
+
+---
+
+## 👨‍💻 Developer & Contact
+
+Built with ❤️ by **SonyLucky7**
+
+- 💬 **Discord**: [karmaa_07](https://discord.com/users/karmaa_07)
+- 🐙 **GitHub**: [SonyLucky7](https://github.com/SonyLucky7)
+
+For feature requests, bug reports, or business inquiries — reach out on Discord!

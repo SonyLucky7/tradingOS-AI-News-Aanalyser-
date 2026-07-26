@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { createChart, IChartApi, ISeriesApi, Time, CandlestickSeries } from 'lightweight-charts';
 import { ReplayCandle } from '../services/replayEngine';
 
@@ -18,10 +18,10 @@ export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ da
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
 
+  // Initialize chart once on mount
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-    // Initialize chart
     const chart = createChart(chartContainerRef.current, {
       layout: {
         background: { color: '#07090E' },
@@ -56,22 +56,30 @@ export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ da
     chartRef.current = chart;
     seriesRef.current = candlestickSeries;
 
-    // Initial data load
-    if (data.length > 0) {
-      const initialData = data.slice(0, currentIdx).map(c => ({
+    return () => {
+      chart.remove();
+      chartRef.current = null;
+      seriesRef.current = null;
+    };
+  }, []);
+
+  // Load initial data whenever data array changes (e.g. after "Load History")
+  useEffect(() => {
+    if (seriesRef.current && data.length > 0 && currentIdx > 0) {
+      const sliced = data.slice(0, currentIdx);
+      seriesRef.current.setData(sliced.map(c => ({
         time: c.time as Time,
         open: c.open,
         high: c.high,
         low: c.low,
         close: c.close,
-      }));
-      candlestickSeries.setData(initialData);
+      })));
+      // Auto-fit the visible range
+      if (chartRef.current) {
+        chartRef.current.timeScale().fitContent();
+      }
     }
-
-    return () => {
-      chart.remove();
-    };
-  }, []);
+  }, [data]); // Re-run when data array reference changes
 
   useImperativeHandle(ref, () => ({
     updateCandle: (candle: ReplayCandle) => {
@@ -95,6 +103,9 @@ export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ da
           low: c.low,
           close: c.close,
         })));
+        if (chartRef.current) {
+          chartRef.current.timeScale().fitContent();
+        }
       }
     }
   }));

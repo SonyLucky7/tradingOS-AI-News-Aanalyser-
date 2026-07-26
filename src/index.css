@@ -109,7 +109,7 @@
 }
 
 .ticker-scroll {
-  animation: tickerScroll 30s linear infinite;
+  animation: tickerScroll 120s linear infinite;
 }
 
 .ticker-scroll:hover {
