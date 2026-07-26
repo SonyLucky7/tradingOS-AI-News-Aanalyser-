@@ -58,8 +58,9 @@ export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpd
   try {
     const fetchWithFallback = async (url: string) => {
       const proxies = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        url, // Try DIRECT connection first
         `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
         `https://thingproxy.freeboard.io/fetch/${url}`
       ];
       for (const proxy of proxies) {

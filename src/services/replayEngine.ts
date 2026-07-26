@@ -72,8 +72,9 @@ const fetchYahooHistoricalData = async (
   try {
     const fetchWithFallback = async (url: string) => {
       const proxies = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        url, // Try DIRECT connection first (works flawlessly in Electron desktop app since webSecurity is false)
         `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
         `https://thingproxy.freeboard.io/fetch/${url}`
       ];
       
