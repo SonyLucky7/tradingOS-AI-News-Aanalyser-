@@ -5,6 +5,7 @@ import { Sidebar } from './components/Sidebar';
 import { TerminalModule } from './components/modules/TerminalModule';
 import { NewsToastPopup } from './components/NewsToastPopup';
 import { UpdatePopup } from './components/UpdatePopup';
+import { RiskDisclaimerPopup } from './components/RiskDisclaimerPopup';
 import { Loader2 } from 'lucide-react';
 
 // Lazy load all secondary modules for massive performance & initial load time optimization
@@ -80,6 +81,7 @@ export const App: React.FC = () => {
       </div>
       <NewsToastPopup />
       <UpdatePopup />
+      <RiskDisclaimerPopup />
     </div>
   );
 };
