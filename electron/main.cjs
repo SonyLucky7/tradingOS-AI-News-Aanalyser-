@@ -1,5 +1,6 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('path');
+const { autoUpdater } = require('electron-updater');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -59,7 +60,25 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // Check for updates if in production
+  if (!isDev) {
+    autoUpdater.checkForUpdatesAndNotify();
+  }
 }
+
+// Auto Updater Events
+autoUpdater.on('update-available', () => {
+  if (mainWindow) mainWindow.webContents.send('update-available');
+});
+
+autoUpdater.on('update-downloaded', () => {
+  if (mainWindow) mainWindow.webContents.send('update-downloaded');
+});
+
+ipcMain.on('quit-and-install', () => {
+  autoUpdater.quitAndInstall(true, true);
+});
 
 app.whenReady().then(createWindow);
 

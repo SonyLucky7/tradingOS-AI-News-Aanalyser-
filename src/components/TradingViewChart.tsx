@@ -1,6 +1,7 @@
 import React, { useRef, useState, useMemo } from 'react';
-import { Maximize2, RefreshCw, BarChart2, Sliders, Activity } from 'lucide-react';
+import { Maximize2, RefreshCw, BarChart2, Sliders, Activity, ShoppingCart } from 'lucide-react';
 import { ReplayModule } from './modules/ReplayModule';
+import { LivePaperTrader } from './LivePaperTrader';
 
 interface TradingViewChartProps {
   symbol: string;
@@ -12,6 +13,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
   const [chartStyle, setChartStyle] = useState<string>('1'); // 1: Candles, 8: Heikin Ashi, 2: Line, 3: Area
   const [showSideToolbar, setShowSideToolbar] = useState<boolean>(true);
   const [isReplayMode, setIsReplayMode] = useState<boolean>(false);
+  const [isPaperTraderOpen, setIsPaperTraderOpen] = useState<boolean>(false);
   const [key, setKey] = useState(0);
   const containerId = useRef(`tradingview_${Math.random().toString(36).substring(7)}`).current;
 
@@ -230,7 +232,10 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
           {/* Replay Mode Toggle */}
           <button
-            onClick={() => setIsReplayMode(!isReplayMode)}
+            onClick={() => {
+              setIsReplayMode(!isReplayMode);
+              if (!isReplayMode) setIsPaperTraderOpen(false); // Close live paper trader if entering replay
+            }}
             className={`px-2 py-1 rounded text-[11px] font-bold border transition flex items-center gap-1 ${
               isReplayMode
                 ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
@@ -241,6 +246,22 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
             <Activity className="w-3 h-3" />
             <span className="hidden md:inline">{isReplayMode ? 'Live Mode' : 'Replay Mode'}</span>
           </button>
+
+          {/* Paper Trading Toggle */}
+          {!isReplayMode && (
+            <button
+              onClick={() => setIsPaperTraderOpen(!isPaperTraderOpen)}
+              className={`px-2 py-1 rounded text-[11px] font-bold border transition flex items-center gap-1 ${
+                isPaperTraderOpen
+                  ? 'bg-trade-cyan/20 border-trade-cyan/40 text-trade-cyan'
+                  : 'bg-dark-800 border-slate-800 text-slate-400 hover:text-trade-bull hover:border-trade-bull/40'
+              }`}
+              title="Toggle Live Paper Trading"
+            >
+              <ShoppingCart className="w-3 h-3" />
+              <span className="hidden md:inline">{isPaperTraderOpen ? 'Close Trader' : 'Paper Trade'}</span>
+            </button>
+          )}
 
           {/* Fullscreen Button */}
           <button
@@ -254,17 +275,26 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
       </div>
 
       {/* Chart Area */}
-      <div className="relative flex-1 w-full h-full min-h-[440px] sm:min-h-[520px]">
+      <div className="relative flex-1 w-full h-full min-h-[440px] sm:min-h-[520px] flex">
         {isReplayMode ? (
           <ReplayModule defaultSymbol={symbol} />
         ) : (
-          <iframe
-            key={`chart-${tvSymbol}-${timeframe}-${chartStyle}-${showSideToolbar}-${key}`}
-            src={embedUrl}
-            className="w-full h-full border-0 absolute inset-0"
-            allowFullScreen
-            title={`TradingView Chart for ${tvSymbol}`}
-          />
+          <>
+            <div className="flex-1 relative h-full">
+              <iframe
+                key={`chart-${tvSymbol}-${timeframe}-${chartStyle}-${showSideToolbar}-${key}`}
+                src={embedUrl}
+                className="w-full h-full border-0 absolute inset-0"
+                allowFullScreen
+                title={`TradingView Chart for ${tvSymbol}`}
+              />
+            </div>
+            {isPaperTraderOpen && (
+              <div className="h-full shrink-0">
+                <LivePaperTrader symbol={symbol} />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

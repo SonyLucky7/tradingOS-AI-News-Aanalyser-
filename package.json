@@ -33,11 +33,19 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "SonyLucky7",
+        "repo": "tradingOS-AI-News-Aanalyser-"
+      }
+    ]
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-updater": "^6.8.9",
     "lightweight-charts": "^5.2.0",
     "lucide-react": "^0.380.0",
     "react": "^18.3.1",

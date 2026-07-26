@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { TerminalModule } from './components/modules/TerminalModule';
 import { NewsToastPopup } from './components/NewsToastPopup';
+import { UpdatePopup } from './components/UpdatePopup';
 import { Loader2 } from 'lucide-react';
 
 // Lazy load all secondary modules for massive performance & initial load time optimization
@@ -78,6 +79,7 @@ export const App: React.FC = () => {
         </main>
       </div>
       <NewsToastPopup />
+      <UpdatePopup />
     </div>
   );
 };
