@@ -67,7 +67,7 @@ export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpd
       ];
       for (const proxy of proxies) {
         try {
-          const res = await fetch(proxy);
+          const res = await fetch(proxy, { signal: AbortSignal.timeout(5000) });
           if (res.ok) return await res.json();
         } catch (e) {
           // ignore
