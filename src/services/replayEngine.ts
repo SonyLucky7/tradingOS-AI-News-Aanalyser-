@@ -26,19 +26,49 @@ export interface ReplayAccount {
   tradeHistory: ReplayPosition[];
 }
 
+// Mathematical Aggregator to fuse 5m candles into 10m candles
+const aggregateTo10m = (candles: ReplayCandle[]): ReplayCandle[] => {
+  const result: ReplayCandle[] = [];
+  for (let i = 0; i < candles.length; i += 2) {
+    const c1 = candles[i];
+    const c2 = candles[i + 1];
+    if (!c2) {
+      result.push(c1); // push the last incomplete candle if odd number
+      break;
+    }
+    result.push({
+      time: c1.time, // Use the start time of the 10m block
+      open: c1.open,
+      high: Math.max(c1.high, c2.high),
+      low: Math.min(c1.low, c2.low),
+      close: c2.close,
+      volume: c1.volume + c2.volume
+    });
+  }
+  return result;
+};
+
 // Fetch historical data from Binance API (For Crypto only)
 const fetchBinanceHistoricalData = async (
   symbol: string,
   interval: string = '15m'
 ): Promise<ReplayCandle[]> => {
   try {
-    // Map standard intervals to Binance intervals
+    let is10m = false;
     let binanceInterval = interval;
-    if (interval === '60') binanceInterval = '1h';
-    if (interval === '240') binanceInterval = '4h';
-    if (interval === 'D' || interval === '1D') binanceInterval = '1d';
-    if (interval === 'W' || interval === '1W') binanceInterval = '1w';
-    if (!binanceInterval.endsWith('m') && !binanceInterval.endsWith('h') && !binanceInterval.endsWith('d') && !binanceInterval.endsWith('w')) {
+    
+    if (interval === '10m') {
+      is10m = true;
+      binanceInterval = '5m';
+    } else if (interval === '60') {
+      binanceInterval = '1h';
+    } else if (interval === '240') {
+      binanceInterval = '4h';
+    } else if (interval === 'D' || interval === '1D') {
+      binanceInterval = '1d';
+    } else if (interval === 'W' || interval === '1W') {
+      binanceInterval = '1w';
+    } else if (!binanceInterval.endsWith('m') && !binanceInterval.endsWith('h') && !binanceInterval.endsWith('d') && !binanceInterval.endsWith('w')) {
       binanceInterval = interval + 'm';
     }
 
@@ -50,7 +80,7 @@ const fetchBinanceHistoricalData = async (
     const data = await response.json();
     
     // Binance kline format: [Open time, Open, High, Low, Close, Volume, Close time, Quote asset volume, Number of trades, Taker buy base asset volume, Taker buy quote asset volume, Ignore]
-    return data.map((kline: any) => ({
+    const candles = data.map((kline: any) => ({
       time: Math.floor(kline[0] / 1000), // Convert ms to s for lightweight-charts
       open: parseFloat(kline[1]),
       high: parseFloat(kline[2]),
@@ -58,6 +88,8 @@ const fetchBinanceHistoricalData = async (
       close: parseFloat(kline[4]),
       volume: parseFloat(kline[5])
     }));
+
+    return is10m ? aggregateTo10m(candles) : candles;
   } catch (err) {
     console.error('Error fetching historical data for Replay:', err);
     return [];
@@ -116,10 +148,20 @@ const fetchYahooHistoricalData = async (
     const ySym = yahooSymbolMap[symbol] || (symbol.endsWith('USD') ? symbol + '=X' : symbol + '.NS');
 
     // Yahoo intervals: 1m, 5m, 15m, 60m, 1d, 1wk, 1mo
+    let is10m = false;
     let yInterval = interval;
-    if (interval === '1h') yInterval = '60m';
-    if (interval === '1D') yInterval = '1d';
-    if (interval === '1W') yInterval = '1wk';
+    
+    if (interval === '10m') {
+      is10m = true;
+      yInterval = '5m';
+    } else if (interval === '1h') {
+      yInterval = '60m';
+    } else if (interval === '1D') {
+      yInterval = '1d';
+    } else if (interval === '1W') {
+      yInterval = '1wk';
+    }
+    
     if (!['1m','5m','15m','60m','1d','1wk','1mo'].includes(yInterval)) yInterval = '15m';
 
     // range for intra-day needs to be smaller (e.g., 5d, 60d max) to get 1000 candles
@@ -151,9 +193,9 @@ const fetchYahooHistoricalData = async (
       }
     }
     
-    return candles;
+    return is10m ? aggregateTo10m(candles) : candles;
   } catch (err) {
-    console.error('Error fetching Yahoo historical data:', err);
+    console.error('Yahoo Finance Replay fetch error:', err);
     return [];
   }
 };

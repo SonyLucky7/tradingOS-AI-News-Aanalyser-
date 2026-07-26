@@ -212,6 +212,7 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
             >
               <option value="1m">1m</option>
               <option value="5m">5m</option>
+              <option value="10m">10m</option>
               <option value="15m">15m</option>
               <option value="1h">1h</option>
               <option value="1D">1D</option>

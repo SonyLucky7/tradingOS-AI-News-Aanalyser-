@@ -135,6 +135,8 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
       backgroundColor: 'rgba(7, 9, 14, 1)',
       gridColor: 'rgba(255, 255, 255, 0.05)',
       hide_volume: '0',
+      show_countdown: '1',
+      countdown: '1',
     });
     return `https://s.tradingview.com/widgetembed/?${params.toString()}`;
   };
