@@ -175,6 +175,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
           {[
             { label: '1m', val: '1' },
             { label: '5m', val: '5' },
+            { label: '10m', val: '10' },
             { label: '15m', val: '15' },
             { label: '1h', val: '60' },
             { label: '4h', val: '240' },
