@@ -55,9 +55,23 @@ interface TradeOSContextType {
 const TradeOSContext = createContext<TradeOSContextType | undefined>(undefined);
 
 export const TradeOSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeModule, setActiveModule] = useState<string>('TERMINAL');
+  // Load saved state or use defaults
+  const getSaved = <T,>(key: string, defaultVal: T): T => {
+    try {
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : defaultVal;
+    } catch {
+      return defaultVal;
+    }
+  };
+
+  const [activeModule, setActiveModuleState] = useState<string>(() => getSaved('tradeos_activeModule', 'TERMINAL'));
   const [aiProviderState, setAiProviderState] = useState<AIProvider>(() => getAIProvider());
 
+  const setActiveModule = (mod: string) => {
+    setActiveModuleState(mod);
+    localStorage.setItem('tradeos_activeModule', JSON.stringify(mod));
+  };
   const updateAIProvider = (p: AIProvider) => {
     setAIProvider(p);
     setAiProviderState(p);
@@ -66,14 +80,45 @@ export const TradeOSProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [newsEvents, setNewsEvents] = useState<NewsEvent[]>(INITIAL_NEWS_EVENTS);
   const [riskMarkers] = useState<RiskMarker[]>(INITIAL_RISK_MARKERS);
   const [optionChain] = useState<OptionChainData>(INITIAL_OPTION_CHAIN);
-  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>(INITIAL_JOURNAL_ENTRIES);
+  
+  const [journalEntries, setJournalEntriesState] = useState<JournalEntry[]>(() => getSaved('tradeos_journal', INITIAL_JOURNAL_ENTRIES));
+  const setJournalEntries = (entries: JournalEntry[] | ((prev: JournalEntry[]) => JournalEntry[])) => {
+    setJournalEntriesState(prev => {
+      const next = typeof entries === 'function' ? entries(prev) : entries;
+      localStorage.setItem('tradeos_journal', JSON.stringify(next));
+      return next;
+    });
+  };
+
   const [economicEvents] = useState<EconomicEvent[]>(INITIAL_ECONOMIC_EVENTS);
-  const [selectedTicker, setSelectedTicker] = useState<MarketTicker>(INITIAL_TICKERS[0]);
-  const [activeWatchlist, setActiveWatchlist] = useState<string[]>(['BTCUSDT', 'ETHUSDT', 'NIFTY50', 'BANKNIFTY', 'XAUUSD']);
+  
+  const [selectedTicker, setSelectedTickerState] = useState<MarketTicker>(() => {
+    const savedSymbol = getSaved('tradeos_selectedTicker', INITIAL_TICKERS[0].symbol);
+    return INITIAL_TICKERS.find(t => t.symbol === savedSymbol) || INITIAL_TICKERS[0];
+  });
+  
+  const setSelectedTicker = (ticker: MarketTicker | ((prev: MarketTicker) => MarketTicker)) => {
+    setSelectedTickerState(prev => {
+      const next = typeof ticker === 'function' ? ticker(prev) : ticker;
+      localStorage.setItem('tradeos_selectedTicker', JSON.stringify(next.symbol));
+      return next;
+    });
+  };
+
+  const [activeWatchlist, setActiveWatchlistState] = useState<string[]>(() => getSaved('tradeos_watchlist', ['BTCUSDT', 'ETHUSDT', 'NIFTY50', 'BANKNIFTY', 'XAUUSD']));
+  const setActiveWatchlist = (list: string[] | ((prev: string[]) => string[])) => {
+    setActiveWatchlistState(prev => {
+      const next = typeof list === 'function' ? list(prev) : list;
+      localStorage.setItem('tradeos_watchlist', JSON.stringify(next));
+      return next;
+    });
+  };
+
   const [systemAlert, setSystemAlert] = useState<string | null>(
     '⚠️ CRITICAL AI ALERT: Fed Chair Powell Emergency Speech in 14 mins — High Expected Volatility across BTC & USD pairs!'
   );
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+  
+  const [chatMessages, setChatMessagesState] = useState<ChatMessage[]>(() => getSaved('tradeos_chat', [
     {
       id: 'c-1',
       sender: 'AI',
@@ -81,7 +126,15 @@ export const TradeOSProvider: React.FC<{ children: React.ReactNode }> = ({ child
       text: 'Welcome to TradeOS AI Operating System. All 13 Intelligence Agents active (News, Macro, Crypto, Forex, Indian Markets, Risk). How can I assist your trades today?',
       timestamp: 'Just now'
     }
-  ]);
+  ]));
+  
+  const setChatMessages = (msgs: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) => {
+    setChatMessagesState(prev => {
+      const next = typeof msgs === 'function' ? msgs(prev) : msgs;
+      localStorage.setItem('tradeos_chat', JSON.stringify(next));
+      return next;
+    });
+  };
 
   // 100% REAL LIVE MARKET DATA ENGINE (Crypto, NSE India, Commodities, US Stocks, Forex, Live RSS News)
   useEffect(() => {
