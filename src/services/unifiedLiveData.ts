@@ -56,12 +56,26 @@ export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpd
   const ySym = yahooSymbolMap[symbol] || symbol;
 
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ySym)}?interval=1m&range=1d`;
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    
-    const res = await fetch(proxyUrl);
-    if (!res.ok) return null;
-    const data = await res.json();
+    const fetchWithFallback = async (url: string) => {
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        `https://thingproxy.freeboard.io/fetch/${url}`
+      ];
+      for (const proxy of proxies) {
+        try {
+          const res = await fetch(proxy);
+          if (res.ok) return await res.json();
+        } catch (e) {
+          // ignore
+        }
+      }
+      return null;
+    };
+
+    const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ySym)}?interval=1m&range=1d`;
+    const data = await fetchWithFallback(url);
+    if (!data) return null;
     const result = data.chart?.result?.[0];
     if (result && result.meta) {
       const price = result.meta.regularMarketPrice;

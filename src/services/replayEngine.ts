@@ -70,6 +70,24 @@ const fetchYahooHistoricalData = async (
   interval: string = '15m'
 ): Promise<ReplayCandle[]> => {
   try {
+    const fetchWithFallback = async (url: string) => {
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        `https://thingproxy.freeboard.io/fetch/${url}`
+      ];
+      
+      for (const proxy of proxies) {
+        try {
+          const res = await fetch(proxy);
+          if (res.ok) return await res.json();
+        } catch (e) {
+          console.warn(`Proxy failed: ${proxy}`);
+        }
+      }
+      throw new Error('All CORS proxies failed');
+    };
+
     const yahooSymbolMap: Record<string, string> = {
       'NIFTY50': '^NSEI',
       'BANKNIFTY': '^NSEBANK',
@@ -101,13 +119,9 @@ const fetchYahooHistoricalData = async (
     if (yInterval === '1m') range = '7d';
     if (yInterval === '1d') range = '2y';
 
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ySym)}?interval=${yInterval}&range=${range}`;
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ySym)}?interval=${yInterval}&range=${range}`;
     
-    const response = await fetch(proxyUrl);
-    if (!response.ok) throw new Error(`Yahoo API error: ${response.statusText}`);
-    
-    const data = await response.json();
+    const data = await fetchWithFallback(url);
     const result = data.chart?.result?.[0];
     
     if (!result || !result.timestamp || !result.indicators?.quote?.[0]) return [];
