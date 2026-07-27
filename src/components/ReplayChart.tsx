@@ -55,8 +55,8 @@ export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ da
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
 
-  // Default to Monochrome B&W theme (White Bull / Black Bear) as requested by user
-  const colors = candleColors || MONOCHROME_THEME;
+  // Default to Classic Green/Red theme
+  const colors = candleColors || CLASSIC_THEME;
 
   // Initialize chart once on mount
   useEffect(() => {

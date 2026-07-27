@@ -12,7 +12,7 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
   const { tickers } = useTradeOS();
   const [symbol, setSymbol] = useState(defaultSymbol);
   const [timeframe, setTimeframe] = useState('15m');
-  const [colorTheme, setColorTheme] = useState<'MONOCHROME' | 'CLASSIC' | 'NEON'>('MONOCHROME');
+  const [colorTheme, setColorTheme] = useState<'MONOCHROME' | 'CLASSIC' | 'NEON'>('CLASSIC');
   const [data, setData] = useState<ReplayCandle[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
