@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Maximize2, RefreshCw, BarChart2, Sliders, Activity, ShoppingCart } from 'lucide-react';
 import { ReplayModule } from './modules/ReplayModule';
 import { LivePaperTrader } from './LivePaperTrader';
@@ -120,35 +120,75 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
   const tvSymbol = getTradingViewSymbol(symbol);
 
-  // Build direct TradingView embed iframe URL — most reliable method for Electron + Browser
-  const buildEmbedUrl = (): string => {
-    const params = new URLSearchParams({
-      frameElementId: containerId,
-      symbol: tvSymbol,
-      interval: timeframe,
-      theme: 'dark',
-      style: chartStyle,
-      timezone: 'Asia/Kolkata',
-      locale: 'en',
-      enable_publishing: '0',
-      hide_side_toolbar: showSideToolbar ? '0' : '1',
-      allow_symbol_change: '1',
-      save_image: '1',
-      withdateranges: '1',
-      details: '1',
-      calendar: '0',
-      hotlist: '0',
-      show_popup_button: '1',
-      popup_width: '1000',
-      popup_height: '650',
-      backgroundColor: 'rgba(7, 9, 14, 1)',
-      gridColor: 'rgba(255, 255, 255, 0.05)',
-      hide_volume: '0',
-    });
-    return `https://s.tradingview.com/widgetembed/?${params.toString()}`;
-  };
+  // Dynamically load tv.js and initialize full TradingView Advanced Charting Widget
+  useEffect(() => {
+    if (isReplayMode) return;
 
-  const embedUrl = buildEmbedUrl();
+    let isMounted = true;
+    const scriptId = 'tradingview-widget-script';
+    let script = document.getElementById(scriptId) as HTMLScriptElement;
+
+    const initWidget = () => {
+      if (!isMounted) return;
+      const tv = (window as any).TradingView;
+      if (tv && tv.widget) {
+        // Clear previous container content before re-initializing widget
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = '';
+
+        new tv.widget({
+          autosize: true,
+          symbol: tvSymbol,
+          interval: timeframe,
+          timezone: 'Asia/Kolkata',
+          theme: 'dark',
+          style: chartStyle,
+          locale: 'en',
+          toolbar_bg: '#07090E',
+          enable_publishing: false,
+          allow_symbol_change: true,
+          container_id: containerId,
+          withdateranges: true,
+          hide_side_toolbar: !showSideToolbar,
+          details: true,
+          hotlist: true,
+          calendar: true,
+          show_popup_button: true,
+          popup_width: '1000',
+          popup_height: '650',
+          backgroundColor: 'rgba(7, 9, 14, 1)',
+          gridColor: 'rgba(255, 255, 255, 0.05)',
+          enabled_features: [
+            'use_localstorage_for_settings',
+            'save_chart_properties_to_localstorage',
+            'side_toolbar_in_fullscreen_mode',
+            'header_in_fullscreen_mode',
+            'create_volume_indicator_by_default',
+            'study_templates'
+          ]
+        });
+      }
+    };
+
+    if (!(window as any).TradingView) {
+      if (!script) {
+        script = document.createElement('script');
+        script.id = scriptId;
+        script.src = 'https://s3.tradingview.com/tv.js';
+        script.async = true;
+        script.onload = initWidget;
+        document.head.appendChild(script);
+      } else {
+        script.addEventListener('load', initWidget);
+      }
+    } else {
+      initWidget();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [tvSymbol, timeframe, chartStyle, showSideToolbar, isReplayMode, key, containerId]);
 
   const handleFullscreen = () => {
     if (containerRef.current) {
@@ -291,12 +331,10 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
         ) : (
           <>
             <div className="flex-1 relative h-full">
-              <iframe
-                key={`chart-${tvSymbol}-${timeframe}-${chartStyle}-${showSideToolbar}-${key}`}
-                src={embedUrl}
-                className="w-full h-full border-0 absolute inset-0"
-                allowFullScreen
-                title={`TradingView Chart for ${tvSymbol}`}
+              <div
+                id={containerId}
+                key={`tv-container-${tvSymbol}-${timeframe}-${chartStyle}-${key}`}
+                className="w-full h-full absolute inset-0"
               />
             </div>
             {isPaperTraderOpen && (
