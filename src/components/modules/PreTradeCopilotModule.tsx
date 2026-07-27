@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTradeOS } from '../../context/TradeOSContext';
 import { PreTradeInput, PreTradeEvaluation } from '../../types/tradeos';
 import { 
@@ -38,6 +38,13 @@ export const PreTradeCopilotModule: React.FC = () => {
     })
   );
 
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.from('.module-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+    }
+  }, []);
+
   const handleEvaluate = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -55,13 +62,13 @@ export const PreTradeCopilotModule: React.FC = () => {
   return (
     <div className="p-4 font-mono space-y-4">
       {/* Module Title Banner */}
-      <div className="glass-panel p-4 rounded-xl border border-trade-cyan/40 bg-gradient-to-r from-dark-900 via-dark-800 to-slate-900 flex flex-wrap items-center justify-between gap-4">
+      <div className="glass-panel module-card p-4 rounded-xl border border-trade-cyan/40 bg-gradient-to-r from-dark-900 via-dark-800 to-slate-900 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <div className="p-3 rounded-lg bg-trade-cyan/20 border border-trade-cyan/50 text-trade-cyan">
             <Bot className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-white flex items-center gap-2">
+            <h1 className="font-display text-base font-bold text-white flex items-center gap-2">
               AI Pre-Trade Safety Assistant
               <span className="text-[10px] bg-trade-cyan/20 text-trade-cyan border border-trade-cyan/40 px-2 py-0.5 rounded font-bold">
                 MULTI-AGENT CO-PILOT
@@ -77,7 +84,7 @@ export const PreTradeCopilotModule: React.FC = () => {
       {/* Form & Results Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left Column: Trade Input Form (4 Cols) */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-4 module-card">
           <form onSubmit={handleEvaluate} className="glass-panel p-4 rounded-xl border border-slate-800 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-800">
               <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
@@ -103,7 +110,7 @@ export const PreTradeCopilotModule: React.FC = () => {
                     targetPrice: Number((price * (prev.side === 'LONG' ? 1.04 : 0.96)).toFixed(2))
                   }));
                 }}
-                className="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-trade-cyan"
+                className="w-full glass-panel border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-trade-cyan"
               >
                 {tickers.map(t => (
                   <option key={t.symbol} value={t.symbol}>{t.symbol} — {t.name}</option>
@@ -118,10 +125,10 @@ export const PreTradeCopilotModule: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setInput(prev => ({ ...prev, side: 'LONG' }))}
-                  className={`py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition ${
+                  className={`py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition glass-card-hover ${
                     input.side === 'LONG'
                       ? 'bg-emerald-950 border border-emerald-500 text-trade-bull shadow-md shadow-emerald-900/30'
-                      : 'bg-dark-800 text-slate-400 hover:text-white border border-slate-800'
+                      : 'glass-panel text-slate-400 hover:text-white border border-slate-800'
                   }`}
                 >
                   <TrendingUp className="w-4 h-4" /> LONG
@@ -129,10 +136,10 @@ export const PreTradeCopilotModule: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setInput(prev => ({ ...prev, side: 'SHORT' }))}
-                  className={`py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition ${
+                  className={`py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition glass-card-hover ${
                     input.side === 'SHORT'
                       ? 'bg-rose-950 border border-rose-500 text-trade-bear shadow-md shadow-rose-900/30'
-                      : 'bg-dark-800 text-slate-400 hover:text-white border border-slate-800'
+                      : 'glass-panel text-slate-400 hover:text-white border border-slate-800'
                   }`}
                 >
                   <TrendingDown className="w-4 h-4" /> SHORT
@@ -149,7 +156,7 @@ export const PreTradeCopilotModule: React.FC = () => {
                   step="any"
                   value={input.entryPrice}
                   onChange={(e) => setInput(prev => ({ ...prev, entryPrice: parseFloat(e.target.value) || 0 }))}
-                  className="w-full bg-dark-800 border border-slate-700 rounded px-2.5 py-1.5 font-bold text-slate-100"
+                  className="w-full glass-panel tabular-nums border border-slate-700 rounded px-2.5 py-1.5 font-bold text-slate-100"
                 />
               </div>
               <div>
@@ -159,7 +166,7 @@ export const PreTradeCopilotModule: React.FC = () => {
                   step="any"
                   value={input.stopLoss}
                   onChange={(e) => setInput(prev => ({ ...prev, stopLoss: parseFloat(e.target.value) || 0 }))}
-                  className="w-full bg-dark-800 border border-slate-700 rounded px-2.5 py-1.5 font-bold text-rose-400"
+                  className="w-full glass-panel tabular-nums border border-slate-700 rounded px-2.5 py-1.5 font-bold text-rose-400"
                 />
               </div>
             </div>
@@ -167,11 +174,11 @@ export const PreTradeCopilotModule: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-trade-cyan via-blue-500 to-trade-accent text-black font-extrabold text-xs rounded-lg shadow-lg shadow-trade-cyan/20 hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-60"
+              className="w-full py-3 bg-gradient-to-r btn-premium from-trade-cyan via-blue-500 to-trade-accent text-black font-extrabold text-xs rounded-lg shadow-lg shadow-trade-cyan/20 hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {loading ? (
                 <>
-                  <Zap className="w-4 h-4 animate-spin text-black" /> AI SWARM EVALUATING...
+                  <div className="shimmer-skeleton h-4 w-32" />
                 </>
               ) : (
                 <>
@@ -184,7 +191,7 @@ export const PreTradeCopilotModule: React.FC = () => {
 
         {/* Right Column: AI Co-Pilot Evaluation Report (8 Cols) */}
         {evaluation && (
-          <div className="lg:col-span-8 space-y-4">
+          <div className="lg:col-span-8 space-y-4 module-card">
             <div className="glass-panel p-5 rounded-xl border border-slate-800 space-y-5">
               {/* Verdict Header Badge */}
               <div className="flex flex-wrap items-center justify-between pb-4 border-b border-slate-800 gap-3">
@@ -219,14 +226,14 @@ export const PreTradeCopilotModule: React.FC = () => {
                 {/* Score Gauges */}
                 <div className="flex items-center space-x-4 font-mono">
                   <div className="text-center">
-                    <span className="text-[10px] text-slate-500 block uppercase">Trade Score</span>
-                    <span className={`text-xl font-extrabold ${evaluation.tradeScore > 75 ? 'text-trade-bull' : 'text-amber-400'}`}>
+                    <span className="text-[10px] text-slate-500 block uppercase font-display">Trade Score</span>
+                    <span className={`text-xl font-extrabold tabular-nums ${evaluation.tradeScore > 75 ? 'text-trade-bull' : 'text-amber-400'}`}>
                       {evaluation.tradeScore}/100
                     </span>
                   </div>
                   <div className="text-center">
-                    <span className="text-[10px] text-slate-500 block uppercase">Risk Score</span>
-                    <span className={`text-xl font-extrabold ${evaluation.riskScore > 60 ? 'text-rose-400' : 'text-trade-bull'}`}>
+                    <span className="text-[10px] text-slate-500 block uppercase font-display">Risk Score</span>
+                    <span className={`text-xl font-extrabold tabular-nums ${evaluation.riskScore > 60 ? 'text-rose-400' : 'text-trade-bull'}`}>
                       {evaluation.riskScore}/100
                     </span>
                   </div>
@@ -247,38 +254,38 @@ export const PreTradeCopilotModule: React.FC = () => {
 
               {/* AI Reasoning Summary */}
               <div>
-                <h3 className="text-xs font-bold text-trade-cyan uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <h3 className="font-display text-xs font-bold text-trade-cyan uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <Bot className="w-4 h-4" /> Master Agent Reasoning & Position Directive
                 </h3>
-                <p className="text-xs text-slate-200 leading-relaxed bg-dark-800/80 p-4 rounded-xl border border-slate-800">
+                <p className="text-xs text-slate-200 leading-relaxed glass-panel p-4 rounded-xl border border-slate-800">
                   {evaluation.reasoningSummary}
                 </p>
               </div>
 
               {/* Suggested Trade Execution Parameters */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs bg-dark-800/90 p-3.5 rounded-xl border border-slate-800">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs glass-panel p-3.5 rounded-xl border border-slate-800">
                 <div>
                   <span className="text-slate-500 text-[10px] block font-mono">Safe Entry Time</span>
                   <span className="text-slate-100 font-bold">{evaluation.safeEntryTime}</span>
                 </div>
                 <div>
                   <span className="text-slate-500 text-[10px] block font-mono">Suggested SL</span>
-                  <span className="text-rose-400 font-bold">${evaluation.suggestedStopLoss.toLocaleString()}</span>
+                  <span className="text-rose-400 font-bold tabular-nums">${evaluation.suggestedStopLoss.toLocaleString()}</span>
                 </div>
                 <div>
                   <span className="text-slate-500 text-[10px] block font-mono">Max Position Size</span>
-                  <span className="text-trade-cyan font-bold">{evaluation.suggestedPositionSizePct}% of Equity</span>
+                  <span className="text-trade-cyan font-bold tabular-nums">{evaluation.suggestedPositionSizePct}% of Equity</span>
                 </div>
               </div>
 
               {/* Multi-Agent Breakdown Cards */}
               <div>
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                <h4 className="font-display text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                   Specialized Agent Breakdown
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   {evaluation.agentBreakdowns.map((agent, i) => (
-                    <div key={i} className="p-3 bg-dark-800/50 rounded-lg border border-slate-800/80 flex items-start justify-between">
+                    <div key={i} className="p-3 glass-panel rounded-lg border border-slate-800/80 flex items-start justify-between glass-card-hover">
                       <div>
                         <span className="font-bold text-slate-200 block text-[11px]">{agent.agentName}</span>
                         <span className="text-slate-400 text-[10px]">{agent.keyPoint}</span>

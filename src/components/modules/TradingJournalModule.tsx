@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTradeOS } from '../../context/TradeOSContext';
 import { 
   BookOpen, 
@@ -16,6 +16,13 @@ import {
 export const TradingJournalModule: React.FC = () => {
   const { journalEntries, addJournalEntry, selectedTicker } = useTradeOS();
   const [showAddModal, setShowAddModal] = useState(false);
+
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.from('.module-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+    }
+  }, []);
 
   // Form State
   const [symbol, setSymbol] = useState(selectedTicker.symbol);
@@ -52,13 +59,13 @@ export const TradingJournalModule: React.FC = () => {
   return (
     <div className="p-4 font-mono space-y-4">
       {/* Top Banner */}
-      <div className="glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-dark-900 via-dark-800 to-slate-900">
+      <div className="module-card glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-dark-900 via-dark-800 to-slate-900">
         <div className="flex items-center space-x-3">
           <div className="p-3 rounded-lg bg-trade-accent/20 border border-trade-accent/40 text-trade-cyan">
             <BookOpen className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-white flex items-center gap-2">
+            <h1 className="text-base font-bold font-display text-white flex items-center gap-2">
               Personal AI Trading Journal & Psychology Coach
               <span className="text-[10px] bg-trade-cyan/20 text-trade-cyan border border-trade-cyan/40 px-2 py-0.5 rounded font-bold">
                 AUTO-NEWS SNAPSHOT
@@ -72,7 +79,7 @@ export const TradingJournalModule: React.FC = () => {
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 bg-trade-cyan hover:bg-cyan-400 text-black font-bold text-xs rounded-lg transition shadow-lg shadow-trade-cyan/20 flex items-center gap-1.5"
+          className="btn-premium px-4 py-2 bg-trade-cyan hover:bg-cyan-400 text-black font-bold text-xs rounded-lg transition shadow-lg shadow-trade-cyan/20 flex items-center gap-1.5"
         >
           <Plus className="w-4 h-4" /> Log New Trade Execution
         </button>
@@ -81,9 +88,9 @@ export const TradingJournalModule: React.FC = () => {
       {/* Modal for Adding Trade */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel p-6 rounded-2xl border border-slate-700 w-full max-w-lg space-y-4">
+          <div className="module-card glass-panel p-6 rounded-2xl border border-slate-700 w-full max-w-lg space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h2 className="text-sm font-bold text-white">Log Trade Execution</h2>
+              <h2 className="text-sm font-bold font-display text-white">Log Trade Execution</h2>
               <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white">✕</button>
             </div>
 
@@ -91,11 +98,11 @@ export const TradingJournalModule: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] text-slate-400 block mb-1">Symbol</label>
-                  <input type="text" value={symbol} onChange={(e) => setSymbol(e.target.value)} className="w-full bg-dark-800 border border-slate-700 rounded p-2 text-white font-bold" />
+                  <input type="text" value={symbol} onChange={(e) => setSymbol(e.target.value)} className="w-full glass-panel border border-slate-700 rounded p-2 text-white font-bold" />
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-400 block mb-1">Direction</label>
-                  <select value={side} onChange={(e) => setSide(e.target.value as any)} className="w-full bg-dark-800 border border-slate-700 rounded p-2 text-white font-bold">
+                  <select value={side} onChange={(e) => setSide(e.target.value as any)} className="w-full glass-panel border border-slate-700 rounded p-2 text-white font-bold">
                     <option value="LONG">LONG</option>
                     <option value="SHORT">SHORT</option>
                   </select>
@@ -105,22 +112,22 @@ export const TradingJournalModule: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] text-slate-400 block mb-1">Entry Price</label>
-                  <input type="number" step="any" value={entryPrice} onChange={(e) => setEntryPrice(parseFloat(e.target.value))} className="w-full bg-dark-800 border border-slate-700 rounded p-2 text-white" />
+                  <input type="number" step="any" value={entryPrice} onChange={(e) => setEntryPrice(parseFloat(e.target.value))} className="w-full glass-panel border border-slate-700 rounded p-2 text-white" />
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-400 block mb-1">Exit Price</label>
-                  <input type="number" step="any" value={exitPrice} onChange={(e) => setExitPrice(parseFloat(e.target.value))} className="w-full bg-dark-800 border border-slate-700 rounded p-2 text-white" />
+                  <input type="number" step="any" value={exitPrice} onChange={(e) => setExitPrice(parseFloat(e.target.value))} className="w-full glass-panel border border-slate-700 rounded p-2 text-white" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] text-slate-400 block mb-1">PnL ($)</label>
-                  <input type="number" value={pnlUsd} onChange={(e) => setPnlUsd(parseFloat(e.target.value))} className="w-full bg-dark-800 border border-slate-700 rounded p-2 text-white font-bold" />
+                  <input type="number" value={pnlUsd} onChange={(e) => setPnlUsd(parseFloat(e.target.value))} className="w-full glass-panel border border-slate-700 rounded p-2 text-white font-bold tabular-nums" />
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-400 block mb-1">Emotional State</label>
-                  <select value={emotion} onChange={(e) => setEmotion(e.target.value as any)} className="w-full bg-dark-800 border border-slate-700 rounded p-2 text-white font-bold">
+                  <select value={emotion} onChange={(e) => setEmotion(e.target.value as any)} className="w-full glass-panel border border-slate-700 rounded p-2 text-white font-bold">
                     <option value="CALM">CALM (Disciplined)</option>
                     <option value="FOMO">FOMO (Chasing)</option>
                     <option value="REVENGE">REVENGE (Angry)</option>
@@ -132,15 +139,15 @@ export const TradingJournalModule: React.FC = () => {
 
               <div>
                 <label className="text-[10px] text-slate-400 block mb-1">Trade Setup Name</label>
-                <input type="text" value={setupName} onChange={(e) => setSetupName(e.target.value)} className="w-full bg-dark-800 border border-slate-700 rounded p-2 text-white" />
+                <input type="text" value={setupName} onChange={(e) => setSetupName(e.target.value)} className="w-full glass-panel border border-slate-700 rounded p-2 text-white" />
               </div>
 
               <div>
                 <label className="text-[10px] text-slate-400 block mb-1">Attached News Snapshot</label>
-                <input type="text" value={attachedNews} onChange={(e) => setAttachedNews(e.target.value)} className="w-full bg-dark-800 border border-slate-700 rounded p-2 text-slate-300" />
+                <input type="text" value={attachedNews} onChange={(e) => setAttachedNews(e.target.value)} className="w-full glass-panel border border-slate-700 rounded p-2 text-slate-300" />
               </div>
 
-              <button type="submit" className="w-full py-2.5 bg-trade-cyan text-black font-bold text-xs rounded-lg">
+              <button type="submit" className="btn-premium w-full py-2.5 bg-trade-cyan text-black font-bold text-xs rounded-lg">
                 SAVE TO JOURNAL & RUN PSYCHOLOGY COACH
               </button>
             </form>
@@ -153,7 +160,7 @@ export const TradingJournalModule: React.FC = () => {
         {journalEntries.map(j => {
           const isWin = j.pnlUsd >= 0;
           return (
-            <div key={j.id} className="glass-panel p-4 rounded-xl border border-slate-800 space-y-3">
+            <div key={j.id} className="module-card glass-panel glass-card-hover p-4 rounded-xl border border-slate-800 space-y-3">
               <div className="flex flex-wrap items-center justify-between pb-2 border-b border-slate-800 gap-2">
                 <div className="flex items-center space-x-3">
                   <span className={`px-2.5 py-1 rounded font-bold text-xs ${
@@ -167,21 +174,21 @@ export const TradingJournalModule: React.FC = () => {
 
                 <div className="flex items-center space-x-3 font-bold">
                   <span className="text-xs text-slate-400">R:R {j.riskReward}</span>
-                  <span className={`text-base ${isWin ? 'neon-text-bull' : 'neon-text-bear'}`}>
+                  <span className={`text-base tabular-nums ${isWin ? 'neon-text-bull' : 'neon-text-bear'}`}>
                     {isWin ? '+' : ''}${j.pnlUsd.toLocaleString()} ({j.pnlPercent}%)
                   </span>
                 </div>
               </div>
 
               {/* Trade Execution Details */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-dark-800/60 p-2.5 rounded-lg border border-slate-800">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs glass-panel p-2.5 rounded-lg border border-slate-800">
                 <div>
                   <span className="text-slate-500 text-[10px] block">Entry Price</span>
-                  <span className="text-white font-bold">${j.entryPrice.toLocaleString()}</span>
+                  <span className="text-white font-bold tabular-nums">${j.entryPrice.toLocaleString()}</span>
                 </div>
                 <div>
                   <span className="text-slate-500 text-[10px] block">Exit Price</span>
-                  <span className="text-white font-bold">${j.exitPrice.toLocaleString()}</span>
+                  <span className="text-white font-bold tabular-nums">${j.exitPrice.toLocaleString()}</span>
                 </div>
                 <div>
                   <span className="text-slate-500 text-[10px] block">Trader Emotion</span>
@@ -196,7 +203,7 @@ export const TradingJournalModule: React.FC = () => {
               </div>
 
               {/* AI Psychology Coach Feedback Box */}
-              <div className="p-3 bg-dark-800/80 rounded-xl border border-trade-cyan/30 text-xs flex items-start space-x-2.5">
+              <div className="p-3 glass-panel rounded-xl border border-trade-cyan/30 text-xs flex items-start space-x-2.5">
                 <Brain className="w-4 h-4 text-trade-cyan shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold text-trade-cyan block text-[10px] uppercase">AI Psychology Coach Analysis</span>

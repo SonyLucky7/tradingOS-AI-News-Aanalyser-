@@ -9,66 +9,103 @@
     <meta name="theme-color" content="#07090E" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Inter + JetBrains Mono + Outfit (premium display) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Premium Loading Screen CSS (shown before React loads) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- GSAP Animation Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <!-- Three.js + Vanta.js Waves Background -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.waves.min.js" defer></script>
+    <!-- Premium Loading Screen CSS -->
     <style>
       body { margin: 0; background: #07090E; overflow: hidden; }
       #splash {
         position: fixed; inset: 0; z-index: 9999;
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
-        background: radial-gradient(ellipse at 50% 30%, rgba(0,229,255,0.06) 0%, transparent 70%),
-                    radial-gradient(ellipse at 80% 80%, rgba(112,0,255,0.04) 0%, transparent 60%),
-                    #07090E;
+        background: 
+          radial-gradient(ellipse at 50% 20%, rgba(0,229,255,0.08) 0%, transparent 60%),
+          radial-gradient(ellipse at 80% 80%, rgba(112,0,255,0.06) 0%, transparent 50%),
+          radial-gradient(ellipse at 20% 70%, rgba(0,245,160,0.04) 0%, transparent 50%),
+          #07090E;
         font-family: 'Inter', system-ui, sans-serif;
-        transition: opacity 0.4s ease-out;
+        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
       }
-      #splash.fade-out { opacity: 0; pointer-events: none; }
+      #splash.fade-out { opacity: 0; transform: scale(1.02); pointer-events: none; }
+      
       .splash-logo {
-        width: 56px; height: 56px; border-radius: 16px;
-        background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(112,0,255,0.25));
-        border: 1px solid rgba(0,229,255,0.3);
+        width: 64px; height: 64px; border-radius: 18px;
+        background: linear-gradient(135deg, rgba(0,229,255,0.12), rgba(112,0,255,0.2));
+        border: 1px solid rgba(0,229,255,0.25);
         display: flex; align-items: center; justify-content: center;
-        font-size: 28px; margin-bottom: 20px;
-        box-shadow: 0 0 40px rgba(0,229,255,0.15);
-        animation: logoPulse 2s ease-in-out infinite;
+        font-size: 30px; margin-bottom: 24px;
+        box-shadow: 0 0 60px rgba(0,229,255,0.12), inset 0 0 30px rgba(0,229,255,0.05);
+        animation: logoFloat 3s ease-in-out infinite, logoPulse 2s ease-in-out infinite;
+      }
+      @keyframes logoFloat {
+        0%, 100% { transform: translateY(0px) rotateY(0deg); }
+        50% { transform: translateY(-6px) rotateY(5deg); }
       }
       @keyframes logoPulse {
-        0%, 100% { box-shadow: 0 0 20px rgba(0,229,255,0.1); }
-        50% { box-shadow: 0 0 50px rgba(0,229,255,0.25); }
+        0%, 100% { box-shadow: 0 0 30px rgba(0,229,255,0.1), inset 0 0 20px rgba(0,229,255,0.03); }
+        50% { box-shadow: 0 0 60px rgba(0,229,255,0.25), inset 0 0 30px rgba(0,229,255,0.08); }
       }
+      
       .splash-title {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 22px; font-weight: 700; letter-spacing: 3px;
-        background: linear-gradient(90deg, #fff, #00E5FF);
+        font-family: 'Outfit', 'Inter', sans-serif;
+        font-size: 26px; font-weight: 700; letter-spacing: 4px;
+        background: linear-gradient(90deg, #ffffff 0%, #00E5FF 60%, #7000FF 100%);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
+        animation: fadeIn 0.8s ease-out 0.2s both;
       }
       .splash-sub {
-        font-size: 11px; color: #64748b; letter-spacing: 2px;
-        text-transform: uppercase; margin-bottom: 32px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px; color: #475569; letter-spacing: 3px;
+        text-transform: uppercase; margin-bottom: 36px;
+        animation: fadeIn 0.8s ease-out 0.4s both;
       }
-      .splash-bar {
-        width: 200px; height: 2px; background: #1E293B;
-        border-radius: 2px; overflow: hidden;
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .splash-bar-container {
+        width: 220px; height: 3px; background: rgba(30,41,59,0.5);
+        border-radius: 3px; overflow: hidden; position: relative;
+        animation: fadeIn 0.6s ease-out 0.6s both;
       }
       .splash-bar-fill {
-        height: 100%; width: 0%; border-radius: 2px;
-        background: linear-gradient(90deg, #00E5FF, #7000FF);
-        animation: barLoad 1.8s ease-out forwards;
+        height: 100%; width: 0%; border-radius: 3px;
+        background: linear-gradient(90deg, #00E5FF, #7000FF, #00F5A0);
+        background-size: 200% 100%;
+        animation: barLoad 2s ease-out forwards, barShimmer 1.5s linear infinite;
       }
       @keyframes barLoad {
         0% { width: 0%; }
-        60% { width: 75%; }
+        40% { width: 60%; }
+        80% { width: 90%; }
         100% { width: 100%; }
       }
-      .splash-status {
-        margin-top: 14px; font-family: 'JetBrains Mono', monospace;
-        font-size: 10px; color: #475569; letter-spacing: 1px;
+      @keyframes barShimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
       }
+      .splash-bar-glow {
+        position: absolute; top: -2px; left: 0; width: 100%; height: 7px;
+        background: linear-gradient(90deg, transparent, rgba(0,229,255,0.4), transparent);
+        filter: blur(4px); animation: barLoad 2s ease-out forwards;
+        width: 0%;
+      }
+      
+      .splash-status {
+        margin-top: 16px; font-family: 'JetBrains Mono', monospace;
+        font-size: 10px; color: #334155; letter-spacing: 1.5px;
+        animation: fadeIn 0.6s ease-out 0.8s both;
+      }
+      .splash-status span { color: #00E5FF; }
     </style>
   </head>
   <body class="bg-dark-900 text-slate-100 font-sans antialiased overflow-x-hidden selection:bg-trade-cyan selection:text-black">
@@ -77,8 +114,11 @@
       <div class="splash-logo">⚡</div>
       <div class="splash-title">TRADE OS AI</div>
       <div class="splash-sub">Institutional Intelligence Engine</div>
-      <div class="splash-bar"><div class="splash-bar-fill"></div></div>
-      <div class="splash-status">Initializing AI Agents...</div>
+      <div class="splash-bar-container">
+        <div class="splash-bar-fill"></div>
+        <div class="splash-bar-glow"></div>
+      </div>
+      <div class="splash-status">Initializing <span>13</span> AI Agents...</div>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
@@ -90,7 +130,7 @@
           const splash = document.getElementById('splash');
           if (splash) {
             splash.classList.add('fade-out');
-            setTimeout(() => splash.remove(), 400);
+            setTimeout(() => splash.remove(), 500);
           }
           observer.disconnect();
         }

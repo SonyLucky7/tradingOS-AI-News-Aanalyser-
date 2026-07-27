@@ -167,6 +167,6 @@ export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ da
   }));
 
   return (
-    <div ref={chartContainerRef} className="w-full h-full min-h-[550px]" />
+    <div ref={chartContainerRef} className="w-full h-full min-h-[550px] rounded-lg" style={{ boxShadow: 'inset 0 0 20px rgba(0,229,255,0.03)' }} />
   );
 });

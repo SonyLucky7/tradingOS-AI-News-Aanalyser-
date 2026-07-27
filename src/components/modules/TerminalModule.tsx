@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTradeOS } from '../../context/TradeOSContext';
 import { MarketCategory, MarketTicker } from '../../types/tradeos';
 import { TradingViewChart } from '../TradingViewChart';
@@ -31,6 +31,14 @@ export const TerminalModule: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+
+  // ─── GSAP Entrance Animation ───
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.from('.terminal-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out', delay: 0.1 });
+    }
+  }, []);
 
   // ─── Starred items float to top ───
   const sortedAndFiltered = useMemo(() => {
@@ -98,9 +106,9 @@ export const TerminalModule: React.FC = () => {
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 font-mono">
       {/* ════════ LEFT: Watchlist Radar (3 cols) ════════ */}
       <div className="lg:col-span-3 flex flex-col space-y-3">
-        <div className="glass-panel p-3 rounded-xl border border-slate-800 space-y-2.5">
+        <div className="glass-panel terminal-card p-3 rounded-xl border border-slate-800 space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-xs font-bold font-display text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-trade-cyan" /> Watchlist Radar
             </span>
             <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono">
@@ -126,7 +134,7 @@ export const TerminalModule: React.FC = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat as any)}
-                className={`px-2 py-1 rounded transition ${
+                className={`px-2 py-1 rounded transition btn-premium ${
                   selectedCategory === cat
                     ? 'bg-trade-cyan/20 border border-trade-cyan/40 text-trade-cyan font-bold'
                     : 'bg-dark-800 text-slate-400 hover:text-white'
@@ -148,7 +156,7 @@ export const TerminalModule: React.FC = () => {
                 <div
                   key={t.symbol}
                   onClick={() => setSelectedTicker(t)}
-                  className={`flex items-center justify-between p-2 rounded-lg border text-xs cursor-pointer transition ${
+                  className={`flex items-center justify-between p-2 rounded-lg border text-xs cursor-pointer transition glass-card-hover ${
                     isSelected
                       ? 'bg-slate-800/90 border-trade-cyan/50 shadow-md shadow-trade-cyan/5'
                       : isWatch
@@ -169,10 +177,10 @@ export const TerminalModule: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-bold text-slate-100 text-[11px]">
+                    <div className="font-bold text-slate-100 text-[11px] tabular-nums">
                       {tRupee ? `₹${t.price.toLocaleString()}` : `$${t.price.toLocaleString()}`}
                     </div>
-                    <div className={`text-[9px] font-bold ${tPos ? 'text-trade-bull' : 'text-trade-bear'}`}>
+                    <div className={`text-[9px] font-bold tabular-nums ${tPos ? 'text-trade-bull' : 'text-trade-bear'}`}>
                       {tPos ? '+' : ''}{t.change24h}%
                     </div>
                   </div>
@@ -183,9 +191,9 @@ export const TerminalModule: React.FC = () => {
         </div>
 
         {/* AI Pre-Trade Callout */}
-        <div className="glass-panel p-3.5 rounded-xl border border-trade-cyan/30 bg-gradient-to-br from-trade-cyan/10 via-dark-800 to-dark-900">
+        <div className="glass-panel terminal-card p-3.5 rounded-xl border border-trade-cyan/30 bg-gradient-to-br from-trade-cyan/10 via-dark-800 to-dark-900">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-trade-cyan flex items-center gap-1.5">
+            <span className="text-xs font-bold font-display text-trade-cyan flex items-center gap-1.5">
               <Zap className="w-4 h-4" /> AI Pre-Trade Assistant
             </span>
             <span className="text-[9px] bg-trade-cyan/20 border border-trade-cyan/40 text-trade-cyan px-1.5 py-0.5 rounded font-bold">
@@ -197,7 +205,7 @@ export const TerminalModule: React.FC = () => {
           </p>
           <button
             onClick={() => setActiveModule('COPILOT')}
-            className="w-full py-2 bg-gradient-to-r from-trade-cyan to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold text-xs rounded-lg transition shadow-lg shadow-trade-cyan/20 flex items-center justify-center gap-1.5"
+            className="w-full py-2 bg-gradient-to-r from-trade-cyan to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold text-xs rounded-lg transition shadow-lg shadow-trade-cyan/20 flex items-center justify-center gap-1.5 btn-premium"
           >
             <ShieldAlert className="w-3.5 h-3.5" /> Evaluate Trade Safety Now
           </button>
@@ -207,12 +215,12 @@ export const TerminalModule: React.FC = () => {
       {/* ════════ MIDDLE: Chart + AI Intelligence (6 cols) ════════ */}
       <div className="lg:col-span-6 flex flex-col space-y-4">
         {/* Chart Card */}
-        <div className="glass-panel p-4 rounded-xl border border-slate-800 flex flex-col min-h-[420px]">
+        <div className="glass-panel terminal-card p-4 rounded-xl border border-slate-800 flex flex-col min-h-[420px]">
           {/* Header */}
           <div className="flex flex-wrap items-center justify-between pb-3 border-b border-slate-800 gap-2">
             <div>
               <div className="flex items-center space-x-2 flex-wrap">
-                <h2 className="text-lg font-bold text-white tracking-wide">{selectedTicker.symbol}</h2>
+                <h2 className="text-lg font-bold font-display neon-glow-cyan text-white tracking-wide">{selectedTicker.symbol}</h2>
                 <span className="text-xs px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 font-mono">
                   {selectedTicker.category === 'INDIAN_STOCKS' ? 'NSE' : selectedTicker.category}
                 </span>
@@ -231,10 +239,10 @@ export const TerminalModule: React.FC = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-extrabold text-white tracking-tight">
+              <div className="text-2xl font-extrabold text-white tracking-tight tabular-nums">
                 {cur}{selectedTicker.price.toLocaleString()}
               </div>
-              <div className={`flex items-center justify-end text-sm font-bold ${isPos ? 'neon-text-bull' : 'neon-text-bear'}`}>
+              <div className={`flex items-center justify-end text-sm font-bold tabular-nums ${isPos ? 'neon-text-bull' : 'neon-text-bear'}`}>
                 {isPos ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
                 {isPos ? '+' : ''}{selectedTicker.change24h}%
               </div>
@@ -242,23 +250,23 @@ export const TerminalModule: React.FC = () => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 my-3 text-[11px] font-mono bg-dark-800/60 p-2.5 rounded-lg border border-slate-800">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 my-3 text-[11px] font-mono glass-panel p-2.5 rounded-lg border border-slate-800">
             <div>
               <span className="text-slate-500 block">24h High</span>
-              <span className="text-slate-200 font-bold">{cur}{selectedTicker.high24h.toLocaleString()}</span>
+              <span className="text-slate-200 font-bold tabular-nums">{cur}{selectedTicker.high24h.toLocaleString()}</span>
             </div>
             <div>
               <span className="text-slate-500 block">24h Low</span>
-              <span className="text-slate-200 font-bold">{cur}{selectedTicker.low24h.toLocaleString()}</span>
+              <span className="text-slate-200 font-bold tabular-nums">{cur}{selectedTicker.low24h.toLocaleString()}</span>
             </div>
             <div>
               <span className="text-slate-500 block">Volume</span>
-              <span className="text-slate-200 font-bold">{selectedTicker.volume24h}</span>
+              <span className="text-slate-200 font-bold tabular-nums">{selectedTicker.volume24h}</span>
             </div>
             {selectedTicker.fundingRate !== undefined && (
               <div>
                 <span className="text-slate-500 block">Funding Rate</span>
-                <span className="text-trade-cyan font-bold">{(selectedTicker.fundingRate * 100).toFixed(4)}%</span>
+                <span className="text-trade-cyan font-bold tabular-nums">{(selectedTicker.fundingRate * 100).toFixed(4)}%</span>
               </div>
             )}
           </div>
@@ -270,9 +278,9 @@ export const TerminalModule: React.FC = () => {
         </div>
 
         {/* ─── AI Contextual Intelligence Panel ─── */}
-        <div className="glass-panel p-4 rounded-xl border border-slate-800 space-y-3">
+        <div className="glass-panel terminal-card p-4 rounded-xl border border-slate-800 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-xs font-bold font-display text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
               <Brain className="w-4 h-4 text-violet-400" /> 
               AI Intelligence for {selectedTicker.symbol}
             </span>
@@ -290,8 +298,10 @@ export const TerminalModule: React.FC = () => {
           </div>
 
           {aiLoading ? (
-            <div className="flex items-center justify-center py-6 text-slate-400 text-xs gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" /> Analyzing {selectedTicker.symbol} with AI...
+            <div className="flex flex-col space-y-2 py-4">
+              <div className="shimmer-skeleton h-4 w-3/4" />
+              <div className="shimmer-skeleton h-4 w-full" />
+              <div className="shimmer-skeleton h-4 w-5/6" />
             </div>
           ) : aiAnalysis ? (
             <div className="space-y-3">
@@ -318,13 +328,13 @@ export const TerminalModule: React.FC = () => {
               </div>
 
               {/* Summary */}
-              <div className="bg-dark-800/60 p-3 rounded-lg border border-slate-800">
+              <div className="glass-panel p-3 rounded-lg border border-slate-800">
                 <FormattedAiText text={aiAnalysis.summary} />
               </div>
 
               {/* Key Drivers */}
               <div className="space-y-1">
-                <span className="text-[10px] text-slate-500 font-bold uppercase">Key Drivers</span>
+                <span className="text-[10px] text-slate-500 font-bold font-display uppercase">Key Drivers</span>
                 {aiAnalysis.keyDrivers.map((d, i) => (
                   <div key={i} className="flex items-start gap-2 text-[11px] text-slate-300">
                     <ChevronRight className="w-3 h-3 text-trade-cyan mt-0.5 shrink-0" />
@@ -347,9 +357,9 @@ export const TerminalModule: React.FC = () => {
       <div className="lg:col-span-3 flex flex-col space-y-4">
 
         {/* Related News for Selected Ticker */}
-        <div className="glass-panel p-3 rounded-xl border border-slate-800">
+        <div className="glass-panel terminal-card p-3 rounded-xl border border-slate-800">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+            <span className="text-xs font-bold font-display text-slate-300 flex items-center gap-1.5">
               <Newspaper className="w-3.5 h-3.5 text-amber-400" /> News for {selectedTicker.symbol}
             </span>
             <span className="text-[9px] bg-amber-950 text-amber-400 px-1.5 py-0.5 rounded font-bold border border-amber-800">
@@ -358,7 +368,7 @@ export const TerminalModule: React.FC = () => {
           </div>
           <div className="space-y-1.5 max-h-[200px] overflow-y-auto pr-1">
             {relatedNews.length > 0 ? relatedNews.map(n => (
-              <div key={n.id} className="p-2 rounded-lg bg-dark-800/80 border border-slate-800 text-[10px] cursor-pointer hover:border-slate-700 transition">
+              <div key={n.id} className="p-2 rounded-lg glass-panel glass-card-hover border border-slate-800 text-[10px] cursor-pointer hover:border-slate-700 transition">
                 <div className="flex items-start gap-1.5">
                   <span className={`shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full ${
                     n.urgency === 'CRITICAL' ? 'bg-rose-500 animate-ping' : 
@@ -386,15 +396,15 @@ export const TerminalModule: React.FC = () => {
         </div>
 
         {/* Related Economic Events */}
-        <div className="glass-panel p-3 rounded-xl border border-slate-800">
+        <div className="glass-panel terminal-card p-3 rounded-xl border border-slate-800">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+            <span className="text-xs font-bold font-display text-slate-300 flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-blue-400" /> Events
             </span>
           </div>
           <div className="space-y-1.5 max-h-[160px] overflow-y-auto">
             {relatedEconomicEvents.map(e => (
-              <div key={e.id} className="p-2 rounded-lg bg-dark-800/80 border border-slate-800 text-[10px]">
+              <div key={e.id} className="p-2 rounded-lg glass-panel glass-card-hover border border-slate-800 text-[10px]">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-200 font-medium truncate mr-2">{e.event}</span>
                   <span className={`shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded ${
@@ -419,9 +429,9 @@ export const TerminalModule: React.FC = () => {
         </div>
 
         {/* Orderbook Depth */}
-        <div className="glass-panel p-3 rounded-xl border border-slate-800">
+        <div className="glass-panel terminal-card p-3 rounded-xl border border-slate-800">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+            <span className="text-xs font-bold font-display text-slate-300 flex items-center gap-1.5">
               <BarChart2 className="w-3.5 h-3.5 text-trade-cyan" /> Orderbook Depth
             </span>
             <span className="text-[10px] text-trade-bull font-bold">Spread: {isRupee ? '₹0.50' : '$0.50'}</span>
@@ -435,13 +445,13 @@ export const TerminalModule: React.FC = () => {
             ].map((ask, i) => (
               <div key={i} className="relative flex justify-between px-2 py-1 rounded bg-rose-950/20 text-rose-400">
                 <div className="absolute right-0 top-0 bottom-0 bg-rose-900/30 rounded pointer-events-none" style={{ width: `${ask.pct}%` }}></div>
-                <span className="font-bold z-10">{cur}{ask.price}</span>
+                <span className="font-bold tabular-nums z-10">{cur}{ask.price}</span>
                 <span className="text-slate-400 z-10">ASK</span>
               </div>
             ))}
           </div>
 
-          <div className="text-center font-bold text-xs py-1.5 bg-dark-800 my-1 text-slate-100 rounded border border-slate-700/60">
+          <div className="text-center font-bold text-xs py-1.5 glass-panel my-1 text-slate-100 rounded border border-slate-700/60 tabular-nums">
             {cur}{selectedTicker.price.toLocaleString()}
           </div>
 
@@ -453,7 +463,7 @@ export const TerminalModule: React.FC = () => {
             ].map((bid, i) => (
               <div key={i} className="relative flex justify-between px-2 py-1 rounded bg-emerald-950/20 text-emerald-400">
                 <div className="absolute left-0 top-0 bottom-0 bg-emerald-900/30 rounded pointer-events-none" style={{ width: `${bid.pct}%` }}></div>
-                <span className="font-bold z-10">{cur}{bid.price}</span>
+                <span className="font-bold tabular-nums z-10">{cur}{bid.price}</span>
                 <span className="text-slate-400 z-10">BID</span>
               </div>
             ))}
@@ -461,22 +471,22 @@ export const TerminalModule: React.FC = () => {
         </div>
 
         {/* Whale Radar */}
-        <div className="glass-panel p-3 rounded-xl border border-slate-800">
+        <div className="glass-panel terminal-card p-3 rounded-xl border border-slate-800">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+            <span className="text-xs font-bold font-display text-slate-300 flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5 text-trade-warn" /> Whale Radar
             </span>
             <span className="text-[9px] bg-trade-warn/20 text-trade-warn px-1.5 py-0.5 rounded font-bold">LIVE</span>
           </div>
           <div className="space-y-1.5 text-[10px] font-mono">
-            <div className="p-2 rounded bg-dark-800/80 border border-slate-800 border-l-2 border-l-trade-bear">
+            <div className="p-2 rounded glass-panel glass-card-hover border border-slate-800 border-l-2 border-l-trade-bear">
               <div className="flex justify-between text-slate-400">
                 <span>{new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})} IST</span>
                 <span className="text-trade-bear font-bold">LIQUIDATION</span>
               </div>
               <p className="text-slate-200 font-medium mt-0.5">$4.2M Longs Liquidated @ {cur}{(selectedTicker.price * 0.99).toFixed(2)}</p>
             </div>
-            <div className="p-2 rounded bg-dark-800/80 border border-slate-800 border-l-2 border-l-trade-cyan">
+            <div className="p-2 rounded glass-panel glass-card-hover border border-slate-800 border-l-2 border-l-trade-cyan">
               <div className="flex justify-between text-slate-400">
                 <span>Earlier</span>
                 <span className="text-trade-cyan font-bold">WHALE TRANSFER</span>

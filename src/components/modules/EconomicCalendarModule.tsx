@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTradeOS } from '../../context/TradeOSContext';
 import { 
   CalendarDays, 
@@ -22,6 +22,13 @@ export const EconomicCalendarModule: React.FC = () => {
     const matchesImpact = impactFilter === 'ALL' || evt.impact === 'HIGH';
     return matchesCurr && matchesImpact;
   });
+
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.from('.module-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+    }
+  }, []);
 
   const getCurrencyFlag = (curr: string) => {
     switch (curr) {
@@ -48,13 +55,13 @@ export const EconomicCalendarModule: React.FC = () => {
   return (
     <div className="p-4 font-mono space-y-4 select-none">
       {/* Top Header Banner */}
-      <div className="glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-dark-900 via-dark-800 to-slate-900">
+      <div className="glass-panel module-card p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-dark-900 via-dark-800 to-slate-900">
         <div className="flex items-center space-x-3">
           <div className="p-3 rounded-lg bg-amber-950 border border-amber-500/50 text-amber-400">
             <CalendarDays className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-white flex items-center gap-2">
+            <h1 className="font-display text-base font-bold text-white flex items-center gap-2">
               Macroeconomic Event Calendar & Volatility Warning
               <span className="text-[10px] bg-amber-950 text-amber-300 border border-amber-800 px-2 py-0.5 rounded font-bold animate-pulse">
                 HIGH IMPACT RADAR
@@ -68,7 +75,7 @@ export const EconomicCalendarModule: React.FC = () => {
 
         {/* Currency & Impact Filter Controls */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <div className="flex items-center space-x-1 bg-dark-800 p-1 rounded-lg border border-slate-800">
+          <div className="flex items-center space-x-1 glass-panel p-1 rounded-lg border border-slate-800">
             <button
               onClick={() => setSelectedCurrency('ALL')}
               className={`px-2.5 py-1 rounded font-bold transition ${selectedCurrency === 'ALL' ? 'bg-trade-cyan text-black' : 'text-slate-400 hover:text-white'}`}
@@ -103,10 +110,10 @@ export const EconomicCalendarModule: React.FC = () => {
 
           <button
             onClick={() => setImpactFilter(prev => prev === 'ALL' ? 'HIGH' : 'ALL')}
-            className={`px-3 py-1.5 rounded-lg font-bold border transition flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg font-bold border transition flex items-center gap-1.5 btn-premium ${
               impactFilter === 'HIGH'
                 ? 'bg-rose-950 text-rose-300 border-rose-600'
-                : 'bg-dark-800 text-slate-400 border-slate-700 hover:text-white'
+                : 'glass-panel text-slate-400 border-slate-700 hover:text-white'
             }`}
           >
             <Flame className="w-3.5 h-3.5 text-rose-400" />
@@ -124,7 +131,7 @@ export const EconomicCalendarModule: React.FC = () => {
           return (
             <div 
               key={evt.id} 
-              className={`glass-panel p-4 rounded-xl border transition ${
+              className={`glass-panel module-card glass-card-hover p-4 rounded-xl border transition ${
                 isCrit ? 'bg-rose-950/20 border-rose-500/50 shadow-lg shadow-rose-950/30' : 'border-slate-800 hover:border-slate-700'
               }`}
             >
@@ -144,9 +151,9 @@ export const EconomicCalendarModule: React.FC = () => {
                 </div>
 
                 {/* Countdown Timer */}
-                <div className="flex items-center space-x-2 bg-dark-800 px-3.5 py-1.5 rounded-lg border border-slate-700 shadow-inner">
+                <div className="flex items-center space-x-2 glass-panel px-3.5 py-1.5 rounded-lg border border-slate-700 shadow-inner">
                   <Clock className={`w-4 h-4 ${isCrit ? 'text-rose-400 animate-pulse' : 'text-trade-cyan'}`} />
-                  <span className="text-xs font-extrabold text-white">
+                  <span className="text-xs font-extrabold neon-text-cyan tabular-nums">
                     T-{evt.countdownMinutes} MINS
                   </span>
                 </div>
@@ -154,7 +161,7 @@ export const EconomicCalendarModule: React.FC = () => {
 
               <div className="mt-3 space-y-3">
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                  <h3 className="text-sm font-bold text-white leading-snug">{evt.event}</h3>
+                  <h3 className="font-display text-sm font-bold text-white leading-snug">{evt.event}</h3>
                   <div className="flex items-center space-x-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase">Impacts:</span>
                     {affectedAssets.map(asset => (
@@ -166,7 +173,7 @@ export const EconomicCalendarModule: React.FC = () => {
                 </div>
 
                 {/* Forecast / Previous / Actual Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs bg-dark-800/80 p-3 rounded-xl border border-slate-800">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs glass-panel p-3 rounded-xl border border-slate-800">
                   <div>
                     <span className="text-slate-500 text-[10px] block font-bold uppercase">Forecast</span>
                     <span className="text-sm font-bold text-slate-200">{evt.forecast}</span>
@@ -190,7 +197,7 @@ export const EconomicCalendarModule: React.FC = () => {
                     </span>
                     <button 
                       onClick={() => setActiveModule('COPILOT')} 
-                      className="px-3 py-1 bg-trade-cyan hover:bg-cyan-400 text-black font-extrabold text-[10px] rounded-lg transition shadow-md shadow-trade-cyan/20 shrink-0"
+                      className="px-3 py-1 btn-premium bg-trade-cyan hover:bg-cyan-400 text-black font-extrabold text-[10px] rounded-lg transition shadow-md shadow-trade-cyan/20 shrink-0"
                     >
                       Evaluate Trade Safety →
                     </button>

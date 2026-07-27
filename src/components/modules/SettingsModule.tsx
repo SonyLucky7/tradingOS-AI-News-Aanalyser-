@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Settings, Key, BellRing, Zap, CheckCircle2, Server, Save, Brain, Cloud, Monitor, Sparkles, Bot, Cpu
 } from 'lucide-react';
@@ -64,18 +64,25 @@ export const SettingsModule: React.FC = () => {
     setTimeout(() => setSaved(false), 3000);
   };
 
-  const inp = "w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-xs focus:outline-none focus:border-trade-cyan transition";
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.from('.module-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+    }
+  }, []);
+
+  const inp = "w-full glass-panel border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-xs focus:outline-none focus:border-trade-cyan transition";
 
   return (
     <div className="p-4 font-mono space-y-4 max-w-5xl mx-auto">
       {/* Banner */}
-      <div className="glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-dark-900 via-dark-800 to-slate-900">
+      <div className="module-card glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-dark-900 via-dark-800 to-slate-900">
         <div className="flex items-center space-x-3">
           <div className="p-3 rounded-lg bg-slate-800 text-trade-cyan border border-slate-700">
             <Settings className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-white">System Settings & AI Configuration</h1>
+            <h1 className="text-base font-bold font-display text-white">System Settings & AI Configuration</h1>
             <p className="text-xs text-slate-400">Configure AI providers, exchange feeds, and alert webhooks.</p>
           </div>
         </div>
@@ -90,9 +97,9 @@ export const SettingsModule: React.FC = () => {
       <form onSubmit={handleSave} className="space-y-4">
 
         {/* ─── Section 1: AI Provider ─── */}
-        <div className="glass-panel p-5 rounded-2xl border border-violet-800/40 space-y-4 bg-gradient-to-br from-violet-950/20 via-dark-800 to-dark-900">
+        <div className="module-card glass-panel p-5 rounded-2xl border border-violet-800/40 space-y-4 bg-gradient-to-br from-violet-950/20 via-dark-800 to-dark-900">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold text-violet-300 uppercase tracking-wider flex items-center gap-2">
+            <h2 className="text-xs font-bold font-display text-violet-300 uppercase tracking-wider flex items-center gap-2">
               <Brain className="w-4 h-4 text-violet-400" /> AI Intelligence Provider
             </h2>
             <label className="flex items-center gap-2 text-xs cursor-pointer">
@@ -120,7 +127,7 @@ export const SettingsModule: React.FC = () => {
                 className={`p-3 rounded-xl border text-left transition ${
                   provider === p.id
                     ? 'bg-violet-950/50 border-violet-500/60 shadow-md shadow-violet-500/10'
-                    : 'bg-dark-800 border-slate-800 hover:border-slate-700'
+                    : 'glass-panel border-slate-800 hover:border-slate-700'
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-1">
@@ -252,8 +259,8 @@ export const SettingsModule: React.FC = () => {
         </div>
 
         {/* ─── Section 2: Exchange Keys ─── */}
-        <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
-          <h2 className="text-xs font-bold text-trade-cyan uppercase tracking-wider flex items-center gap-2">
+        <div className="module-card glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+          <h2 className="text-xs font-bold font-display text-trade-cyan uppercase tracking-wider flex items-center gap-2">
             <Key className="w-4 h-4" /> Exchange & Data Feed Keys
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -269,8 +276,8 @@ export const SettingsModule: React.FC = () => {
         </div>
 
         {/* ─── Section 3: Webhooks ─── */}
-        <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
-          <h2 className="text-xs font-bold text-trade-warn uppercase tracking-wider flex items-center gap-2">
+        <div className="module-card glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+          <h2 className="text-xs font-bold font-display text-trade-warn uppercase tracking-wider flex items-center gap-2">
             <BellRing className="w-4 h-4" /> Alert Webhooks
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -286,8 +293,8 @@ export const SettingsModule: React.FC = () => {
         </div>
 
         {/* ─── Section 4: Health ─── */}
-        <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
-          <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+        <div className="module-card glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+          <h2 className="text-xs font-bold font-display text-slate-300 uppercase tracking-wider flex items-center gap-2">
             <Server className="w-4 h-4 text-trade-bull" /> System Health
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
@@ -297,7 +304,7 @@ export const SettingsModule: React.FC = () => {
               { label: 'AI Provider', status: provider.toUpperCase() },
               { label: 'TradingView', status: 'EMBEDDED' },
             ].map(s => (
-              <div key={s.label} className="p-3 bg-dark-800 rounded-lg border border-slate-800">
+              <div key={s.label} className="p-3 glass-panel rounded-lg border border-slate-800">
                 <span className="text-[10px] text-slate-500 block">{s.label}</span>
                 <span className="text-trade-bull font-bold flex items-center gap-1 text-xs">
                   <CheckCircle2 className="w-3 h-3" /> {s.status}
@@ -307,7 +314,7 @@ export const SettingsModule: React.FC = () => {
           </div>
         </div>
 
-        <button type="submit" className="px-6 py-3 bg-gradient-to-r from-trade-cyan to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-trade-cyan/20 transition flex items-center gap-2">
+        <button type="submit" className="btn-premium px-6 py-3 bg-gradient-to-r from-trade-cyan to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-trade-cyan/20 transition flex items-center gap-2">
           <Save className="w-4 h-4" /> Save All Settings
         </button>
       </form>

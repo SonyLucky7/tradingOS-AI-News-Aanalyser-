@@ -92,7 +92,7 @@ export const NewsToastPopup: React.FC = () => {
 
   return (
     <div className="fixed bottom-16 sm:bottom-5 right-3 sm:right-5 left-3 sm:left-auto max-w-md w-full sm:w-auto z-50 font-mono animate-in slide-in-from-bottom-5 duration-300">
-      <div className="glass-panel p-4 rounded-2xl border-2 border-rose-500/60 bg-[#0B0E17]/95 shadow-2xl shadow-rose-950/40 space-y-3">
+      <div className="glass-panel p-4 rounded-2xl border border-rose-500/40 shadow-2xl space-y-3 shimmer-border" style={{ boxShadow: '0 0 40px rgba(244, 63, 94, 0.12), 0 20px 40px rgba(0,0,0,0.4)' }}>
         
         {/* Header Alert Bar */}
         <div className="flex items-center justify-between pb-2 border-b border-slate-800">
@@ -163,7 +163,7 @@ export const NewsToastPopup: React.FC = () => {
         </div>
 
         {/* Short Summary */}
-        <p className="text-[11px] text-slate-300 leading-relaxed bg-dark-800/80 p-2.5 rounded-lg border border-slate-800/80">
+        <p className="text-[11px] text-slate-300 leading-relaxed glass-panel p-2.5 rounded-lg border border-slate-800/40">
           {stripHtmlTags(currentNews.summary)}
         </p>
 
@@ -174,7 +174,7 @@ export const NewsToastPopup: React.FC = () => {
               setActiveModule('NEWS');
               handleClose();
             }}
-            className="text-trade-cyan hover:underline font-bold flex items-center gap-1 bg-trade-cyan/10 border border-trade-cyan/30 px-2.5 py-1 rounded-lg transition"
+            className="text-trade-cyan hover:underline font-bold flex items-center gap-1 bg-trade-cyan/10 border border-trade-cyan/25 px-2.5 py-1 rounded-lg transition-all duration-200 btn-premium"
           >
             <Brain className="w-3.5 h-3.5" /> Full AI Dossier <ChevronRight className="w-3.5 h-3.5" />
           </button>

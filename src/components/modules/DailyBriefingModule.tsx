@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTradeOS } from '../../context/TradeOSContext';
 import { 
   FileText, 
@@ -26,16 +26,23 @@ export const DailyBriefingModule: React.FC = () => {
     });
   }, [briefingType]);
 
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.from('.module-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+    }
+  }, []);
+
   return (
     <div className="p-4 font-mono space-y-4 max-w-5xl mx-auto">
       {/* Top Banner */}
-      <div className="glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-dark-900 via-dark-800 to-slate-900">
+      <div className="module-card glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-dark-900 via-dark-800 to-slate-900">
         <div className="flex items-center space-x-3">
           <div className="p-3 rounded-lg bg-amber-950 border border-amber-500/50 text-amber-400">
             <FileText className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-white flex items-center gap-2">
+            <h1 className="text-base font-bold font-display text-gradient-cyan flex items-center gap-2">
               AI Morning Briefing & End-of-Day Performance Report
               <span className="text-[10px] bg-amber-950 text-amber-300 border border-amber-800 px-2 py-0.5 rounded font-bold">
                 AUTOMATED BRIEFINGS
@@ -51,20 +58,20 @@ export const DailyBriefingModule: React.FC = () => {
         <div className="flex items-center space-x-2 text-xs">
           <button
             onClick={() => setBriefingType('MORNING')}
-            className={`px-4 py-2 rounded-lg font-bold flex items-center gap-1.5 transition ${
+            className={`btn-premium px-4 py-2 rounded-lg font-bold flex items-center gap-1.5 transition ${
               briefingType === 'MORNING'
                 ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20'
-                : 'bg-dark-800 text-slate-400 hover:text-white border border-slate-800'
+                : 'glass-panel text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
             <Sun className="w-4 h-4" /> Morning Market Briefing
           </button>
           <button
             onClick={() => setBriefingType('EOD')}
-            className={`px-4 py-2 rounded-lg font-bold flex items-center gap-1.5 transition ${
+            className={`btn-premium px-4 py-2 rounded-lg font-bold flex items-center gap-1.5 transition ${
               briefingType === 'EOD'
                 ? 'bg-trade-accent text-white shadow-lg shadow-trade-accent/20'
-                : 'bg-dark-800 text-slate-400 hover:text-white border border-slate-800'
+                : 'glass-panel text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
             <Moon className="w-4 h-4" /> End-of-Day Report
@@ -74,37 +81,37 @@ export const DailyBriefingModule: React.FC = () => {
 
       {briefingType === 'MORNING' ? (
         /* MORNING BRIEFING DOCUMENT */
-        <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+        <div className="module-card glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
           <div className="flex items-center justify-between pb-4 border-b border-slate-800">
             <div>
               <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">INSTITUTIONAL MORNING CHECKLIST</span>
-              <h2 className="text-lg font-extrabold text-white">Daily Pre-Market Trading Dossier — July 21, 2026</h2>
+              <h2 className="text-lg font-extrabold font-display text-gradient-cyan">Daily Pre-Market Trading Dossier — July 21, 2026</h2>
             </div>
-            <button className="px-3 py-1.5 bg-dark-800 hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-lg border border-slate-700 flex items-center gap-1.5">
+            <button className="btn-premium px-3 py-1.5 glass-panel hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-lg border border-slate-700 flex items-center gap-1.5">
               <Download className="w-3.5 h-3.5" /> Export PDF
             </button>
           </div>
 
           {/* Core Bias Summary */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
-            <div className="p-3.5 bg-dark-800/80 rounded-xl border border-slate-800">
+            <div className="p-3.5 glass-panel rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block font-bold uppercase">Overall Market Bias</span>
               <span className="text-sm font-extrabold text-amber-400">
-                {loading ? 'ANALYZING...' : (briefingData?.marketBias || 'CAUTIOUSLY BULLISH')}
+                {loading ? <div className="shimmer-skeleton h-4 w-32" /> : (briefingData?.marketBias || 'CAUTIOUSLY BULLISH')}
               </span>
               <p className="text-[10px] text-slate-400 mt-1">Dip buying favored after key speeches</p>
             </div>
-            <div className="p-3.5 bg-dark-800/80 rounded-xl border border-slate-800">
+            <div className="p-3.5 glass-panel rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block font-bold uppercase">Expected Volatility Index</span>
-              <span className="text-sm font-extrabold text-rose-400">
-                {loading ? 'ANALYZING...' : (briefingData?.volatilityIndex || 'EXTREME (VIX 19.4)')}
+              <span className="text-sm font-extrabold text-rose-400 tabular-nums">
+                {loading ? <div className="shimmer-skeleton h-4 w-32" /> : (briefingData?.volatilityIndex || 'EXTREME (VIX 19.4)')}
               </span>
               <p className="text-[10px] text-slate-400 mt-1">High whip-saw risk during session opens</p>
             </div>
-            <div className="p-3.5 bg-dark-800/80 rounded-xl border border-slate-800">
+            <div className="p-3.5 glass-panel rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block font-bold uppercase">Primary Catalyst</span>
               <span className="text-sm font-extrabold text-trade-cyan">
-                {loading ? 'ANALYZING...' : (briefingData?.primaryCatalyst || 'FED POWELL SPEECH & CPI')}
+                {loading ? <div className="shimmer-skeleton h-4 w-32" /> : (briefingData?.primaryCatalyst || 'FED POWELL SPEECH & CPI')}
               </span>
               <p className="text-[10px] text-slate-400 mt-1">Scheduled for today</p>
             </div>
@@ -122,7 +129,7 @@ export const DailyBriefingModule: React.FC = () => {
                 { task: 'Check Coinbase-to-Binance whale deposit stream ($983M inflow detected)', checked: false },
                 { task: 'Review Option Chain Max Pain at 24,500 for Nifty 50 expiry', checked: false }
               ]).map((item: any, idx: number) => (
-                <div key={idx} className="flex items-center space-x-3 p-2.5 bg-dark-800/50 rounded-lg border border-slate-800">
+                <div key={idx} className="flex items-center space-x-3 p-2.5 glass-panel rounded-lg border border-slate-800">
                   <input type="checkbox" defaultChecked={item.checked} className="w-4 h-4 rounded text-trade-cyan bg-slate-900 border-slate-700" />
                   <span className={`text-slate-200 ${item.checked ? 'line-through text-slate-400' : 'font-medium'}`}>{item.task}</span>
                 </div>
@@ -132,44 +139,44 @@ export const DailyBriefingModule: React.FC = () => {
         </div>
       ) : (
         /* END OF DAY REPORT */
-        <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+        <div className="module-card glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
           <div className="flex items-center justify-between pb-4 border-b border-slate-800">
             <div>
               <span className="text-[10px] text-trade-accent font-bold uppercase tracking-wider block">POST-SESSION PERFORMANCE REVIEW</span>
-              <h2 className="text-lg font-extrabold text-white">End-of-Day AI Performance Audit — July 21, 2026</h2>
+              <h2 className="text-lg font-extrabold font-display text-gradient-cyan">End-of-Day AI Performance Audit — July 21, 2026</h2>
             </div>
-            <button className="px-3 py-1.5 bg-dark-800 hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-lg border border-slate-700 flex items-center gap-1.5">
+            <button className="btn-premium px-3 py-1.5 glass-panel hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-lg border border-slate-700 flex items-center gap-1.5">
               <Download className="w-3.5 h-3.5" /> Export PDF
             </button>
           </div>
 
           {/* Performance Summary Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="p-3 bg-dark-800/80 rounded-xl border border-slate-800">
+            <div className="p-3 glass-panel rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block">Net Realized PnL</span>
-              <span className="text-lg font-extrabold text-trade-bull">{briefingData?.netPnl || '+$1,450.00'}</span>
+              <span className="text-lg font-extrabold text-trade-bull tabular-nums">{briefingData?.netPnl || '+$1,450.00'}</span>
             </div>
-            <div className="p-3 bg-dark-800/80 rounded-xl border border-slate-800">
+            <div className="p-3 glass-panel rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block">Win Rate</span>
-              <span className="text-lg font-extrabold text-trade-cyan">{briefingData?.winRate || '75.0% (3/4 Wins)'}</span>
+              <span className="text-lg font-extrabold text-trade-cyan tabular-nums">{briefingData?.winRate || '75.0% (3/4 Wins)'}</span>
             </div>
-            <div className="p-3 bg-dark-800/80 rounded-xl border border-slate-800">
+            <div className="p-3 glass-panel rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block">Psychology Score</span>
-              <span className="text-lg font-extrabold text-amber-400">{briefingData?.psychologyScore || '88 / 100'}</span>
+              <span className="text-lg font-extrabold text-amber-400 tabular-nums">{briefingData?.psychologyScore || '88 / 100'}</span>
             </div>
-            <div className="p-3 bg-dark-800/80 rounded-xl border border-slate-800">
+            <div className="p-3 glass-panel rounded-xl border border-slate-800">
               <span className="text-slate-500 text-[10px] block">News Discipline</span>
               <span className="text-lg font-extrabold text-trade-bull">EXCELLENT</span>
             </div>
           </div>
 
           {/* AI Coaching Lessons */}
-          <div className="p-4 bg-dark-800/80 rounded-xl border border-slate-800 space-y-2">
-            <h3 className="text-xs font-bold text-trade-cyan uppercase tracking-wider flex items-center gap-1.5">
+          <div className="p-4 glass-panel rounded-xl border border-slate-800 space-y-2">
+            <h3 className="text-xs font-bold font-display text-trade-cyan uppercase tracking-wider flex items-center gap-1.5">
               <Brain className="w-4 h-4 text-trade-cyan" /> End-of-Day AI Psychology & Strategy Takeaways
             </h3>
             <p className="text-xs text-slate-200 leading-relaxed font-sans">
-              {loading ? 'AI Swarm synthesizing performance logs...' : (briefingData?.aiTakeaways || 'Session overall was highly disciplined and profitable (+$1,450). Best trade was entering BankNifty dip following RBI liquidity news. Maintain zero entries within 15 mins of critical speeches.')}
+              {loading ? <div className="shimmer-skeleton h-4 w-full max-w-sm" /> : (briefingData?.aiTakeaways || 'Session overall was highly disciplined and profitable (+$1,450). Best trade was entering BankNifty dip following RBI liquidity news. Maintain zero entries within 15 mins of critical speeches.')}
             </p>
           </div>
         </div>

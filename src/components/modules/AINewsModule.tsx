@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTradeOS } from '../../context/TradeOSContext';
 import { MarketCategory, NewsEvent } from '../../types/tradeos';
 import { LiveTVStream } from '../LiveTVStream';
@@ -26,6 +26,13 @@ export const AINewsModule: React.FC = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'AI_RADAR' | 'LIVE_TV'>('AI_RADAR');
 
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.from('.module-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+    }
+  }, []);
+
   const activeEvent = newsEvents.find(e => e.id === selectedEventId) || newsEvents[0] || ({} as NewsEvent);
 
   const filteredEvents = newsEvents.filter(e => {
@@ -38,13 +45,13 @@ export const AINewsModule: React.FC = () => {
   return (
     <div className="p-4 font-mono space-y-4">
       {/* Top Banner: News Intelligence Status */}
-      <div className="glass-panel p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-dark-800 via-dark-900 to-slate-900">
+      <div className="glass-panel module-card p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-dark-800 via-dark-900 to-slate-900">
         <div className="flex items-center space-x-3">
           <div className="p-3 rounded-lg bg-trade-cyan/10 border border-trade-cyan/30 text-trade-cyan">
             <Brain className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-white flex items-center gap-2">
+            <h1 className="font-display text-base font-bold text-white flex items-center gap-2">
               AI Event Processing & Market Impact Engine
               <span className="text-[10px] bg-trade-bull/20 text-trade-bull border border-trade-bull/30 px-2 py-0.5 rounded font-bold">
                 REALTIME DEDUPED
@@ -58,7 +65,7 @@ export const AINewsModule: React.FC = () => {
 
         {/* Search & Mode Filter */}
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-          <div className="flex items-center space-x-1 bg-dark-800 p-1 rounded-lg border border-slate-800">
+          <div className="flex items-center space-x-1 glass-panel p-1 rounded-lg border border-slate-800">
             <button
               onClick={() => setViewMode('AI_RADAR')}
               className={`px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1.5 ${
@@ -69,7 +76,7 @@ export const AINewsModule: React.FC = () => {
             </button>
             <button
               onClick={() => setViewMode('LIVE_TV')}
-              className={`px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1.5 btn-premium ${
                 viewMode === 'LIVE_TV' ? 'bg-rose-600 text-white animate-pulse' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -85,7 +92,7 @@ export const AINewsModule: React.FC = () => {
                 placeholder="Search news, Powell, CPI..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-dark-800 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-trade-cyan"
+                className="w-full glass-panel border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-trade-cyan"
               />
             </div>
           )}
@@ -110,14 +117,14 @@ export const AINewsModule: React.FC = () => {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id as any)}
-                className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center space-x-1.5 shrink-0 ${
+                className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center space-x-1.5 shrink-0 glass-card-hover btn-premium ${
                   selectedCategory === cat.id
                     ? 'bg-trade-cyan text-black shadow-md'
-                    : 'bg-dark-800 text-slate-400 hover:text-white border border-slate-800'
+                    : 'glass-panel text-slate-400 hover:text-white border border-slate-800'
                 }`}
               >
                 <span>{cat.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono tabular-nums ${
                   selectedCategory === cat.id ? 'bg-black/20 text-black' : 'bg-slate-700/60 text-slate-300'
                 }`}>
                   {cat.count}
@@ -129,8 +136,8 @@ export const AINewsModule: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left Column: Event Cards List */}
           <div className="lg:col-span-5 space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-bold px-1">
-            <span>LIVE EVENT RADAR ({filteredEvents.length})</span>
+          <div className="flex items-center justify-between text-xs text-slate-400 font-bold px-1 module-card">
+            <span className="font-display">LIVE EVENT RADAR (<span className="tabular-nums">{filteredEvents.length}</span>)</span>
             <span className="text-slate-500 text-[10px]">Sorted by Importance</span>
           </div>
 
@@ -142,10 +149,12 @@ export const AINewsModule: React.FC = () => {
                 <div
                   key={event.id}
                   onClick={() => setSelectedEventId(event.id)}
-                  className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                  className={`p-3.5 rounded-xl border cursor-pointer transition-all module-card glass-card-hover ${
                     isSelected 
                       ? 'bg-slate-800/90 border-trade-cyan/60 shadow-lg shadow-trade-cyan/5' 
-                      : 'bg-dark-800/70 border-slate-800/80 hover:border-slate-700'
+                      : 'glass-panel border-slate-800/80 hover:border-slate-700'
+                  } ${
+                    event.sentiment === 'BEARISH' ? 'border-l-2 border-l-trade-bear' : event.sentiment === 'BULLISH' ? 'border-l-2 border-l-trade-bull' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -163,7 +172,7 @@ export const AINewsModule: React.FC = () => {
                     {/* Importance Score Badge */}
                     <div className="flex items-center space-x-1.5">
                       <span className="text-[10px] text-slate-500 font-bold">IMPACT</span>
-                      <span className={`text-xs font-extrabold px-1.5 py-0.5 rounded ${
+                      <span className={`text-xs font-extrabold px-1.5 py-0.5 rounded tabular-nums ${
                         event.importanceScore > 90 ? 'bg-rose-950 text-rose-400 border border-rose-800' : 'bg-trade-cyan/20 text-trade-cyan'
                       }`}>
                         {event.importanceScore}/100
@@ -171,7 +180,7 @@ export const AINewsModule: React.FC = () => {
                     </div>
                   </div>
 
-                  <h3 className="text-xs font-bold text-slate-100 mb-1.5 line-clamp-2 leading-relaxed">
+                  <h3 className="text-xs font-bold font-display text-slate-100 mb-1.5 line-clamp-2 leading-relaxed">
                     {event.headline}
                   </h3>
 
@@ -191,7 +200,7 @@ export const AINewsModule: React.FC = () => {
 
         {/* Right Column: Deep AI Event Inspector Dossier */}
         <div className="lg:col-span-7">
-          <div className="glass-panel p-5 rounded-xl border border-slate-800 space-y-4">
+          <div className="glass-panel module-card p-5 rounded-xl border border-slate-800 space-y-4">
             {/* Header section of dossier */}
             <div className="border-b border-slate-800/80 pb-4">
               <div className="flex items-center justify-between mb-2">
@@ -203,11 +212,11 @@ export const AINewsModule: React.FC = () => {
                 </div>
                 <div className="flex items-center space-x-2 text-xs">
                   <span className="text-slate-500">Confidence:</span>
-                  <span className="text-trade-bull font-bold">{activeEvent.confidencePercent}%</span>
+                  <span className="text-trade-bull font-bold tabular-nums">{activeEvent.confidencePercent}%</span>
                 </div>
               </div>
 
-              <h2 className="text-base font-bold text-white leading-snug mb-3">
+              <h2 className="font-display text-base font-bold text-white leading-snug mb-3">
                 {activeEvent.headline}
               </h2>
 
@@ -220,18 +229,18 @@ export const AINewsModule: React.FC = () => {
               )}
 
               {/* Metrics Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-dark-800/80 p-3 rounded-xl border border-slate-800">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs glass-panel p-3 rounded-xl border border-slate-800">
                 <div>
                   <span className="text-slate-500 text-[10px] block">Importance Score</span>
-                  <span className="text-base font-bold text-trade-warn">{activeEvent.importanceScore} / 100</span>
+                  <span className="text-base font-bold tabular-nums text-trade-warn">{activeEvent.importanceScore} / 100</span>
                 </div>
                 <div>
                   <span className="text-slate-500 text-[10px] block">Expected Volatility</span>
-                  <span className="text-base font-bold text-rose-400">{activeEvent.expectedVolatility}</span>
+                  <span className="text-base font-bold tabular-nums text-rose-400">{activeEvent.expectedVolatility}</span>
                 </div>
                 <div>
                   <span className="text-slate-500 text-[10px] block">Large Move Prob.</span>
-                  <span className="text-base font-bold text-trade-cyan">{activeEvent.probabilityLargeMove}%</span>
+                  <span className="text-base font-bold tabular-nums text-trade-cyan">{activeEvent.probabilityLargeMove}%</span>
                 </div>
                 <div>
                   <span className="text-slate-500 text-[10px] block">Effect Timeframe</span>
@@ -243,27 +252,27 @@ export const AINewsModule: React.FC = () => {
             {/* AI Explanation & Analysis */}
             <div className="space-y-3">
               <div>
-                <h4 className="text-xs font-bold text-trade-cyan uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <h4 className="font-display text-xs font-bold text-trade-cyan uppercase tracking-wider mb-1 flex items-center gap-1.5">
                   <Brain className="w-4 h-4 text-trade-cyan" /> AI Event Breakdown & Impact Reasoning
                 </h4>
-                <div className="bg-dark-800/50 p-3 rounded-lg border border-slate-800">
+                <div className="glass-panel p-3 rounded-lg border border-slate-800">
                   <FormattedAiText text={activeEvent.aiExplanation} />
                 </div>
               </div>
 
               {/* Historical Comparison */}
               <div>
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <h4 className="font-display text-xs font-bold text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
                   <History className="w-4 h-4 text-amber-400" /> Historical Event Similarity Analysis
                 </h4>
-                <div className="bg-dark-800/50 p-3 rounded-lg border border-slate-800">
+                <div className="glass-panel p-3 rounded-lg border border-slate-800">
                   <FormattedAiText text={activeEvent.historicalComparison} />
                 </div>
               </div>
 
               {/* Affected Markets */}
               <div>
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                <h4 className="font-display text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
                   Affected Markets & Tickers
                 </h4>
                 <div className="flex flex-wrap gap-2">
@@ -283,7 +292,7 @@ export const AINewsModule: React.FC = () => {
                 </div>
                 <button
                   onClick={() => setActiveModule('COPILOT')}
-                  className="px-4 py-2 bg-trade-cyan hover:bg-cyan-400 text-black font-bold text-xs rounded-lg transition shadow-md shadow-trade-cyan/20 flex items-center gap-1.5"
+                  className="px-4 py-2 btn-premium bg-trade-cyan hover:bg-cyan-400 text-black font-bold text-xs rounded-lg transition shadow-md shadow-trade-cyan/20 flex items-center gap-1.5"
                 >
                   <ShieldAlert className="w-4 h-4" /> Evaluate My Trade Safety
                 </button>

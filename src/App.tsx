@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect, useRef } from 'react';
 import { useTradeOS } from './context/TradeOSContext';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
@@ -20,20 +20,74 @@ const AIChatModule = React.lazy(() => import('./components/modules/AIChatModule'
 const SettingsModule = React.lazy(() => import('./components/modules/SettingsModule').then(m => ({ default: m.SettingsModule })));
 const ReplayModule = React.lazy(() => import('./components/modules/ReplayModule').then(m => ({ default: m.ReplayModule })));
 const LiveTVStream = React.lazy(() => import('./components/LiveTVStream').then(m => ({ default: m.LiveTVStream })));
+const GlobalMapModule = React.lazy(() => import('./components/modules/GlobalMapModule').then(m => ({ default: m.GlobalMapModule })));
 
-// Premium loading skeleton for lazy loaded modules
+// Premium shimmer loading skeleton for lazy loaded modules
 const ModuleLoader = () => (
   <div className="w-full h-full flex flex-col items-center justify-center min-h-[500px]">
-    <div className="bg-dark-800 p-8 rounded-2xl border border-slate-800 flex flex-col items-center shadow-xl">
-      <Loader2 className="w-10 h-10 text-trade-cyan animate-spin mb-4" />
-      <h3 className="text-white font-bold tracking-wide">Loading Intelligence Module...</h3>
-      <p className="text-xs text-slate-500 mt-2">Initializing AI Core</p>
+    <div className="glass-panel p-10 rounded-2xl border border-slate-800/60 flex flex-col items-center neon-glow-cyan">
+      <div className="relative mb-5">
+        <Loader2 className="w-10 h-10 text-trade-cyan animate-spin" />
+        <div className="absolute inset-0 w-10 h-10 rounded-full bg-trade-cyan/10 animate-ping" />
+      </div>
+      <h3 className="text-white font-display font-bold tracking-wide text-lg">Loading Module</h3>
+      <p className="text-xs text-slate-500 mt-2 font-mono">Initializing AI Core...</p>
+      <div className="mt-4 flex gap-1.5">
+        <div className="w-16 h-1.5 shimmer-skeleton rounded-full" />
+        <div className="w-10 h-1.5 shimmer-skeleton rounded-full" />
+        <div className="w-12 h-1.5 shimmer-skeleton rounded-full" />
+      </div>
     </div>
   </div>
 );
 
 export const App: React.FC = () => {
   const { activeModule } = useTradeOS();
+  const vantaRef = useRef<HTMLDivElement>(null);
+  const vantaEffect = useRef<any>(null);
+
+  // Initialize Vanta.js 3D animated wave background
+  useEffect(() => {
+    const initVanta = () => {
+      const VANTA = (window as any).VANTA;
+      if (VANTA && VANTA.WAVES && vantaRef.current && !vantaEffect.current) {
+        try {
+          vantaEffect.current = VANTA.WAVES({
+            el: vantaRef.current,
+            mouseControls: false,
+            touchControls: false,
+            gyroControls: false,
+            minHeight: 200,
+            minWidth: 200,
+            scale: 1.0,
+            scaleMobile: 1.0,
+            color: 0x070a12,
+            shininess: 15,
+            waveHeight: 12,
+            waveSpeed: 0.6,
+            zoom: 0.85,
+          });
+        } catch (e) {
+          console.warn('Vanta.js init skipped:', e);
+        }
+      }
+    };
+
+    // Vanta scripts are deferred, wait for them
+    if ((window as any).VANTA) {
+      initVanta();
+    } else {
+      const timer = setTimeout(initVanta, 1500);
+      return () => clearTimeout(timer);
+    }
+
+    return () => {
+      if (vantaEffect.current) {
+        vantaEffect.current.destroy();
+        vantaEffect.current = null;
+      }
+    };
+  }, []);
 
   const renderModule = () => {
     switch (activeModule) {
@@ -59,6 +113,8 @@ export const App: React.FC = () => {
         return <DailyBriefingModule />;
       case 'AI_CHAT':
         return <AIChatModule />;
+      case 'GLOBAL_MAP':
+        return <GlobalMapModule />;
       case 'SETTINGS':
         return <SettingsModule />;
       default:
@@ -68,20 +124,30 @@ export const App: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-[#07090E] text-slate-100 font-sans antialiased selection:bg-trade-cyan selection:text-black overflow-hidden">
-      <Header />
-      <div className="flex flex-1 overflow-hidden relative">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto pb-16 md:pb-0 bg-[#07090E] bg-gradient-to-br from-[#07090E] via-[#0B0E17] to-[#0E121E]">
-          <div key={activeModule} className="module-enter min-h-full">
-            <Suspense fallback={<ModuleLoader />}>
-              {renderModule()}
-            </Suspense>
-          </div>
-        </main>
+      {/* Vanta.js 3D Animated Wave Background */}
+      <div 
+        ref={vantaRef} 
+        className="fixed inset-0 z-0 pointer-events-none" 
+        style={{ opacity: 0.4 }}
+      />
+      
+      {/* App Content (above Vanta background) */}
+      <div className="relative z-10 h-screen flex flex-col">
+        <Header />
+        <div className="flex flex-1 overflow-hidden relative">
+          <Sidebar />
+          <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
+            <div key={activeModule} className="module-enter min-h-full">
+              <Suspense fallback={<ModuleLoader />}>
+                {renderModule()}
+              </Suspense>
+            </div>
+          </main>
+        </div>
+        <NewsToastPopup />
+        <UpdatePopup />
+        <RiskDisclaimerPopup />
       </div>
-      <NewsToastPopup />
-      <UpdatePopup />
-      <RiskDisclaimerPopup />
     </div>
   );
 };

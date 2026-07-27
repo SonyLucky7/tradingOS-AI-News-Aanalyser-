@@ -29,17 +29,17 @@ export const RiskDisclaimerPopup: React.FC = () => {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
-      <div className="glass-panel max-w-2xl w-full bg-dark-900 border border-red-500/30 rounded-2xl shadow-2xl shadow-red-900/20 overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-500">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-xl" style={{ animation: 'fadeIn 0.4s ease-out' }}>
+      <div className="glass-panel max-w-2xl w-full border border-red-500/20 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]" style={{ animation: 'moduleSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 0 60px rgba(239, 68, 68, 0.1), 0 20px 60px rgba(0,0,0,0.5)' }}>
         
         {/* Header */}
-        <div className="p-6 border-b border-red-500/20 bg-red-500/10 flex items-center gap-4">
-          <div className="p-3 bg-red-500/20 rounded-full">
+        <div className="p-6 border-b border-red-500/15 bg-gradient-to-r from-red-500/10 via-rose-500/5 to-transparent flex items-center gap-4">
+          <div className="p-3 bg-red-500/15 rounded-xl border border-red-500/20 neon-glow-bear">
             <ShieldAlert className="w-8 h-8 text-red-400" />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-white tracking-tight">CRITICAL RISK DISCLAIMER</h2>
-            <p className="text-red-400 font-medium">Please read carefully before using TradeOS AI</p>
+            <h2 className="text-2xl font-display font-extrabold text-white tracking-tight">CRITICAL RISK DISCLAIMER</h2>
+            <p className="text-red-400/80 font-medium text-sm">Please read carefully before using TradeOS AI</p>
           </div>
         </div>
 
@@ -48,7 +48,7 @@ export const RiskDisclaimerPopup: React.FC = () => {
           className="p-6 overflow-y-auto space-y-6 text-slate-300 leading-relaxed custom-scrollbar"
           onScroll={handleScroll}
         >
-          <div className="flex items-start gap-3 bg-dark-800/50 p-4 rounded-xl border border-white/5">
+          <div className="flex items-start gap-3 glass-panel p-4 rounded-xl border border-white/5">
             <AlertTriangle className="w-6 h-6 text-yellow-500 shrink-0 mt-1" />
             <p>
               <strong className="text-white block mb-1">Trading involves substantial risk of loss.</strong>
@@ -75,13 +75,13 @@ export const RiskDisclaimerPopup: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-white/10 bg-dark-800 flex justify-end">
+        <div className="p-6 border-t border-white/5 glass-panel flex justify-end">
           <button
             onClick={handleAccept}
             disabled={!scrolledToBottom}
-            className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all duration-300 ${
+            className={`flex items-center gap-2 px-8 py-3 rounded-xl font-display font-bold transition-all duration-300 ${
               scrolledToBottom 
-                ? 'bg-red-500 hover:bg-red-400 text-white shadow-lg shadow-red-500/25 cursor-pointer transform hover:scale-[1.02]' 
+                ? 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white shadow-lg shadow-red-500/25 cursor-pointer btn-premium' 
                 : 'bg-dark-700 text-slate-500 cursor-not-allowed'
             }`}
           >

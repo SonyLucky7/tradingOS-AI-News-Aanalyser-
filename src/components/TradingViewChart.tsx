@@ -119,6 +119,11 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
   // Dynamically load tv.js and initialize full TradingView Advanced Charting Widget
   useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.from('.module-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+    }
+
     if (isReplayMode) return;
 
     let isMounted = true;
@@ -207,10 +212,10 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
   };
 
   return (
-    <div ref={containerRef} className="w-full h-full min-h-[600px] sm:min-h-[700px] bg-[#131722] rounded-xl overflow-hidden border border-slate-800 relative flex flex-col font-mono select-none">
+    <div ref={containerRef} className="module-card w-full h-full min-h-[600px] sm:min-h-[700px] bg-[#131722] rounded-xl overflow-hidden border border-slate-800 relative flex flex-col font-mono select-none">
 
       {/* Timeframe & Chart Style Bar — TradingView-style slim top bar */}
-      <div className="bg-[#131722] border-b border-slate-800/80 px-2 py-1 flex items-center justify-between gap-1 text-xs shrink-0 z-10">
+      <div className="glass-panel border-b border-slate-800/80 px-2 py-1 flex items-center justify-between gap-1 text-xs shrink-0 z-10">
         {/* Left: Timeframe Quick Switcher */}
         <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar">
           {[
@@ -230,7 +235,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
             <button
               key={tf.val}
               onClick={() => setTimeframe(tf.val)}
-              className={`px-2 py-0.5 rounded font-bold transition whitespace-nowrap text-[11px] ${
+              className={`btn-premium px-2 py-0.5 rounded font-bold transition whitespace-nowrap text-[11px] ${
                 timeframe === tf.val
                   ? 'bg-trade-cyan text-black shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -247,7 +252,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
           <select
             value={chartStyle}
             onChange={(e) => setChartStyle(e.target.value)}
-            className="bg-dark-900 border border-slate-700/80 rounded px-1.5 py-0.5 text-[11px] font-bold text-slate-300 focus:outline-none focus:border-trade-cyan cursor-pointer"
+            className="glass-panel border border-slate-700/80 rounded px-1.5 py-0.5 text-[11px] font-bold text-slate-300 focus:outline-none focus:border-trade-cyan cursor-pointer"
             title="Switch Chart Type (Candles, Bars, Line, Heikin Ashi)"
           >
             <option value="1">🕯️ Candles</option>
@@ -260,7 +265,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
           <button
             onClick={() => setKey(k => k + 1)}
-            className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800/60 transition"
+            className="btn-premium text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800/60 transition"
             title="Refresh Chart"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -271,7 +276,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
               setIsReplayMode(!isReplayMode);
               if (!isReplayMode) setIsPaperTraderOpen(false);
             }}
-            className={`px-2 py-0.5 rounded text-[11px] font-bold border transition flex items-center gap-1 ${
+            className={`btn-premium px-2 py-0.5 rounded text-[11px] font-bold border transition flex items-center gap-1 ${
               isReplayMode
                 ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
                 : 'border-slate-700/50 text-slate-400 hover:text-trade-cyan hover:border-trade-cyan/40'
@@ -285,7 +290,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
           {!isReplayMode && (
             <button
               onClick={() => setIsPaperTraderOpen(!isPaperTraderOpen)}
-              className={`px-2 py-0.5 rounded text-[11px] font-bold border transition flex items-center gap-1 ${
+              className={`btn-premium px-2 py-0.5 rounded text-[11px] font-bold border transition flex items-center gap-1 ${
                 isPaperTraderOpen
                   ? 'bg-trade-cyan/20 border-trade-cyan/50 text-trade-cyan'
                   : 'border-slate-700/50 text-slate-400 hover:text-trade-bull hover:border-trade-bull/40'
@@ -299,7 +304,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
           <button
             onClick={handleFullscreen}
-            className="bg-trade-cyan/10 hover:bg-trade-cyan/20 border border-trade-cyan/40 text-trade-cyan p-1 rounded transition"
+            className="btn-premium bg-trade-cyan/10 hover:bg-trade-cyan/20 border border-trade-cyan/40 text-trade-cyan p-1 rounded transition"
             title="Toggle Fullscreen"
           >
             <Maximize2 className="w-3.5 h-3.5" />

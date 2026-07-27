@@ -55,22 +55,22 @@ export const LivePaperTrader: React.FC<LivePaperTraderProps> = ({ symbol }) => {
   };
 
   return (
-    <div className="w-full md:w-64 lg:w-72 bg-[#0B0E17] border-l border-slate-800/90 flex flex-col overflow-hidden h-full">
+    <div className="w-full md:w-64 lg:w-72 glass-panel border-l border-slate-800/40 flex flex-col overflow-hidden h-full">
       {/* Header */}
-      <div className="p-3 border-b border-slate-800/90 flex items-center space-x-2 bg-gradient-to-r from-[#090C14] to-[#0B0E17]">
-        <ShoppingCart className="w-4 h-4 text-trade-cyan" />
-        <h3 className="font-bold text-white text-sm tracking-wide font-mono">Live Paper Trading</h3>
+      <div className="p-3 border-b border-slate-800/40 flex items-center space-x-2 terminal-header">
+        <ShoppingCart className="w-4 h-4 text-trade-cyan drop-shadow-[0_0_4px_rgba(0,229,255,0.5)]" />
+        <h3 className="font-bold text-white text-sm tracking-wide font-display">Live Paper Trading</h3>
       </div>
 
       {/* Account Info */}
-      <div className="p-3 bg-dark-900 border-b border-slate-800/90 space-y-1.5 font-mono text-[11px]">
+      <div className="p-3 border-b border-slate-800/40 space-y-1.5 font-mono text-[11px]">
         <div className="flex justify-between text-slate-300">
           <span>Balance</span>
-          <span className="font-bold text-white">${account.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+          <span className="font-bold text-white tabular-nums">${account.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
         </div>
         <div className="flex justify-between text-slate-300">
           <span>Equity</span>
-          <span className={`font-bold ${account.equity >= account.balance ? 'text-trade-bull' : 'text-trade-bear'}`}>
+          <span className={`font-bold tabular-nums ${account.equity >= account.balance ? 'neon-text-bull' : 'neon-text-bear'}`}>
             ${account.equity.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         </div>
@@ -99,14 +99,14 @@ export const LivePaperTrader: React.FC<LivePaperTraderProps> = ({ symbol }) => {
           <button 
             onClick={handleBuy}
             disabled={currentPrice === 0}
-            className="bg-trade-bull/20 hover:bg-trade-bull/30 text-trade-bull border border-trade-bull/40 py-2 rounded font-bold text-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-trade-bull/15 hover:bg-trade-bull/25 text-trade-bull border border-trade-bull/30 py-2 rounded-lg font-bold text-xs btn-premium disabled:opacity-50 disabled:cursor-not-allowed neon-glow-bull"
           >
             BUY
           </button>
           <button 
             onClick={handleSell}
             disabled={currentPrice === 0}
-            className="bg-trade-bear/20 hover:bg-trade-bear/30 text-trade-bear border border-trade-bear/40 py-2 rounded font-bold text-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-trade-bear/15 hover:bg-trade-bear/25 text-trade-bear border border-trade-bear/30 py-2 rounded-lg font-bold text-xs btn-premium disabled:opacity-50 disabled:cursor-not-allowed neon-glow-bear"
           >
             SELL
           </button>
@@ -121,7 +121,7 @@ export const LivePaperTrader: React.FC<LivePaperTraderProps> = ({ symbol }) => {
         ) : (
           <div className="space-y-2">
             {account.positions.map(pos => (
-              <div key={pos.id} className="bg-dark-800 border border-slate-800 rounded p-2 text-[10px] font-mono">
+              <div key={pos.id} className="glass-panel border border-slate-800/40 rounded-xl p-2.5 text-[10px] font-mono glass-card-hover">
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="font-bold text-white flex items-center gap-1.5">
                     <span className={`w-1.5 h-1.5 rounded-full ${pos.type === 'LONG' ? 'bg-trade-bull' : 'bg-trade-bear'}`}></span>
@@ -135,7 +135,7 @@ export const LivePaperTrader: React.FC<LivePaperTraderProps> = ({ symbol }) => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">PnL</span>
-                  <span className={`font-bold ${pos.pnl && pos.pnl >= 0 ? 'text-trade-bull' : 'text-trade-bear'}`}>
+                  <span className={`font-bold tabular-nums ${pos.pnl && pos.pnl >= 0 ? 'neon-text-bull' : 'neon-text-bear'}`}>
                     ${(pos.pnl || 0).toFixed(2)}
                   </span>
                 </div>

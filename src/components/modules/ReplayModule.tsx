@@ -41,6 +41,13 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
     setAccount({ ...engine.getAccount() });
   }, [currentPrice]);
 
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.from('.module-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+    }
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -179,10 +186,10 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
   const progress = data.length > 0 ? Math.round((currentIdx / data.length) * 100) : 0;
 
   return (
-    <div className="flex h-full w-full bg-dark-900 text-white gap-4">
+    <div className="flex h-full w-full bg-dark-900 text-white gap-4 module-card">
       
       {/* Main Chart Area */}
-      <div className="flex-1 flex flex-col min-h-0 bg-dark-800 rounded-xl border border-slate-800 overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 glass-panel rounded-xl border border-slate-800 overflow-hidden module-card">
         
         {/* Replay Control Header */}
         <div className="bg-slate-900/50 p-3 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
@@ -234,13 +241,13 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
             <button 
               onClick={loadHistoricalData}
               disabled={isLoading}
-              className="bg-trade-cyan/20 hover:bg-trade-cyan/30 border border-trade-cyan/40 text-trade-cyan px-4 py-1 rounded text-sm font-bold transition flex items-center gap-2"
+              className="btn-premium bg-trade-cyan/20 hover:bg-trade-cyan/30 border border-trade-cyan/40 text-trade-cyan px-4 py-1 rounded text-sm font-bold transition flex items-center gap-2"
             >
-              {isLoading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading...</> : 'Load History'}
+              {isLoading ? <><div className="shimmer-skeleton h-3 w-16" /></> : 'Load History'}
             </button>
 
             {dataLoaded && (
-              <span className="text-[10px] text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded">
+              <span className="text-[10px] text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded tabular-nums">
                 {data.length} candles loaded • {progress}%
               </span>
             )}
@@ -307,20 +314,20 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
       </div>
 
       {/* Replay Trading Panel */}
-      <div className="w-72 shrink-0 flex flex-col bg-dark-800 rounded-xl border border-slate-800 overflow-hidden">
+      <div className="w-72 shrink-0 flex flex-col glass-panel rounded-xl border border-slate-800 overflow-hidden module-card">
         <div className="p-3 border-b border-slate-800">
-          <h3 className="text-sm font-bold flex items-center gap-2"><ShoppingCart className="w-4 h-4 text-trade-cyan" /> Chart Trader</h3>
+          <h3 className="text-sm font-bold flex items-center gap-2 font-display"><ShoppingCart className="w-4 h-4 text-trade-cyan" /> Chart Trader</h3>
         </div>
         
         {/* Account Info */}
         <div className="p-3 bg-slate-900/50 border-b border-slate-800">
           <div className="flex justify-between text-xs mb-1">
-            <span className="text-slate-400">Balance</span>
-            <span className="font-mono">${account.balance.toFixed(2)}</span>
+            <span className="text-slate-400 font-display">Balance</span>
+            <span className="font-mono tabular-nums">${account.balance.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-xs font-bold">
-            <span className="text-slate-300">Equity</span>
-            <span className={`font-mono ${account.equity >= account.balance ? 'text-emerald-400' : 'text-rose-400'}`}>
+            <span className="text-slate-300 font-display">Equity</span>
+            <span className={`font-mono tabular-nums ${account.equity >= account.balance ? 'text-emerald-400' : 'text-rose-400'}`}>
               ${account.equity.toFixed(2)}
             </span>
           </div>
@@ -329,8 +336,8 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
         {/* Order Entry */}
         <div className="p-3 border-b border-slate-800 space-y-2">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-slate-400">Price</span>
-            <span className="font-mono font-bold text-white">{currentPrice > 0 ? currentPrice.toFixed(2) : '---'}</span>
+            <span className="text-slate-400 font-display">Price</span>
+            <span className="font-mono font-bold text-white tabular-nums">{currentPrice > 0 ? currentPrice.toFixed(2) : '---'}</span>
           </div>
           
           <div>
@@ -344,10 +351,10 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
           </div>
 
           <div className="flex gap-2">
-            <button onClick={handleBuy} disabled={!isPlaying} className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-bold py-1.5 rounded text-xs transition">
+            <button onClick={handleBuy} disabled={!isPlaying} className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-bold py-1.5 rounded text-xs transition btn-premium">
               BUY
             </button>
-            <button onClick={handleSell} disabled={!isPlaying} className="flex-1 bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white font-bold py-1.5 rounded text-xs transition">
+            <button onClick={handleSell} disabled={!isPlaying} className="flex-1 bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white font-bold py-1.5 rounded text-xs transition btn-premium">
               SELL
             </button>
           </div>
@@ -356,7 +363,7 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
 
         {/* Open Positions */}
         <div className="flex-1 overflow-y-auto p-3">
-          <h4 className="text-[10px] font-bold text-slate-500 uppercase mb-2">Positions ({account.positions.length})</h4>
+          <h4 className="text-[10px] font-bold text-slate-500 uppercase mb-2 font-display">Positions ({account.positions.length})</h4>
           <div className="space-y-1.5">
             {account.positions.length === 0 ? (
               <p className="text-[10px] text-slate-600">No open positions.</p>
