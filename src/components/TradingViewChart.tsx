@@ -9,6 +9,7 @@ interface TradingViewChartProps {
 
 export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [timeframe, setTimeframe] = useState<string>('15');
   const [isReplayMode, setIsReplayMode] = useState<boolean>(false);
   const [isPaperTraderOpen, setIsPaperTraderOpen] = useState<boolean>(false);
   const [key, setKey] = useState(0);
@@ -136,7 +137,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
         new tv.widget({
           autosize: true,
           symbol: tvSymbol,
-          interval: '15',
+          interval: timeframe,
           timezone: 'Asia/Kolkata',
           theme: 'dark',
           style: '1',
@@ -194,7 +195,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
     return () => {
       isMounted = false;
     };
-  }, [tvSymbol, isReplayMode, key, containerId]);
+  }, [tvSymbol, timeframe, isReplayMode, key, containerId]);
 
   const handleFullscreen = () => {
     if (containerRef.current) {
@@ -209,8 +210,91 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
   return (
     <div ref={containerRef} className="w-full h-full min-h-[480px] sm:min-h-[580px] bg-[#07090E] rounded-xl overflow-hidden border border-slate-800 relative flex flex-col font-mono select-none">
 
-      {/* Chart Area — takes 100% height, no duplicate header bar */}
-      <div className="relative flex-1 w-full h-full flex">
+      {/* Timeframe Bar — TradingView-style slim bar */}
+      <div className="bg-[#0B0E17] border-b border-slate-800/60 px-2 py-1 flex items-center justify-between gap-1 text-xs shrink-0">
+        {/* Timeframe Quick Switcher */}
+        <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar">
+          {[
+            { label: '1', val: '1' },
+            { label: '3', val: '3' },
+            { label: '5', val: '5' },
+            { label: '10', val: '10' },
+            { label: '15', val: '15' },
+            { label: '30', val: '30' },
+            { label: '1H', val: '60' },
+            { label: '2H', val: '120' },
+            { label: '4H', val: '240' },
+            { label: '1D', val: 'D' },
+            { label: '1W', val: 'W' },
+            { label: '1M', val: 'M' },
+          ].map(tf => (
+            <button
+              key={tf.val}
+              onClick={() => setTimeframe(tf.val)}
+              className={`px-2 py-0.5 rounded font-bold transition whitespace-nowrap ${
+                timeframe === tf.val
+                  ? 'bg-trade-cyan text-black shadow-sm'
+                  : 'text-slate-500 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              {tf.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Right: Replay, Paper Trade, Fullscreen */}
+        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+          <button
+            onClick={() => setKey(k => k + 1)}
+            className="text-slate-500 hover:text-white p-1 rounded hover:bg-slate-800/60 transition"
+            title="Refresh Chart"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            onClick={() => {
+              setIsReplayMode(!isReplayMode);
+              if (!isReplayMode) setIsPaperTraderOpen(false);
+            }}
+            className={`px-2 py-0.5 rounded text-[11px] font-bold border transition flex items-center gap-1 ${
+              isReplayMode
+                ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
+                : 'border-slate-700/50 text-slate-400 hover:text-trade-cyan hover:border-trade-cyan/40'
+            }`}
+            title="Toggle Market Replay Simulator"
+          >
+            <Activity className="w-3 h-3" />
+            <span>{isReplayMode ? 'Live' : 'Replay'}</span>
+          </button>
+
+          {!isReplayMode && (
+            <button
+              onClick={() => setIsPaperTraderOpen(!isPaperTraderOpen)}
+              className={`px-2 py-0.5 rounded text-[11px] font-bold border transition flex items-center gap-1 ${
+                isPaperTraderOpen
+                  ? 'bg-trade-cyan/20 border-trade-cyan/50 text-trade-cyan'
+                  : 'border-slate-700/50 text-slate-400 hover:text-trade-bull hover:border-trade-bull/40'
+              }`}
+              title="Toggle Live Paper Trading"
+            >
+              <ShoppingCart className="w-3 h-3" />
+              <span>{isPaperTraderOpen ? 'Close' : 'Paper Trade'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleFullscreen}
+            className="bg-trade-cyan/10 hover:bg-trade-cyan/20 border border-trade-cyan/40 text-trade-cyan p-1 rounded transition"
+            title="Toggle Fullscreen"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Chart Area — takes 100% remaining height */}
+      <div className="relative flex-1 w-full h-full flex min-h-0">
         {isReplayMode ? (
           <ReplayModule defaultSymbol={symbol} />
         ) : (
@@ -218,7 +302,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
             <div className="flex-1 relative h-full">
               <div
                 id={containerId}
-                key={`tv-container-${tvSymbol}-${key}`}
+                key={`tv-container-${tvSymbol}-${timeframe}-${key}`}
                 className="w-full h-full absolute inset-0"
               />
             </div>
@@ -229,60 +313,6 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
             )}
           </>
         )}
-      </div>
-
-      {/* Floating Mini-Toolbar — only shows our custom buttons that TradingView doesn't have */}
-      <div className="absolute top-2 right-2 z-[10] flex items-center gap-1.5">
-        {/* Refresh Button */}
-        <button
-          onClick={() => setKey(k => k + 1)}
-          className="bg-dark-900/80 backdrop-blur-sm text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800/90 transition border border-slate-700/50"
-          title="Refresh Chart"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-        </button>
-
-        {/* Replay Mode Toggle */}
-        <button
-          onClick={() => {
-            setIsReplayMode(!isReplayMode);
-            if (!isReplayMode) setIsPaperTraderOpen(false);
-          }}
-          className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition flex items-center gap-1.5 backdrop-blur-sm ${
-            isReplayMode
-              ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
-              : 'bg-dark-900/80 border-slate-700/50 text-slate-300 hover:text-trade-cyan hover:border-trade-cyan/40'
-          }`}
-          title="Toggle Market Replay Simulator"
-        >
-          <Activity className="w-3.5 h-3.5" />
-          <span>{isReplayMode ? 'Live Mode' : 'Replay'}</span>
-        </button>
-
-        {/* Paper Trading Toggle */}
-        {!isReplayMode && (
-          <button
-            onClick={() => setIsPaperTraderOpen(!isPaperTraderOpen)}
-            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition flex items-center gap-1.5 backdrop-blur-sm ${
-              isPaperTraderOpen
-                ? 'bg-trade-cyan/20 border-trade-cyan/50 text-trade-cyan'
-                : 'bg-dark-900/80 border-slate-700/50 text-slate-300 hover:text-trade-bull hover:border-trade-bull/40'
-            }`}
-            title="Toggle Live Paper Trading"
-          >
-            <ShoppingCart className="w-3.5 h-3.5" />
-            <span>{isPaperTraderOpen ? 'Close' : 'Paper Trade'}</span>
-          </button>
-        )}
-
-        {/* Fullscreen Button */}
-        <button
-          onClick={handleFullscreen}
-          className="bg-trade-cyan/10 hover:bg-trade-cyan/20 border border-trade-cyan/40 text-trade-cyan p-1.5 rounded-lg transition font-bold backdrop-blur-sm"
-          title="Toggle Fullscreen Chart"
-        >
-          <Maximize2 className="w-3.5 h-3.5" />
-        </button>
       </div>
     </div>
   );
