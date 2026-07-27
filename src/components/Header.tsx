@@ -123,6 +123,17 @@ export const Header: React.FC = () => {
             <span className="text-[11px] font-semibold">Feed: 12ms Latency</span>
           </div>
 
+          <a
+            href="https://github.com/SonyLucky7/tradingOS-AI-News-Aanalyser-/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:flex items-center space-x-1.5 bg-trade-cyan/15 hover:bg-trade-cyan/25 px-2.5 py-1 rounded-lg border border-trade-cyan/40 text-trade-cyan font-bold transition text-[11px]"
+            title="Download TradeOS Desktop App (.exe) for 100% smooth Replay & zero CORS blocks"
+          >
+            <span>🖥️</span>
+            <span>Desktop App</span>
+          </a>
+
           <div className="flex items-center space-x-2 bg-gradient-to-r from-trade-accent/30 to-blue-900/30 px-3 py-1 rounded-lg border border-trade-accent/50 text-white font-semibold">
             <span className="w-2 h-2 rounded-full bg-trade-cyan"></span>
             <span className="text-xs">INSTITUTIONAL</span>
