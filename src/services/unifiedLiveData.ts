@@ -43,17 +43,54 @@ export function generateStableNewsId(prefix: string, headline: string, rawId?: a
 
 // 1. Fetch Real-time Quotes from Yahoo Finance CORS Proxy for NSE, Commodities & Indices
 export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpdate | null> {
+  const rawSym = symbol.toUpperCase().trim();
+  const cleanSym = rawSym
+    .replace(/^(BSE|NSE|OANDA|TVC|FX|BINANCE|FOREXCOM|NASDAQ|COMEX|NYMEX|CBOT|CAPTRADER|CAPITALCOM|SPREADEX):/, '')
+    .replace(/\.NS$/, '')
+    .replace(/\.BO$/, '')
+    .replace(/=X$/, '')
+    .replace(/\.NYB$/, '');
+
   const yahooSymbolMap: Record<string, string> = {
     'NIFTY50': '^NSEI',
+    'NIFTY': '^NSEI',
+    'NIFTY1!': '^NSEI',
     'BANKNIFTY': '^NSEBANK',
+    'BANKNIFTY1!': '^NSEBANK',
+    'FINNIFTY': 'NIFTY_FIN_SERVICE.NS',
+    'FINNIFTY1!': 'NIFTY_FIN_SERVICE.NS',
+    'SENSEX': '^BSESN',
     'XAUUSD': 'GC=F',
+    'XAGUSD': 'SI=F',
     'USOIL': 'CL=F',
+    'UKOIL': 'BZ=F',
+    'NATGAS': 'NG=F',
     'DXY': 'DX-Y.NYB',
     'SPX': '^GSPC',
-    'EURUSD': 'EURUSD=X'
+    'NASDAQ': '^IXIC',
+    'DJI': '^DJI',
+    'AAPL': 'AAPL',
+    'MSFT': 'MSFT',
+    'TSLA': 'TSLA',
+    'NVDA': 'NVDA',
+    'AMZN': 'AMZN',
+    'GOOGL': 'GOOGL',
+    'META': 'META'
   };
 
-  const ySym = yahooSymbolMap[symbol] || symbol;
+  let ySym = yahooSymbolMap[cleanSym];
+  if (!ySym) {
+    const isForex = /^(EUR|GBP|USD|JPY|AUD|CAD|CHF|NZD|HKD|SGD|SEK|NOK|MXN|ZAR|CNY|INR){2}$/.test(cleanSym) || cleanSym.endsWith('USD');
+    const isUSStock = ['AAPL','MSFT','TSLA','NVDA','AMZN','GOOGL','META','AMD','INTC','NFLX','PYPL','BA','JPM','V','MA','DIS'].includes(cleanSym);
+
+    if (isForex) {
+      ySym = `${cleanSym}=X`;
+    } else if (isUSStock) {
+      ySym = cleanSym;
+    } else {
+      ySym = `${cleanSym}.NS`;
+    }
+  }
 
   try {
     const fetchWithFallback = async (url: string) => {

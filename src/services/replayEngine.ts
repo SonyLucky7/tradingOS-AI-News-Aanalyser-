@@ -103,12 +103,14 @@ const fetchYahooHistoricalData = async (
 ): Promise<ReplayCandle[]> => {
   try {
     const fetchWithFallback = async (url: string) => {
+      const query1Url = url.replace('query2.finance.yahoo.com', 'query1.finance.yahoo.com');
       const viteProxyUrl = url.replace('https://query2.finance.yahoo.com', '/api/yahoo');
       const proxies = [
-        url, // Try DIRECT connection first (works flawlessly in Electron desktop app since webSecurity is false)
-        viteProxyUrl, // Local Vite proxy (works perfectly in browser during 'npm run dev')
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        url, // Try DIRECT query2 connection first
+        query1Url, // Try DIRECT query1 connection
+        viteProxyUrl, // Local Vite proxy or Vercel Serverless proxy
         `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
         `https://thingproxy.freeboard.io/fetch/${url}`
       ];
       
@@ -128,24 +130,58 @@ const fetchYahooHistoricalData = async (
       throw new Error('All CORS proxies failed');
     };
 
+    // Clean up exchange prefixes (BSE:, NSE:, OANDA:, TVC:, FX:, BINANCE:, etc.) and suffixes (.NS, .BO, =X)
+    const rawSym = symbol.toUpperCase().trim();
+    const cleanSym = rawSym
+      .replace(/^(BSE|NSE|OANDA|TVC|FX|BINANCE|FOREXCOM|NASDAQ|COMEX|NYMEX|CBOT|CAPTRADER|CAPITALCOM|SPREADEX):/, '')
+      .replace(/\.NS$/, '')
+      .replace(/\.BO$/, '')
+      .replace(/=X$/, '')
+      .replace(/\.NYB$/, '');
+
     const yahooSymbolMap: Record<string, string> = {
       'NIFTY50': '^NSEI',
+      'NIFTY': '^NSEI',
+      'NIFTY1!': '^NSEI',
       'BANKNIFTY': '^NSEBANK',
+      'BANKNIFTY1!': '^NSEBANK',
+      'FINNIFTY': 'NIFTY_FIN_SERVICE.NS',
+      'FINNIFTY1!': 'NIFTY_FIN_SERVICE.NS',
+      'SENSEX': '^BSESN',
       'XAUUSD': 'GC=F',
+      'XAGUSD': 'SI=F',
       'USOIL': 'CL=F',
+      'UKOIL': 'BZ=F',
+      'NATGAS': 'NG=F',
       'DXY': 'DX-Y.NYB',
       'SPX': '^GSPC',
-      'EURUSD': 'EURUSD=X',
-      'GBPUSD': 'GBPUSD=X',
-      'USDJPY': 'USDJPY=X',
-      'RELIANCE': 'RELIANCE.NS',
-      'HDFCBANK': 'HDFCBANK.NS',
-      'TCS': 'TCS.NS',
+      'NASDAQ': '^IXIC',
+      'DJI': '^DJI',
       'AAPL': 'AAPL',
-      'TSLA': 'TSLA'
+      'MSFT': 'MSFT',
+      'TSLA': 'TSLA',
+      'NVDA': 'NVDA',
+      'AMZN': 'AMZN',
+      'GOOGL': 'GOOGL',
+      'META': 'META'
     };
 
-    const ySym = yahooSymbolMap[symbol] || (symbol.endsWith('USD') ? symbol + '=X' : symbol + '.NS');
+    let ySym = yahooSymbolMap[cleanSym];
+    if (!ySym) {
+      // 1. Check if Forex pair (e.g., EURUSD, GBPUSD, USDJPY, EURGBP, USDCAD, USDCHF, GBPJPY, AUDUSD, NZDUSD)
+      const isForex = /^(EUR|GBP|USD|JPY|AUD|CAD|CHF|NZD|HKD|SGD|SEK|NOK|MXN|ZAR|CNY|INR){2}$/.test(cleanSym) || cleanSym.endsWith('USD');
+      // 2. Check if known US Stock
+      const isUSStock = ['AAPL','MSFT','TSLA','NVDA','AMZN','GOOGL','META','AMD','INTC','NFLX','PYPL','BA','JPM','V','MA','DIS'].includes(cleanSym);
+
+      if (isForex) {
+        ySym = `${cleanSym}=X`;
+      } else if (isUSStock) {
+        ySym = cleanSym;
+      } else {
+        // Default Indian Stock
+        ySym = `${cleanSym}.NS`;
+      }
+    }
 
     // Yahoo intervals: 1m, 5m, 15m, 60m, 1d, 1wk, 1mo
     let is10m = false;
