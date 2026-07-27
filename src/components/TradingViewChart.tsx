@@ -19,9 +19,12 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
   // Comprehensive, institutional TradingView Symbol Mapper
   const getTradingViewSymbol = (sym: string): string => {
+    // Clean up Yahoo Finance suffixes if user types them manually
+    const cleanSym = sym.replace(/\.NS$/, '').replace(/\.BO$/, '').replace(/=X$/, '').replace(/\.NYB$/, '');
+
     // 1. Crypto Pairs
-    if (sym.endsWith('USDT') || sym.endsWith('BTC')) {
-      return `BINANCE:${sym}`;
+    if (cleanSym.endsWith('USDT') || cleanSym.endsWith('BTC')) {
+      return `BINANCE:${cleanSym}`;
     }
 
     // 2. NSE Indian Stocks & Indices
@@ -103,10 +106,10 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
       'GOOGL': 'NASDAQ:GOOGL',
       'META': 'NASDAQ:META'
     };
-    if (usMap[sym]) return usMap[sym];
+    if (usMap[cleanSym]) return usMap[cleanSym];
 
     // Default fallback
-    return `NSE:${sym}`;
+    return `NSE:${cleanSym}`;
   };
 
   const tvSymbol = getTradingViewSymbol(symbol);
@@ -135,8 +138,6 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
       backgroundColor: 'rgba(7, 9, 14, 1)',
       gridColor: 'rgba(255, 255, 255, 0.05)',
       hide_volume: '0',
-      show_countdown: '1',
-      countdown: '1',
     });
     return `https://s.tradingview.com/widgetembed/?${params.toString()}`;
   };
