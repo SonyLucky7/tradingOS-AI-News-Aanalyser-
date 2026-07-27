@@ -2,10 +2,47 @@ import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react
 import { createChart, IChartApi, ISeriesApi, Time, CandlestickSeries } from 'lightweight-charts';
 import { ReplayCandle } from '../services/replayEngine';
 
+export interface CandleColorTheme {
+  upColor: string;
+  downColor: string;
+  wickUpColor: string;
+  wickDownColor: string;
+  borderUpColor?: string;
+  borderDownColor?: string;
+}
+
+export const MONOCHROME_THEME: CandleColorTheme = {
+  upColor: '#ffffff',
+  downColor: '#000000',
+  wickUpColor: '#ffffff',
+  wickDownColor: '#ffffff',
+  borderUpColor: '#ffffff',
+  borderDownColor: '#ffffff',
+};
+
+export const CLASSIC_THEME: CandleColorTheme = {
+  upColor: '#10b981',
+  downColor: '#ef4444',
+  wickUpColor: '#10b981',
+  wickDownColor: '#ef4444',
+  borderUpColor: '#10b981',
+  borderDownColor: '#ef4444',
+};
+
+export const NEON_THEME: CandleColorTheme = {
+  upColor: '#00f0ff',
+  downColor: '#ff0055',
+  wickUpColor: '#00f0ff',
+  wickDownColor: '#ff0055',
+  borderUpColor: '#00f0ff',
+  borderDownColor: '#ff0055',
+};
+
 interface ReplayChartProps {
   data: ReplayCandle[];
   currentIdx: number;
   onPriceUpdate?: (price: number) => void;
+  candleColors?: CandleColorTheme;
 }
 
 export interface ReplayChartHandle {
@@ -13,10 +50,13 @@ export interface ReplayChartHandle {
   resetChart: (initialData: ReplayCandle[]) => void;
 }
 
-export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ data, currentIdx, onPriceUpdate }, ref) => {
+export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ data, currentIdx, onPriceUpdate, candleColors }, ref) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+
+  // Default to Monochrome B&W theme (White Bull / Black Bear) as requested by user
+  const colors = candleColors || MONOCHROME_THEME;
 
   // Initialize chart once on mount
   useEffect(() => {
@@ -46,11 +86,13 @@ export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ da
     });
 
     const candlestickSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#10b981',
-      downColor: '#ef4444',
-      borderVisible: false,
-      wickUpColor: '#10b981',
-      wickDownColor: '#ef4444',
+      upColor: colors.upColor,
+      downColor: colors.downColor,
+      borderVisible: true,
+      wickUpColor: colors.wickUpColor,
+      wickDownColor: colors.wickDownColor,
+      borderUpColor: colors.borderUpColor || colors.upColor,
+      borderDownColor: colors.borderDownColor || colors.downColor,
     });
 
     chartRef.current = chart;
@@ -63,6 +105,21 @@ export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ da
     };
   }, []);
 
+  // Apply color changes dynamically when candleColors prop changes
+  useEffect(() => {
+    if (seriesRef.current) {
+      seriesRef.current.applyOptions({
+        upColor: colors.upColor,
+        downColor: colors.downColor,
+        wickUpColor: colors.wickUpColor,
+        wickDownColor: colors.wickDownColor,
+        borderVisible: true,
+        borderUpColor: colors.borderUpColor || colors.upColor,
+        borderDownColor: colors.borderDownColor || colors.downColor,
+      });
+    }
+  }, [colors.upColor, colors.downColor, colors.wickUpColor, colors.wickDownColor, colors.borderUpColor, colors.borderDownColor]);
+
   // Load initial data whenever data array changes (e.g. after "Load History")
   useEffect(() => {
     if (seriesRef.current && data.length > 0 && currentIdx > 0) {
@@ -74,12 +131,11 @@ export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ da
         low: c.low,
         close: c.close,
       })));
-      // Auto-fit the visible range
       if (chartRef.current) {
         chartRef.current.timeScale().fitContent();
       }
     }
-  }, [data]); // Re-run when data array reference changes
+  }, [data]);
 
   useImperativeHandle(ref, () => ({
     updateCandle: (candle: ReplayCandle) => {
@@ -111,6 +167,6 @@ export const ReplayChart = forwardRef<ReplayChartHandle, ReplayChartProps>(({ da
   }));
 
   return (
-    <div ref={chartContainerRef} className="w-full h-full min-h-[500px]" />
+    <div ref={chartContainerRef} className="w-full h-full min-h-[550px]" />
   );
 });

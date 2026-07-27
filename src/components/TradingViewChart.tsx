@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Maximize2, RefreshCw, Activity, ShoppingCart } from 'lucide-react';
+import { Maximize2, RefreshCw, Activity, ShoppingCart, Sliders } from 'lucide-react';
 import { ReplayModule } from './modules/ReplayModule';
 import { LivePaperTrader } from './LivePaperTrader';
 
@@ -10,6 +10,7 @@ interface TradingViewChartProps {
 export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [timeframe, setTimeframe] = useState<string>('15');
+  const [chartStyle, setChartStyle] = useState<string>('1'); // '1' = Candles, '0' = Bars, '9' = Hollow Candles, '8' = Heikin Ashi, '2' = Line, '3' = Area
   const [isReplayMode, setIsReplayMode] = useState<boolean>(false);
   const [isPaperTraderOpen, setIsPaperTraderOpen] = useState<boolean>(false);
   const [key, setKey] = useState(0);
@@ -26,8 +27,6 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
     }
 
     // 2. NSE Indian Stocks & Indices
-    // Indices use continuous futures to bypass index licensing popups in embeds.
-    // Equity stocks use NSE:SYMBOL for full intraday (1m, 5m, 15m, 1h) data.
     const nseMap: Record<string, string> = {
       'NIFTY50': 'NSE:NIFTY1!',
       'NIFTY': 'NSE:NIFTY1!',
@@ -112,7 +111,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
     if (cleanSym.includes(':')) return cleanSym;
 
-    // Default fallback (NSE equity stocks have full intraday data)
+    // Default fallback
     return `NSE:${cleanSym}`;
   };
 
@@ -140,9 +139,9 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
           interval: timeframe,
           timezone: 'Asia/Kolkata',
           theme: 'dark',
-          style: '1',
+          style: chartStyle,
           locale: 'en',
-          toolbar_bg: '#07090E',
+          toolbar_bg: '#131722',
           enable_publishing: false,
           allow_symbol_change: true,
           container_id: containerId,
@@ -154,7 +153,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
           show_popup_button: true,
           popup_width: '1000',
           popup_height: '650',
-          backgroundColor: 'rgba(7, 9, 14, 1)',
+          backgroundColor: '#131722',
           gridColor: 'rgba(255, 255, 255, 0.05)',
           enabled_features: [
             'header_widget',
@@ -195,7 +194,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
     return () => {
       isMounted = false;
     };
-  }, [tvSymbol, timeframe, isReplayMode, key, containerId]);
+  }, [tvSymbol, timeframe, chartStyle, isReplayMode, key, containerId]);
 
   const handleFullscreen = () => {
     if (containerRef.current) {
@@ -208,19 +207,19 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
   };
 
   return (
-    <div ref={containerRef} className="w-full h-full min-h-[480px] sm:min-h-[580px] bg-[#07090E] rounded-xl overflow-hidden border border-slate-800 relative flex flex-col font-mono select-none">
+    <div ref={containerRef} className="w-full h-full min-h-[600px] sm:min-h-[700px] bg-[#131722] rounded-xl overflow-hidden border border-slate-800 relative flex flex-col font-mono select-none">
 
-      {/* Timeframe Bar — TradingView-style slim bar */}
-      <div className="bg-[#0B0E17] border-b border-slate-800/60 px-2 py-1 flex items-center justify-between gap-1 text-xs shrink-0">
-        {/* Timeframe Quick Switcher */}
+      {/* Timeframe & Chart Style Bar — TradingView-style slim top bar */}
+      <div className="bg-[#131722] border-b border-slate-800/80 px-2 py-1 flex items-center justify-between gap-1 text-xs shrink-0 z-10">
+        {/* Left: Timeframe Quick Switcher */}
         <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar">
           {[
-            { label: '1', val: '1' },
-            { label: '3', val: '3' },
-            { label: '5', val: '5' },
-            { label: '10', val: '10' },
-            { label: '15', val: '15' },
-            { label: '30', val: '30' },
+            { label: '1m', val: '1' },
+            { label: '3m', val: '3' },
+            { label: '5m', val: '5' },
+            { label: '10m', val: '10' },
+            { label: '15m', val: '15' },
+            { label: '30m', val: '30' },
             { label: '1H', val: '60' },
             { label: '2H', val: '120' },
             { label: '4H', val: '240' },
@@ -231,10 +230,10 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
             <button
               key={tf.val}
               onClick={() => setTimeframe(tf.val)}
-              className={`px-2 py-0.5 rounded font-bold transition whitespace-nowrap ${
+              className={`px-2 py-0.5 rounded font-bold transition whitespace-nowrap text-[11px] ${
                 timeframe === tf.val
                   ? 'bg-trade-cyan text-black shadow-sm'
-                  : 'text-slate-500 hover:text-white hover:bg-slate-800/60'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
               }`}
             >
               {tf.label}
@@ -242,11 +241,26 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
           ))}
         </div>
 
-        {/* Right: Replay, Paper Trade, Fullscreen */}
+        {/* Right: Chart Style Selector, Replay, Paper Trade, Fullscreen */}
         <div className="flex items-center gap-1.5 shrink-0 ml-2">
+          {/* Chart Style Switcher (Candles, Bars, Hollow Candles, Heikin Ashi, Line, Area) */}
+          <select
+            value={chartStyle}
+            onChange={(e) => setChartStyle(e.target.value)}
+            className="bg-dark-900 border border-slate-700/80 rounded px-1.5 py-0.5 text-[11px] font-bold text-slate-300 focus:outline-none focus:border-trade-cyan cursor-pointer"
+            title="Switch Chart Type (Candles, Bars, Line, Heikin Ashi)"
+          >
+            <option value="1">🕯️ Candles</option>
+            <option value="0">📊 Bars</option>
+            <option value="9">🕯️ Hollow</option>
+            <option value="8">📈 Heikin Ashi</option>
+            <option value="2">📉 Line</option>
+            <option value="3">⛰️ Area</option>
+          </select>
+
           <button
             onClick={() => setKey(k => k + 1)}
-            className="text-slate-500 hover:text-white p-1 rounded hover:bg-slate-800/60 transition"
+            className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800/60 transition"
             title="Refresh Chart"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -293,16 +307,16 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
         </div>
       </div>
 
-      {/* Chart Area — takes 100% remaining height */}
-      <div className="relative flex-1 w-full h-full flex min-h-0">
+      {/* Chart Area — 100% height without empty gaps */}
+      <div className="relative flex-1 w-full h-full flex min-h-[560px] sm:min-h-[660px]">
         {isReplayMode ? (
           <ReplayModule defaultSymbol={symbol} />
         ) : (
           <>
-            <div className="flex-1 relative h-full">
+            <div className="flex-1 relative w-full h-full">
               <div
                 id={containerId}
-                key={`tv-container-${tvSymbol}-${timeframe}-${key}`}
+                key={`tv-container-${tvSymbol}-${timeframe}-${chartStyle}-${key}`}
                 className="w-full h-full absolute inset-0"
               />
             </div>

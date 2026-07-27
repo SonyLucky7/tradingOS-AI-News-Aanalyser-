@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Play, Pause, Square, FastForward, Activity, AlertCircle, ShoppingCart, Loader2 } from 'lucide-react';
-import { ReplayChart, ReplayChartHandle } from '../ReplayChart';
+import { Play, Pause, Square, FastForward, Activity, AlertCircle, ShoppingCart, Loader2, Palette } from 'lucide-react';
+import { ReplayChart, ReplayChartHandle, MONOCHROME_THEME, CLASSIC_THEME, NEON_THEME, CandleColorTheme } from '../ReplayChart';
 import { fetchHistoricalData, ReplayTradingEngine, ReplayCandle, ReplayAccount } from '../../services/replayEngine';
 import { useTradeOS } from '../../context/TradeOSContext';
 
@@ -12,6 +12,7 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
   const { tickers } = useTradeOS();
   const [symbol, setSymbol] = useState(defaultSymbol);
   const [timeframe, setTimeframe] = useState('15m');
+  const [colorTheme, setColorTheme] = useState<'MONOCHROME' | 'CLASSIC' | 'NEON'>('MONOCHROME');
   const [data, setData] = useState<ReplayCandle[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -217,6 +218,18 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
               <option value="1h">1h</option>
               <option value="1D">1D</option>
             </select>
+
+            {/* Candle Color Theme Selector */}
+            <select 
+              value={colorTheme} 
+              onChange={e => setColorTheme(e.target.value as any)}
+              className="bg-dark-900 border border-slate-700 rounded px-2 py-1 text-sm text-slate-300 font-bold"
+              title="Change Candle Colors (Monochrome B&W, Green/Red, Cyan/Pink)"
+            >
+              <option value="MONOCHROME">🔲 Monochrome (B&W)</option>
+              <option value="CLASSIC">🟢🔴 Classic (Green/Red)</option>
+              <option value="NEON">🩵🩷 Neon (Cyan/Pink)</option>
+            </select>
             
             <button 
               onClick={loadHistoricalData}
@@ -280,7 +293,15 @@ export const ReplayModule: React.FC<ReplayModuleProps> = ({ defaultSymbol = 'NIF
               <p className="text-xs mt-2 text-slate-600">Try: BTCUSDT • ETHUSDT • EURUSD • NIFTY50 • RELIANCE</p>
             </div>
           ) : (
-            <ReplayChart ref={chartRef} data={data} currentIdx={currentIdx} />
+            <ReplayChart 
+              ref={chartRef} 
+              data={data} 
+              currentIdx={currentIdx} 
+              candleColors={
+                colorTheme === 'MONOCHROME' ? MONOCHROME_THEME :
+                colorTheme === 'NEON' ? NEON_THEME : CLASSIC_THEME
+              }
+            />
           )}
         </div>
       </div>
