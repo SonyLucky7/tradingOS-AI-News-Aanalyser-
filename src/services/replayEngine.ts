@@ -103,28 +103,41 @@ const fetchYahooHistoricalData = async (
 ): Promise<ReplayCandle[]> => {
   try {
     const fetchWithFallback = async (url: string) => {
-      const query1Url = url.replace('query2.finance.yahoo.com', 'query1.finance.yahoo.com');
       const viteProxyUrl = url.replace('https://query2.finance.yahoo.com', '/api/yahoo');
+      const query1Url = url.replace('query2.finance.yahoo.com', 'query1.finance.yahoo.com');
+      
+      // Priority order:
+      // 1. Vite dev proxy / Vercel serverless proxy (works in browser)
+      // 2. Direct query2 (works in Electron desktop app where webSecurity=false)
+      // 3. Direct query1 (fallback Yahoo endpoint)
+      // 4. Public CORS proxies (last resort)
       const proxies = [
-        url, // Try DIRECT query2 connection first
-        query1Url, // Try DIRECT query1 connection
-        viteProxyUrl, // Local Vite proxy or Vercel Serverless proxy
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-        `https://thingproxy.freeboard.io/fetch/${url}`
+        { url: viteProxyUrl, headers: {} },
+        { url: url, headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } },
+        { url: query1Url, headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } },
+        { url: `https://thingproxy.freeboard.io/fetch/${url}`, headers: {} },
       ];
       
       for (const proxy of proxies) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
           
-          const res = await fetch(proxy, { signal: controller.signal });
+          const res = await fetch(proxy.url, { 
+            signal: controller.signal,
+            headers: proxy.headers
+          });
           clearTimeout(timeoutId);
           
-          if (res.ok) return await res.json();
+          if (res.ok) {
+            const text = await res.text();
+            // Guard against non-JSON responses from bad proxies (HTML error pages)
+            if (text.startsWith('{') || text.startsWith('[')) {
+              return JSON.parse(text);
+            }
+          }
         } catch (e) {
-          console.warn(`Proxy failed: ${proxy}`);
+          console.warn(`Proxy failed: ${proxy.url}`);
         }
       }
       throw new Error('All CORS proxies failed');

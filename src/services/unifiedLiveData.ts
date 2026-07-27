@@ -95,22 +95,27 @@ export async function fetchLiveYahooQuote(symbol: string): Promise<LiveMarketUpd
   try {
     const fetchWithFallback = async (url: string) => {
       const viteProxyUrl = url.replace('https://query2.finance.yahoo.com', '/api/yahoo');
+      const query1Url = url.replace('query2.finance.yahoo.com', 'query1.finance.yahoo.com');
       const proxies = [
-        url, // Try DIRECT connection first
-        viteProxyUrl, // Local Vite proxy
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-        `https://thingproxy.freeboard.io/fetch/${url}`
+        { url: viteProxyUrl, headers: {} },
+        { url: url, headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } },
+        { url: query1Url, headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } },
+        { url: `https://thingproxy.freeboard.io/fetch/${url}`, headers: {} },
       ];
       for (const proxy of proxies) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
           
-          const res = await fetch(proxy, { signal: controller.signal });
+          const res = await fetch(proxy.url, { signal: controller.signal, headers: proxy.headers });
           clearTimeout(timeoutId);
           
-          if (res.ok) return await res.json();
+          if (res.ok) {
+            const text = await res.text();
+            if (text.startsWith('{') || text.startsWith('[')) {
+              return JSON.parse(text);
+            }
+          }
         } catch (e) {
           // ignore
         }
