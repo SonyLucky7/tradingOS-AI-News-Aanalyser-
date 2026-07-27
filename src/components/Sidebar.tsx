@@ -58,14 +58,7 @@ export const Sidebar: React.FC = () => {
     const gsap = (window as any).gsap;
     if (gsap && navListRef.current) {
       const items = navListRef.current.querySelectorAll('.nav-item');
-      gsap.from(items, {
-        x: -20,
-        opacity: 0,
-        duration: 0.4,
-        stagger: 0.04,
-        ease: 'power2.out',
-        delay: 0.2,
-      });
+      gsap.fromTo(items, { x: -20, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, stagger: 0.04, ease: 'power2.out', delay: 0.2, clearProps: 'all' });
     }
   }, []);
 

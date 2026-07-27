@@ -37,7 +37,7 @@ export const Header: React.FC = () => {
   useEffect(() => {
     const gsap = (window as any).gsap;
     if (gsap && headerRef.current) {
-      gsap.from(headerRef.current, { y: -20, opacity: 0, duration: 0.6, ease: 'power2.out' });
+      gsap.fromTo(headerRef.current, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out', clearProps: 'all' });
     }
   }, []);
 

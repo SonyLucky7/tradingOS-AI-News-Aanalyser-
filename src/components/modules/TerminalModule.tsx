@@ -36,7 +36,7 @@ export const TerminalModule: React.FC = () => {
   useEffect(() => {
     const gsap = (window as any).gsap;
     if (gsap) {
-      gsap.from('.terminal-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out', delay: 0.1 });
+      gsap.fromTo('.terminal-card', { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.06, ease: 'power2.out', delay: 0.1, clearProps: 'all' });
     }
   }, []);
 

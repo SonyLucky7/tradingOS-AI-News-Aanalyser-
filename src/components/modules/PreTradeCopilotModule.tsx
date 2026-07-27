@@ -41,7 +41,7 @@ export const PreTradeCopilotModule: React.FC = () => {
   useEffect(() => {
     const gsap = (window as any).gsap;
     if (gsap) {
-      gsap.from('.module-card', { y: 16, opacity: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+      gsap.fromTo('.module-card', { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.06, ease: 'power2.out', clearProps: 'all' });
     }
   }, []);
 
