@@ -28,39 +28,39 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
     }
 
     // 2. NSE Indian Stocks & Indices
-    // Note: TradingView blocks raw index tickers (NSE:NIFTY, NSE:BANKNIFTY) in third-party embeds due to NSE licensing rules.
-    // Using continuous futures (NSE:NIFTY1!, NSE:BANKNIFTY1!) or BSE equivalents (BSE:SENSEX, BSE:RELIANCE) bypasses this restriction completely.
+    // Indices use continuous futures (NSE:NIFTY1!, NSE:BANKNIFTY1!) to bypass index licensing popups.
+    // Equity stocks use NSE:SYMBOL for full intraday (1m, 5m, 15m, 1h) data.
     const nseMap: Record<string, string> = {
       'NIFTY50': 'NSE:NIFTY1!',
       'NIFTY': 'NSE:NIFTY1!',
       'BANKNIFTY': 'NSE:BANKNIFTY1!',
       'FINNIFTY': 'NSE:FINNIFTY1!',
       'SENSEX': 'BSE:SENSEX',
-      'LARSEN': 'BSE:LT',
-      'RELIANCE': 'BSE:RELIANCE',
-      'TCS': 'BSE:TCS',
-      'INFY': 'BSE:INFY',
-      'HDFCBANK': 'BSE:HDFCBANK',
-      'ICICIBANK': 'BSE:ICICIBANK',
-      'SBIN': 'BSE:SBIN',
-      'BHARTIARTL': 'BSE:BHARTIARTL',
-      'ITC': 'BSE:ITC',
-      'WIPRO': 'BSE:WIPRO',
-      'HCLTECH': 'BSE:HCLTECH',
-      'SUNPHARMA': 'BSE:SUNPHARMA',
-      'BAJFINANCE': 'BSE:BAJFINANCE',
-      'MARUTI': 'BSE:MARUTI',
-      'ADANIENT': 'BSE:ADANIENT',
-      'TATASTEEL': 'BSE:TATASTEEL',
-      'POWERGRID': 'BSE:POWERGRID',
-      'NTPC': 'BSE:NTPC',
-      'AXISBANK': 'BSE:AXISBANK',
-      'KOTAKBANK': 'BSE:KOTAKBANK',
-      'HINDUNILVR': 'BSE:HINDUNILVR',
-      'TATAMOTORS': 'BSE:TATAMOTORS',
-      'ASIANPAINT': 'BSE:ASIANPAINT',
-      'LTIM': 'BSE:LTIM',
-      'TITAN': 'BSE:TITAN'
+      'LARSEN': 'NSE:LT',
+      'RELIANCE': 'NSE:RELIANCE',
+      'TCS': 'NSE:TCS',
+      'INFY': 'NSE:INFY',
+      'HDFCBANK': 'NSE:HDFCBANK',
+      'ICICIBANK': 'NSE:ICICIBANK',
+      'SBIN': 'NSE:SBIN',
+      'BHARTIARTL': 'NSE:BHARTIARTL',
+      'ITC': 'NSE:ITC',
+      'WIPRO': 'NSE:WIPRO',
+      'HCLTECH': 'NSE:HCLTECH',
+      'SUNPHARMA': 'NSE:SUNPHARMA',
+      'BAJFINANCE': 'NSE:BAJFINANCE',
+      'MARUTI': 'NSE:MARUTI',
+      'ADANIENT': 'NSE:ADANIENT',
+      'TATASTEEL': 'NSE:TATASTEEL',
+      'POWERGRID': 'NSE:POWERGRID',
+      'NTPC': 'NSE:NTPC',
+      'AXISBANK': 'NSE:AXISBANK',
+      'KOTAKBANK': 'NSE:KOTAKBANK',
+      'HINDUNILVR': 'NSE:HINDUNILVR',
+      'TATAMOTORS': 'NSE:TATAMOTORS',
+      'ASIANPAINT': 'NSE:ASIANPAINT',
+      'LTIM': 'NSE:LTIM',
+      'TITAN': 'NSE:TITAN'
     };
     if (nseMap[cleanSym]) return nseMap[cleanSym];
 
@@ -114,8 +114,8 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({ symbol }) =>
 
     if (cleanSym.includes(':')) return cleanSym;
 
-    // Default fallback (BSE is unrestricted on third-party embeds)
-    return `BSE:${cleanSym}`;
+    // Default fallback (NSE equity stocks have full 1m, 5m, 15m, 1h intraday data)
+    return `NSE:${cleanSym}`;
   };
 
   const tvSymbol = getTradingViewSymbol(symbol);
