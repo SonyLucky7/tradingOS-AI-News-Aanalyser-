@@ -135,16 +135,19 @@ export const Header: React.FC = () => {
             <span className="text-[11px] font-semibold">Feed: 12ms</span>
           </div>
 
-          <a
-            href="https://github.com/SonyLucky7/tradingOS-AI-News-Aanalyser-/releases"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden md:flex items-center space-x-1.5 bg-gradient-to-r from-trade-cyan/15 to-trade-accent/15 hover:from-trade-cyan/25 hover:to-trade-accent/25 px-3 py-1.5 rounded-xl border border-trade-cyan/30 text-trade-cyan font-bold transition-all duration-200 text-[11px] btn-premium"
-            title="Download TradeOS Desktop App (.exe) for 100% smooth Replay & zero CORS blocks"
-          >
-            <span>🖥️</span>
-            <span>Desktop App</span>
-          </a>
+          {/* Desktop App Download Button - Hidden when running inside the Electron app itself */}
+          {!navigator.userAgent.toLowerCase().includes('electron') && (
+            <a
+              href="https://github.com/SonyLucky7/tradingOS-AI-News-Aanalyser-/releases"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:flex items-center space-x-1.5 bg-gradient-to-r from-trade-cyan/15 to-trade-accent/15 hover:from-trade-cyan/25 hover:to-trade-accent/25 px-3 py-1.5 rounded-xl border border-trade-cyan/30 text-trade-cyan font-bold transition-all duration-200 text-[11px] btn-premium"
+              title="Download TradeOS Desktop App (.exe) for 100% smooth Replay & zero CORS blocks"
+            >
+              <span>🖥️</span>
+              <span>Desktop App</span>
+            </a>
+          )}
 
           <div className="flex items-center space-x-2 bg-gradient-to-r from-trade-accent/20 to-blue-900/20 px-3 py-1.5 rounded-xl border border-trade-accent/30 text-white font-semibold glass-panel">
             <span className="w-2 h-2 rounded-full bg-trade-cyan animate-pulse"></span>

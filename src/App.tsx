@@ -6,6 +6,7 @@ import { TerminalModule } from './components/modules/TerminalModule';
 import { NewsToastPopup } from './components/NewsToastPopup';
 import { UpdatePopup } from './components/UpdatePopup';
 import { RiskDisclaimerPopup } from './components/RiskDisclaimerPopup';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Loader2 } from 'lucide-react';
 
 // Lazy load all secondary modules for massive performance & initial load time optimization
@@ -138,9 +139,11 @@ export const App: React.FC = () => {
           <Sidebar />
           <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
             <div key={activeModule} className="module-enter min-h-full">
-              <Suspense fallback={<ModuleLoader />}>
-                {renderModule()}
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<ModuleLoader />}>
+                  {renderModule()}
+                </Suspense>
+              </ErrorBoundary>
             </div>
           </main>
         </div>
