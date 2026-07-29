@@ -21,7 +21,6 @@ const AIChatModule = React.lazy(() => import('./components/modules/AIChatModule'
 const SettingsModule = React.lazy(() => import('./components/modules/SettingsModule').then(m => ({ default: m.SettingsModule })));
 const ReplayModule = React.lazy(() => import('./components/modules/ReplayModule').then(m => ({ default: m.ReplayModule })));
 const LiveTVStream = React.lazy(() => import('./components/LiveTVStream').then(m => ({ default: m.LiveTVStream })));
-const GlobalMapModule = React.lazy(() => import('./components/modules/GlobalMapModule').then(m => ({ default: m.GlobalMapModule })));
 
 // Premium shimmer loading skeleton for lazy loaded modules
 const ModuleLoader = () => (
@@ -114,8 +113,6 @@ export const App: React.FC = () => {
         return <DailyBriefingModule />;
       case 'AI_CHAT':
         return <AIChatModule />;
-      case 'GLOBAL_MAP':
-        return <GlobalMapModule />;
       case 'SETTINGS':
         return <SettingsModule />;
       default:

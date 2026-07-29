@@ -33,7 +33,6 @@ export const Sidebar: React.FC = () => {
     { id: 'CALENDAR', label: 'Economic Calendar', icon: CalendarDays, badge: '14m' },
     { id: 'DAILY_BRIEFING', label: 'Daily / EOD Briefing', icon: FileText, badge: null },
     { id: 'AI_CHAT', label: 'AI Command Center', icon: MessageSquareCode, badge: 'LIVE' },
-    { id: 'GLOBAL_MAP', label: 'Global Market Map', icon: Globe, badge: null },
     { id: 'SETTINGS', label: 'Settings & API Keys', icon: Settings, badge: null },
   ];
 
@@ -49,7 +48,6 @@ export const Sidebar: React.FC = () => {
     { id: 'CALENDAR', label: 'Calendar', icon: CalendarDays },
     { id: 'DAILY_BRIEFING', label: 'Briefing', icon: FileText },
     { id: 'AI_CHAT', label: 'AI Chat', icon: MessageSquareCode },
-    { id: 'GLOBAL_MAP', label: 'Map', icon: Globe },
     { id: 'SETTINGS', label: 'Settings', icon: Settings },
   ];
 
