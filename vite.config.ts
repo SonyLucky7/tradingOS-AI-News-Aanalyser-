@@ -22,8 +22,13 @@ export default defineConfig({
     }
   },
   build: {
-    minify: false,
-    chunkSizeWarningLimit: 3000,
+    chunkSizeWarningLimit: 700,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+      },
+    },
     sourcemap: false,
     rollupOptions: {
       output: {
