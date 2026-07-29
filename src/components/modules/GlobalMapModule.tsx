@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTradeOS } from '../../context/TradeOSContext';
 import { RiskMarker } from '../../types/tradeos';
+import Globe from 'react-globe.gl';
 import { 
   Globe2, 
   ShieldAlert, 
@@ -20,6 +21,17 @@ export const GlobalMapModule: React.FC = () => {
   const filteredMarkers = activeFilter === 'ALL'
     ? riskMarkers
     : riskMarkers.filter(m => m.category === activeFilter);
+
+  const globeEl = useRef<any>(null);
+
+  useEffect(() => {
+    if (globeEl.current) {
+      globeEl.current.controls().autoRotate = true;
+      globeEl.current.controls().autoRotateSpeed = 1;
+      // Start camera closer
+      globeEl.current.pointOfView({ lat: 20, lng: 0, altitude: 2.2 });
+    }
+  }, []);
 
   useEffect(() => {
     const gsap = (window as any).gsap;
@@ -74,58 +86,48 @@ export const GlobalMapModule: React.FC = () => {
             {/* World Map Grid Lines Overlay */}
             <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-30 pointer-events-none"></div>
 
-            {/* Simulated Vector World Map Outline */}
-            <div className="relative w-full h-[460px] rounded-lg border border-slate-800/80 bg-dark-900/60 p-4 flex items-center justify-center overflow-hidden">
-              <svg className="w-full h-full text-slate-800 opacity-60 pointer-events-none" viewBox="0 0 1000 500" fill="currentColor">
-                {/* Simplified Continent Paths */}
-                {/* North America */}
-                <path d="M 150 100 Q 250 80 320 160 Q 280 250 180 280 Q 100 200 150 100 Z" />
-                {/* South America */}
-                <path d="M 280 300 Q 350 320 320 440 Q 260 480 240 380 Z" />
-                {/* Europe & Africa */}
-                <path d="M 460 100 Q 560 90 580 180 Q 540 220 480 180 Z" />
-                <path d="M 480 220 Q 590 240 560 380 Q 480 420 450 300 Z" />
-                {/* Asia */}
-                <path d="M 600 80 Q 850 70 880 220 Q 750 300 620 220 Z" />
-                {/* Australia */}
-                <path d="M 780 340 Q 880 350 860 440 Q 760 450 780 340 Z" />
-              </svg>
-
-              {/* Positioned Marker Nodes */}
-              {filteredMarkers.map(m => {
-                // Map Lat/Lng to SVG Coordinate %
-                const x = ((m.lng + 180) / 360) * 100;
-                const y = ((90 - m.lat) / 180) * 100;
-                const isSelected = selectedMarker.id === m.id;
-
-                return (
-                  <div
-                    key={m.id}
-                    onClick={() => setSelectedMarker(m)}
-                    style={{ left: `${x}%`, top: `${y}%` }}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer group z-20"
-                  >
-                    <div className="relative flex items-center justify-center">
-                      <span className={`absolute w-8 h-8 rounded-full animate-ping opacity-75 ${
-                        m.severity === 'CRITICAL' ? 'bg-rose-500' : 'bg-amber-500'
-                      }`}></span>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 shadow-lg transition-transform animate-pulse group-hover:scale-125 ${
-                        isSelected ? 'bg-trade-cyan border-white scale-125 shadow-trade-cyan/50' : m.severity === 'CRITICAL' ? 'bg-rose-600 border-rose-300' : 'bg-amber-500 border-amber-200'
-                      }`}>
-                        <Radio className="w-3 h-3 text-black" />
+            {/* 3D WebGL Real World Globe */}
+            <div className="relative w-full h-[460px] rounded-lg border border-slate-800/80 bg-dark-900/60 flex items-center justify-center overflow-hidden cursor-move">
+              <Globe
+                ref={globeEl}
+                globeImageUrl="//unpkg.com/three-globe/example/img/earth-dark.jpg"
+                bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+                backgroundColor="rgba(0,0,0,0)"
+                width={800}
+                height={460}
+                pointsData={filteredMarkers}
+                pointLat="lat"
+                pointLng="lng"
+                pointColor={(d: any) => d.severity === 'CRITICAL' ? '#e11d48' : '#f59e0b'}
+                pointAltitude={0.05}
+                pointRadius={0.4}
+                ringsData={filteredMarkers}
+                ringLat="lat"
+                ringLng="lng"
+                ringColor={(d: any) => d.severity === 'CRITICAL' ? 'rgba(225, 29, 72, 0.9)' : 'rgba(245, 158, 11, 0.9)'}
+                ringMaxRadius={5}
+                ringPropagationSpeed={2}
+                ringRepeatPeriod={1000}
+                htmlElementsData={filteredMarkers}
+                htmlLat="lat"
+                htmlLng="lng"
+                htmlElement={(d: any) => {
+                  const el = document.createElement('div');
+                  const isSelected = selectedMarker.id === d.id;
+                  el.innerHTML = `
+                    <div class="relative flex flex-col items-center justify-center pointer-events-auto group" style="transform: translate(-50%, -50%);">
+                      <div class="w-4 h-4 rounded-full flex items-center justify-center border shadow-lg transition-transform group-hover:scale-125 cursor-pointer ${isSelected ? 'bg-trade-cyan border-white scale-125 shadow-trade-cyan/50' : d.severity === 'CRITICAL' ? 'bg-rose-600 border-rose-300' : 'bg-amber-500 border-amber-200'}">
+                        <div class="w-1.5 h-1.5 bg-black rounded-full"></div>
+                      </div>
+                      <div class="absolute top-5 bg-dark-900 border border-slate-700 text-[10px] px-2 py-0.5 rounded shadow-xl text-white whitespace-nowrap font-bold opacity-0 transition-opacity group-hover:opacity-100 z-50">
+                        ${d.title}
                       </div>
                     </div>
-
-                    {/* Hover Tooltip */}
-                    <div className="absolute left-1/2 bottom-7 -translate-x-1/2 hidden group-hover:flex flex-col items-center pointer-events-none z-30">
-                      <div className="bg-dark-900 border border-slate-700 text-[10px] px-2 py-1 rounded shadow-xl text-white whitespace-nowrap font-bold">
-                        {m.title}
-                      </div>
-                      <div className="w-2 h-2 bg-dark-900 border-r border-b border-slate-700 rotate-45 -mt-1"></div>
-                    </div>
-                  </div>
-                );
-              })}
+                  `;
+                  el.onclick = () => setSelectedMarker(d);
+                  return el;
+                }}
+              />
             </div>
 
             {/* Map Legend */}
