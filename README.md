@@ -35,11 +35,11 @@
 
 ### 4. 📺 Institutional Live TV Streams
 - Verified 24/7 direct YouTube embeds for:
-- **Bloomberg TV Live** (Global Business & Crypto Macro)
-- **Sky News Live** (Global Macro & UK)
-- **France 24 English** (Global Commodities & Oil)
-- **DW News Live** (European ECB & Trade)
-- **TV9 Telugu Live** & **NTV Telugu Live** (Telugu News & Indian Markets)
+  - **Bloomberg TV Live** (Global Business & Crypto Macro)
+  - **Sky News Live** (Global Macro & UK)
+  - **France 24 English** (Global Commodities & Oil)
+  - **DW News Live** (European ECB & Trade)
+  - **TV9 Telugu Live** & **NTV Telugu Live** (Telugu News & Indian Markets)
 - Backup stream switcher button for zero playback interruptions.
 
 ### 5. 🛡️ Institutional Intelligence Modules
