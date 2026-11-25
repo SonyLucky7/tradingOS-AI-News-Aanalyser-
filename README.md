@@ -1,120 +1,130 @@
 # ⚡ TradeOS AI — Institutional Trading Intelligence OS
 
+[![Sponsor SonyLucky7](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?style=for-the-badge&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/SonyLucky7)
+
 > **Know the Market Before the Market Moves**  
-> An institutional-grade real-time market intelligence desktop terminal & web app powered by multi-provider AI agents, live breaking news impact engines, real-time WebSocket feeds, option chain liquidity heatmaps, and embedded TradingView charts.
+> Real-time news, AI analysis, sentiment signals, option chain liquidity heatmaps, and embedded TradingView charts.  
+
+TradeOS AI is an institutional-grade trading intelligence platform that turns raw market-moving news into clear, actionable signals — for **Crypto, Forex, and Indian Stock Markets**.
+
+Monitor breaking news in real time, understand *why* it matters with AI, and act faster with sentiment analysis, smart alerts, and your own choice of AI models.
 
 ---
 
-## 🌟 Key Features
+## 🎥 Watch the walkthrough
 
-### 1. 📈 Multi-Asset Live Market Terminal (78+ Tickers)
-- **Asset Coverage**: 20 Crypto pairs, 25 NSE Indian Stocks & Indices (**priced in ₹ Rupees**), 15 Forex pairs, 8 Commodities, and 10 US Equities.
-- **Real-Time Data Engine**: Binance WebSocket streams for Crypto + live Yahoo Finance quotes for NSE, Commodities, & Forex.
-- **Market Hours Engine**: Live status tags (OPEN, CLOSED, WEEKEND) tailored for NSE India (Asia/Kolkata IST) and EST global markets.
-- **TradingView Controls**: Native Fullscreen toggles, technical indicators, and manual refresh controls.
-- **Starred-to-Top Watchlist**: Star any asset to float it to the top of your watchlist automatically.
+[![TradeOS AI — Product Walkthrough](https://img.youtube.com/vi/L6t1q3pE0wM/maxresdefault.jpg)](https://youtu.be/L6t1q3pE0wM)
 
-### 2. 🧠 Multi-Provider AI Intelligence Engine
-- **Pre-Configured Default Keys**: Works out-of-the-box using **Google Gemini 2.0 Flash** & **Groq Llama 3.1 70B**.
-- **7 Supported AI Providers**:
-  1. **Google Gemini** (Gemini 2.0 Flash — default)
-  2. **Groq Cloud** (Llama 3.1 70B — ultra-fast inference)
-  3. **OpenAI** (GPT-4o / GPT-4o-mini)
-  4. **Anthropic Claude** (Claude Sonnet 4 / Opus)
-  5. **Ollama Local** (Run Llama 3 / Mistral offline on your PC)
-  6. **Custom API** (Any OpenAI-compatible endpoint)
-  7. **Smart Local Engine** (Built-in rule engine, zero latency, guaranteed offline analysis)
-- **Automatic Fallback Chain**: Selected Provider → Gemini → Groq → Smart Local Engine (100% Uptime guaranteed).
+## ✨ Features
 
-### 3. 🚨 Real-Time Live Breaking News Toast Alerts
-- **Live Impact Flash**: Pops up automatically when breaking financial news arrives.
-- **Which Markets Affected**: Highlights exact impacted symbols (`BTCUSDT`, `NIFTY50`, `EURUSD`, `BANKNIFTY`, etc.).
-- **WHY it Moves the Market**: 2-3 sentence AI summary explaining cause and effect, directional impact (🟢 BULLISH / 🔴 BEARISH / 🟡 VOLATILE), and risk duration.
+### 📰 Real-Time News Intelligence
+- Live, streaming financial news from global sources — crypto, forex, equities & macro events.
+- Breaking news highlighted instantly with **impact scoring** (High / Medium / Low).
+- News categorized by market, sector, and asset — filter what matters to you.
 
-### 4. 📺 Institutional Live TV Streams
-- Verified 24/7 direct YouTube embeds for:
-  - **Bloomberg TV Live** (Global Business & Crypto Macro)
-  - **Sky News Live** (Global Macro & UK)
-  - **France 24 English** (Global Commodities & Oil)
-  - **DW News Live** (European ECB & Trade)
-  - **TV9 Telugu Live** & **NTV Telugu Live** (Telugu News & Indian Markets)
-- Backup stream switcher button for zero playback interruptions.
+### 🤖 AI-Powered Analysis (BYOAI — Bring Your Own AI)
+- Every headline is analyzed by AI for **market impact, direction, and trading relevance**.
+- Connect your own AI provider — **OpenAI, Claude, Gemini, Grok, Ollama, DeepSeek**, or any custom model.
+- Get plain-English explanations of *why* a news event could move the market.
 
-### 5. 🛡️ Institutional Intelligence Modules
-- **Pre-Trade Safety Co-Pilot**: Multi-agent entry score (1-100) checking whale inflows, funding rates, and news risk prior to entry.
-- **Stoploss Post-Mortem Investigator**: Forensic diagnostic determining whether an SL hit was a liquidity sweep/stop hunt or a real trend reversal.
-- **Option Chain & FII/DII Intelligence**: Put-Call Ratio (PCR), Max Pain anchor, Call/Put Open Interest (OI) buildup, and FII/DII cash flow tracking.
-- **Daily & EOD Briefings**: Automated Morning checklists and End-of-Day trade performance audits.
-- **Trading Journal with AI Psychology Coach**: Auto-logs trades, tracks trader emotions (FOMO, Revenge, Calm), and gives behavioral feedback.
+### 📊 Sentiment & Market Signals
+- Real-time **sentiment gauges** (Bullish / Bearish / Neutral) per asset and market.
+- Momentum and volatility indicators to time entries and exits.
+- Smart alerts for unusual volume, sentiment flips, and breaking events.
+
+### 📈 Option Chain & Liquidity Heatmaps
+- Visualize **option chain liquidity** — open interest, max pain, and PCR trends.
+- Heatmaps for sector rotation, institutional flows, and high-liquidity zones.
+
+### 📉 Embedded TradingView Charts
+- Full TradingView charting built in — **multi-timeframe, indicators, drawings**.
+- Sync charts with news events and AI signals for context-aware trading.
+
+### 🔔 Personalized Alerts & Watchlists
+- Custom watchlists for your symbols, sectors, and markets.
+- Alerts via **in-app, email, and Discord** — never miss a market-moving event.
 
 ---
 
-## 🚀 How to Install (For Clients)
+## ⚡ How It Works
 
-Welcome to TradeOS AI! Follow these simple steps to install the software on your Windows PC:
-
-1. **Download the Installer**: Download the official `TradeOS_AI_Setup_1.0.0.exe` file provided to you.
-2. **Run the Setup**: Double-click the downloaded `.exe` file.
-3. **Wait for Installation**: You will see the TradeOS AI splash screen appear briefly while the software silently installs in the background. No complicated wizard steps required!
-4. **Launch & Trade**: Once installed, TradeOS AI will automatically launch. You will also find a convenient **TradeOS AI** shortcut on your Desktop and in your Start Menu for future use.
+1. **Connect your AI** — add your API key for OpenAI, Claude, Gemini, Grok, or run local models via Ollama.
+2. **Set your markets** — choose Crypto, Forex, NSE/BSE, or all of them.
+3. **Watch the feed** — breaking news streams in with AI impact analysis.
+4. **Act on signals** — use sentiment, heatmaps, and charts to make informed decisions.
 
 ---
 
-## ⚙️ AI Configuration & Settings
+## 🛠 Tech Stack
 
-Go to **Settings & API Keys** in the sidebar to select your AI model:
-- **Default Out-of-the-Box**: Uses Google Gemini 2.0 Flash / Groq Llama 3.1 70B (Keys pre-configured).
-- **Custom API Keys**: Easily enter your own OpenAI (`sk-...`), Claude (`sk-ant-...`), or Gemini (`AIza...`) key.
-- **Ollama Local Setup**:
-  1. Download Ollama from [ollama.com](https://ollama.com/download)
-  2. Run: `ollama pull llama3`
-  3. Start server: `ollama serve`
-  4. Select **Ollama Local** in TradeOS Settings.
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React, Vite, TypeScript, Tailwind CSS, Framer Motion |
+| **Desktop** | Electron |
+| **Backend** | Node.js, Express |
+| **AI** | OpenAI, Claude, Gemini, Grok, DeepSeek, Ollama |
+| **Charts** | TradingView, Lightweight Charts |
+| **Data** | WebSockets, REST APIs, News APIs |
 
 ---
 
-## 📂 Project Structure
+## 🚀 Getting Started
 
-```
-tradingOS-AI-News-Aanalyser-/
-├── electron/                 # Electron main & preload scripts for Desktop App
-│   ├── main.cjs
-│   └── preload.cjs
-├── src/
-│   ├── components/
-│   │   ├── Header.tsx        # Top navigation, global dual-format IST clocks
-│   │   ├── Sidebar.tsx       # Module navigation panel
-│   │   ├── TradingViewChart.tsx # Embedded TradingView player with fullscreen & indicators
-│   │   ├── LiveTVStream.tsx  # Direct live stream embeds (Forex, Crypto, Telugu)
-│   │   ├── NewsToastPopup.tsx# Real-time breaking news flash alert toast
-│   │   └── modules/          # 10 Intelligence Modules (Terminal, News, Copilot, SL, Option Chain, Journal, etc.)
-│   ├── context/
-│   │   └── TradeOSContext.tsx # Central state management & WebSocket / Yahoo quote orchestration
-│   ├── services/
-│   │   ├── groqAI.ts         # Multi-provider AI service (Gemini, Groq, OpenAI, Claude, Ollama, Local)
-│   │   ├── unifiedLiveData.ts# Yahoo Finance quote proxy & Google RSS live news feed
-│   │   └── liveWebSocket.ts  # Binance WebSocket live crypto price engine
-│   ├── utils/
-│   │   └── marketHours.ts    # IST / EST market status detection engine
-│   └── App.tsx               # Main application routing container
-├── package.json              # Project scripts & Electron packager settings
-├── vite.config.ts            # Vite bundler configuration
-└── README.md                 # Documentation
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- An API key from your preferred AI provider (optional — demo mode included)
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/SonyLucky7/tradingOS-AI-News-Aanalyser-.git
+cd tradingOS-AI-News-Aanalyser-
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+
+# Build the desktop app
+npm run build
 ```
 
 ---
 
-## 🛡️ License & Disclaimer
+## 🗺 Roadmap
 
-*Disclaimer: TradeOS AI is designed for informational and institutional trading research purposes. Always apply strict risk management and position sizing rules before executing financial trades.*
+- [ ] **Mobile app** — iOS & Android companion
+- [ ] **Backtesting engine** — test strategies on historical news events
+- [ ] **Portfolio tracking** — sync holdings and get personalized signals
+- [ ] **AI trade journaling** — auto-log trades with AI performance review
+- [ ] **Community signals** — crowd-sourced sentiment from traders
 
 ---
 
-## 👨‍💻 Developer & Contact
+## 🤝 Contributing
 
-Built with ❤️ by **SonyLucky7**
+Contributions are welcome! Whether it's a bug fix, a new feature, or documentation improvements:
 
-- 💬 **Discord**: [karmaa_07](https://discord.com/users/karmaa_07)
-- 🐙 **GitHub**: [SonyLucky7](https://github.com/SonyLucky7)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-For feature requests, bug reports, or business inquiries — reach out on Discord!
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📬 Contact
+
+- 💬 **Discord:** Want to contribute, suggest a feature, or just talk trading? Come say hi — or reach out on Discord!
+
+## 💖 Sponsor
+
+If you find this project useful, consider [sponsoring me on GitHub](https://github.com/sponsors/SonyLucky7) — your support helps me keep building open-source tools.
